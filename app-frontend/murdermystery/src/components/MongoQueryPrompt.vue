@@ -94,7 +94,7 @@ export default {
       }
 
       axios
-        .get('http://localhost:3000/eval', {
+        .get('https://mmm-be-1020079043644.us-central1.run.app/eval', {
           params: {
             query: encodedQueryStr,
             language: 'mongosh' // Add the language query param

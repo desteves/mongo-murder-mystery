@@ -11,11 +11,11 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the rest of the application code to the working directory
-COPY dist ./dist
+COPY . .
 
 
 # Build the Vue.js app
-# RUN npm run build
+RUN npm run build
 
 # Install a simple server to serve the static files
 RUN npm install -g serve
