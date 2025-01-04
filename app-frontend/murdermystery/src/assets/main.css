@@ -1,0 +1,388 @@
+@import './base.css';
+
+/* Root Variables for Colors */
+:root {
+
+      --text-color: black;
+      --body-bg: rgb(255, 251, 244);
+      --nav-bg-color: rgb(255, 251, 244);
+
+      /* Spring Green */
+        --nav-active-bg-color: #00ed64;
+
+      /* Slate Blue */
+      /* --nav-active-bg-color: #001e2b; */
+
+      /* Forrest Green */
+      --header-color: #00684a;
+      --link-color: #00684a;
+
+      /* Evergreen */
+      --title-color: #023430;
+}
+
+/* Light and Dark Mode Styles */
+@media (prefers-color-scheme: dark) {
+  :root {
+
+    --text-color: white;
+    --title-color: white;
+
+
+    /* Spring Green */
+    --link-color: #00ed64;
+    --header-color: #00ed64;
+
+    /* Slate Blue */
+    --body-bg: #001e2b;
+
+    /* Forrest Green */
+    --nav-active-bg-color: #00684a;
+
+    /* Evergreen */
+    --nav-bg-color: #023430;
+  }
+}
+
+/* Global Styles */
+body {
+  background-color: var(--body-bg);
+  color: var(--text-color);
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  /* Base font size for body text */
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0 2rem;
+}
+
+b,
+strong {
+  font-weight: bold;
+}
+title {
+  color: var(--title-color);
+  font-size: 50px;
+  font-weight: bold;
+  display: block;
+  /* Ensure there's enough space above and below the title */
+  margin-top: 1em;
+  margin-bottom: 1em;
+  /* Add padding if necessary */
+  /* padding-top: 0.2em; */
+  /* Check if there's any overflow on the container */
+  /* overflow: visible; */
+  /* Adjust line-height if text is compressed */
+  line-height: 1.2;
+  /* If using CSS Reset or Normalize, ensure proper box sizing */
+  box-sizing: border-box;
+  /* Uncomment or modify as needed to fix specific layout issues */
+}
+
+subtitle {
+  color: var(--header-color);
+  font-size: 30px;
+
+}
+/* Header Styles */
+h1 {
+  font-size: 30px;
+  color: var(--header-color);
+  margin-bottom: 0.5em;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 23px;
+  /* Adjusted by dividing h1 size by 1.618 */
+  color: var(--header-color);
+  margin-bottom: 0.5em;
+}
+
+h3 {
+  font-size: 16px;
+  /* Same as body text */
+  color: var(--header-color);
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+/* Link Styles */
+a {
+  color: var(--link-color);
+  font-weight: bold;
+  /* text-decoration: underline; */
+  transition: 0.4s;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+/* Navigation Styles */
+nav {
+  width: 100%;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 2rem;
+  background-color: var(--nav-bg-color);
+  padding: 1rem 0;
+}
+
+nav a {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  color: var(--text-color);
+  border-left: 1px solid var(--header-color);
+  transition: background-color 0.3s ease;
+}
+
+nav a:first-of-type {
+  border: 0;
+}
+
+nav a.router-link-exact-active {
+  background-color: var(--nav-active-bg-color);
+  color: var(--header-color);
+}
+
+nav a:hover {
+  background-color: rgba(0, 122, 69, 0.1);
+  color: var(--link-color);
+}
+
+/* Image Styles */
+img {
+  display: block;
+  margin-top: 10px;
+  max-width: 100%;
+  transition: transform 0.3s ease;
+  cursor: zoom-in;
+}
+
+img.zoomed {
+  transform: scale(2);
+  cursor: zoom-out;
+}
+
+/* Responsive Image */
+.responsive-img {
+  width: 100%;
+  height: auto;
+}
+
+/* Header Layout Styles */
+header {
+  background-color: var(--body-bg);
+  max-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding-right: calc(var(--section-gap) / 2);
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 2rem;
+}
+
+
+@media (min-width: 1024px) {
+  .logo {
+    margin: 0 2rem 0 0;
+  }
+
+  nav {
+    text-align: left;
+    margin-left: -1rem;
+    font-size: 1rem;
+  }
+}
+/* MongoQuery Styles */
+.mongoqueryitem {
+  border: 1px solid #ccc;
+  padding: 16px;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--body-bg);
+  color: var(--text-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.query-textarea {
+  width: 100%;
+  height: calc(1em * 4 + 20px);
+  margin-top: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  line-height: 1.5;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #d8f0cfdf;
+  resize: none;
+  /* color: var(--header-color); */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+}
+
+.query-textarea:focus {
+  border-color: #33c24b;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 5px rgba(102, 175, 233, 0.5);
+  outline: none;
+}
+
+.query-result {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 3px;
+  border: 1px solid #1c873c;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+  /* Break long words for better readability */
+  overflow: auto;
+  max-height: 300px;
+  box-shadow: inset 0 1px 3px rgba(53, 231, 157, 0.1);
+}
+
+.query-result:hover {
+  border-color: #bbb;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1), 0 0 3px rgba(102, 175, 233, 0.1);
+}
+
+/* Prism.js Code Styling for Syntax Highlighting */
+.query-result pre {
+  margin: 0;
+  padding: 10px;
+  background-color: #2d2d2d;
+  color: #f8f8f2;
+  font-size: 13px;
+  line-height: 1.4;
+  border-radius: 3px;
+  overflow: auto;
+}
+
+/* Add horizontal scroll for code blocks */
+.query-result pre code {
+  display: block;
+  overflow-x: auto;
+  padding: 5px;
+}
+
+/* Customize scrollbar for better aesthetics */
+.query-result::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.query-result::-webkit-scrollbar-thumb {
+  background-color: #33c24b;
+  border-radius: 4px;
+}
+
+.query-result::-webkit-scrollbar-thumb:hover {
+  background-color: #28a745;
+}
+
+.query-result::-webkit-scrollbar-track {
+  background-color: #f8f9fa;
+}
+
+pre {
+  padding: 15px;
+  border-radius: 5px;
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.button-group {
+  margin-top: 16px;
+}
+
+button {
+  margin-right: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #266133;
+  font-weight: bold;
+  color: white;
+}
+
+button:hover {
+  background-color: #68ed4e;
+}
+
+/* Item and Details Styles */
+.item {
+  margin-top: 2rem;
+  display: flex;
+  position: relative;
+
+}
+
+.details {
+  flex: 1;
+  margin-left: 1rem;
+}
+
+i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--color-text);
+  border-radius: 8px;
+}
+
+@media (min-width: 1024px) {
+  .item {
+    margin-top: 1;
+    padding: 0.4rem 0 1rem calc(var(--section-gap) / 2);
+  }
+
+   .item:before,
+  .item:after {
+    content: ' ';
+    border-left: 4px solid var(--link-color);
+    position: absolute;
+    left: 0;
+  }
+
+
+  .item:before {
+    bottom: calc(50%);
+    height: calc(50%);
+  }
+
+  .item:after {
+    top: calc(50% );
+    height: calc(50%);
+  }
+
+}
