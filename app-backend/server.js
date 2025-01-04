@@ -1,15 +1,18 @@
-require('dotenv').config();
+// require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
 const { ObjectId } = require('mongodb'); // Import ObjectId
-const e = require('express');
 
 const app = express();
 app.use(express.json());
 
+const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://mongomurdermystery.com';
+
+
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow requests from this origin
+  origin: allowedOrigin, // Allow requests from this origin
+  methods: ['GET'],
 }));
 
 const PORT = 8080;
