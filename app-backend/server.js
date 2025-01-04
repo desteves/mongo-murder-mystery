@@ -12,7 +12,7 @@ app.use(cors({
   origin: 'http://localhost:5173', // Allow requests from this origin
 }));
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 const SALT = process.env.SALT || ''; // Salt for solution check
 const CLUE_CRIME = new ObjectId(process.env.CLUE_CRIME) || 'missing';
 const CLUE_WITNESS1 = process.env.CLUE_WITNESS1 || 'missing';
