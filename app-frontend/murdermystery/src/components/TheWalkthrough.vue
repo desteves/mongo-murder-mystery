@@ -411,7 +411,7 @@
     </h2>
     By now, you know enough MongoDB to identify the witnesses. Give it a try!
     <MongoQueryPrompt title="Write a query that identifies one of the witnessness."
-      subtitle="There's more than one way to do it, if you get the correct name, you'll see a congrulatory message. After you identified one of the witnesses, go ahead, update your query and identify the second witness. Ensure your results only return 1 document at a time and show the name field!" />
+      subtitle="There's more than one way to do it, if you get the correct name, you'll see a congratulatory message. After you identified one of the witnesses, go ahead, update your query and identify the second witness. Ensure your results only return 1 document at a time and show the name field!" />
     Feeling super duper stuck? <a @click="toggleHintTwo" class="boldlink">
       {{ hintTwoVisible ? 'Hide Hint' : 'Show Hint' }}
     </a>
@@ -462,7 +462,7 @@
       </div>
     </template>
     <MongoQueryPrompt title="Whodunnit?" subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you' ll see a
-      congrulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of
+      congratulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of
       your suspect.🔐 " preFilledText='db[" solution"].find({ "name" : "Jack" })' />
     Don't forget to <a class="boldlink" href="/about#social">brag</a> once you have solved the
     intriguing crime.

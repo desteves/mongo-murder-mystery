@@ -83,7 +83,7 @@
       </div>
     </template>
     <MongoQueryPrompt title="Whodunnit?"
-      subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you'll see a congrulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of your suspect.🔐 "
+      subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you'll see a congratulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of your suspect.🔐 "
       preFilledText='db["solution"].find({ "name": "Jack" })' />
     Don't forget to <a class="boldlink" href="/about#social">brag</a> once you have solved the
     intriguing crime.
