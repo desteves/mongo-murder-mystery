@@ -93,11 +93,15 @@ export default {
         return false;
       }
 
-      const apiUrl = import.meta.env.MMM_API_BASE_URL || '10.128.0.52';
+      const apiUrl = import.meta.env.MMM_API_BASE_URL;
       axios.get(`${apiUrl}/eval`, {
           params: {
             query: encodedQueryStr,
             language: 'mongosh' // Add the language query param
+          },
+          headers: {
+            'Accept': 'application/json', // Request JSON response
+
           }
         })
         .then(response => {
