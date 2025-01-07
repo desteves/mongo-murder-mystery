@@ -2,7 +2,7 @@
 // Global regexes for MongoDB query patterns
 const regexes = {
   getCollections: /^db\.getCollectionNames\(\);?$/, // e.g., db.getCollectionNames()
-  collName: /^db(\.\w+|\['\w+'\]|\["\w+"\])/, // e.g., db.<collName>
+  collName: /^db(\.\w+\.|\['\w+'\]|\["\w+"\])/, // e.g., db.<collName>.
   stringField: /['"]([^'"]+)['"]/, //  e.g., db.collection.distinct("<field>")
   findArgs: /^(\{[\s\S]*?\s*\})?\s*(,\s*(\{[\s\S]*?\s\}))?\s*\)?$/m,
   sol: /^\{\s*"name"\s*:\s*"(.*?)"\s*\}$/m,
@@ -19,23 +19,35 @@ function hasCollectionName(Q) {
 }
 
 function getCollectionName(Q) {
-  const match = Q.match(regexes.collName);
-  return cleanCollectionName(match[1]);
+  if (hasCollectionName(Q)) {
+    const match = Q.match(regexes.collName);
+    return cleanCollectionName(match[1]);
+  } else
+    return null;
 }
 
 function cleanCollectionName(collectionName) {
+
+  if (!collectionName) return null;
+
   if (collectionName.startsWith('[')) {
     collectionName = collectionName.slice(2, -2).replace(/^['"]|['"]$/g, '');
   } else if (collectionName.startsWith('.')) {
-    collectionName = collectionName.slice(1);
+    collectionName = collectionName.slice(1, -1); // remove the dots
   }
-  // console.log('cleanCollectionName: ', collectionName);
+  console.log('cleanCollectionName: ', collectionName);
   return collectionName;
+
 }
 
 function parseStringField(Q) {
-  const match = Q.match(regexes.stringField);
-  return match[1];
+  if (!regexes.stringField.test(Q)) {
+    return null;
+  } else {
+
+    const match = Q.match(regexes.stringField);
+    return match[1];
+  }
 }
 
 function isSolutionCheck(Q) {
@@ -43,8 +55,12 @@ function isSolutionCheck(Q) {
 }
 
 function parseSolutionCheck(Q) {
-  const match = Q.match(regexes.sol);
-  return match[1];
+  if (isSolutionCheck(Q)) {
+    const match = Q.match(regexes.sol);
+    return match[1];
+  } else {
+    return null;
+  }
 }
 
 function isFindArgs(Q) {
@@ -66,7 +82,7 @@ function cleanRegexValues(inputString) {
     regexDoc_hybrid: /^\{\s*"\$regex":\s*\/(.*?)\/(?:,\s*"\$options":\s*"([imxsu]*)")?\s*\}$/,
 
     // { "$regex": /pattern/<imxsu> }
-    regexDoc_object: /"\$regex":\s*\/(.*?)\/([imxsu])*/,
+    regexDoc_object: /^\{\s*"\$regex":\s*\/(.*?)\/([imxsu])*\s*\}$/,
 
     // /pattern/<imxsu>
     regexVal_object: /\/(.*?)\/([imxsu]*)/
@@ -191,6 +207,6 @@ module.exports = {
   cleanRegexValues,
   parseFindArgs,
   addQuotesToWords
-  
+
 
 };
