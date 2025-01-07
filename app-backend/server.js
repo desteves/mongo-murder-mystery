@@ -12,7 +12,7 @@ const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://mongomurdermystery.
 
 app.use(cors({
   origin: allowedOrigin, // Allow requests from this origin
-  methods: ['GET'],
+  methods: ['GET'], // Only allow GET requests
 }));
 
 const PORT = 8080;
@@ -63,24 +63,25 @@ const group = {
 // Function to validate and decode the query string
 function validateQueryString(req, res) {
   try {
-    if (req.query.query) {
-      if (req.query.query.length > 1024) {
-        res.status(400).json({ err: "Query string too large" });
-        return null;
-      }
-      const queryStr = decodeURIComponent(req.query.query);
-      if (!queryStr.trim()) {
-        res.status(400).json({ err: "Query string is empty or whitespace." });
-        return null;
-      }
-      return queryStr;
-    } else {
-      res.status(400).json({ err: "Query parameter is required" });
-      return null;
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ err: "Query parameter is required" });
     }
+
+    if (query.length > 1024) {
+      return res.status(400).json({ err: "Query string too large" });
+    }
+
+    const decodedQuery = decodeURIComponent(query);
+
+    if (!decodedQuery.trim()) {
+      return res.status(400).json({ err: "Query string is empty or whitespace." });
+    }
+
+    return decodedQuery;
   } catch (error) {
-    res.status(400).json({ err: "Error decoding query string: " + error.message });
-    return null;
+    return res.status(400).json({ err: `Error decoding query string: ${error.message}` });
   }
 }
 
@@ -129,15 +130,64 @@ function isFindArgs(Q) {
   return regexes.findArgs.test(Q);
 }
 
+
+// TODO - test this function
 function cleanRegexValues(inputString) {
 
-  // Preprocess the string to transform regex-like patterns into valid JSON
-  const regexPattern = /\/(.*?)\/([gimsuy]*)/g; // Match regex patterns (with optional flags)
+  // Check for the various possible formats, modify each transformation accordingly
+  // https://www.mongodb.com/docs/manual/reference/operator/query/regex/#syntax
+  const formats = {
 
-  // Transform the regex in the format `/pattern/` to `{"$regex": "pattern", "$options": "flags"}`
+    // { "$regex": "pattern", "$options": "<imxsu>" }
+    regexDoc_json: /^\{\s*"\$regex":\s*"[^"]*"(?:,\s*"\$options":\s*"[imxsu]*")?\s*\}$/,
+
+    // { "$regex": /pattern/, "$options":"<imxsu>" }
+    regexDoc_hybrid: /^\{\s*"\$regex":\s*\/(.*?)\/(?:,\s*"\$options":\s*"([imxsu]*)")?\s*\}$/,
+
+    // { "$regex": /pattern/<imxsu> }
+    regexDoc_object: /"\$regex":\s*\/(.*?)\/([imxsu])*/,
+
+    // /pattern/<imxsu>
+    regexVal_object: /\/(.*?)\/([imxsu]*)/
+  };
+
+  let regexPattern;
+
+  if (formats.regexDoc_json.test(inputString)) {
+    console.log('cleanRegexValues: Found regexDoc_json, skipping transformation');
+    return inputString;
+  } else if (formats.regexDoc_hybrid.test(inputString)) {
+
+    // FROM
+    // { "<field>": { "$regex": /pattern/, "$options":"<options>" } }
+    // TO
+    // { "<field>": { "$regex": "pattern", "$options": "<options>" } }
+    regexPattern = formats.regexDoc_hybrid;
+
+  } else if (formats.regexDoc_object.test(inputString)) {
+
+    // FROM
+    // { "<field>": { "$regex": /pattern/<options> } }
+    // TO
+    // { "<field>": { "$regex": "pattern", "$options": "<options>" } }
+    regexPattern = formats.regexDoc_object;
+
+  } else if (formats.regexVal_object.test(inputString)) {
+
+    // FROM
+    // { "<field>":  /pattern/<options> }
+    // TO
+    // { "<field>": { "$regex": "pattern", "$options": "<options>" } }
+    regexPattern = formats.regexVal_object;
+
+  } else {
+    console.log('cleanRegexValues: No regex pattern found');
+    return inputString;
+  }
+
+  // Will only transform one kind of regex pattern, even if such appears multiple times in the input string.
   const transformedString = inputString.replace(regexPattern, (match, pattern, flags) => {
-
-    console.log('cleanRegexValues found', match); // Debug
+    console.log('regex pattern found: ', match);
     const regexObj = { $regex: pattern };
     if (flags) {
       regexObj.$options = flags;
@@ -145,27 +195,67 @@ function cleanRegexValues(inputString) {
     return JSON.stringify(regexObj); // Convert regex object to JSON string
   });
 
+  console.log('transformedString:', transformedString);
   return transformedString;
+
 }
 
 function parseFindArgs(Q) {
   const match = Q.match(regexes.findArgs);
+  if (!match) throw new Error("Invalid input format");
+
   let filter = {};
   let projection = {};
 
   try {
     filter = match[1] ? JSON.parse(cleanRegexValues(match[1])) : {};
   } catch (error) {
-    throw new Error(`Error parsing filter ${match[1]} -- ${error.message}`);
+    throw new Error(`Error parsing filter: ${error.message}`);
   }
 
   try {
     projection = match[3] ? JSON.parse(match[3]) : {};
   } catch (error) {
-    throw new Error(`Error parsing projection ${match[3]} -- ${error.message}`);
+    throw new Error(`Error parsing projection: ${error.message}`);
   }
 
   return [filter, projection];
+}
+
+
+function addQuotesToWords(input) {
+  console.log('addQuotesToWords feature is under construction, as-is for now.');
+  return input;
+
+
+  // Regex to tokenize the string:
+  // Matches content enclosed in double quotes, /slashes/, or standalone words/numbers
+  const tokens = input.match(/"[^"]*"|\/[^\/]*\/|\S+/g);
+
+
+  // Process each token
+  const processedTokens = tokens.map((token) => {
+    // Check if token is enclosed in double quotes
+    const isQuoted = token.startsWith('"') && token.endsWith('"');
+
+    // Check if token starts with a slash and contains another slash
+    const isSlashWrapped = token.startsWith('/') && token.slice(1).includes('/');
+
+    // If token is already wrapped (either in quotes or slashes), leave it unchanged
+    if (isQuoted || isSlashWrapped) {
+      return token;
+    }
+
+    // If the token is purely numerical, leave it as is
+    if (/^\d+$/.test(token)) {
+      return token;
+    }
+
+    // If the token is not quoted, and is non-numerical, wrap it in quotes
+    return `"${token}"`;
+  });
+  // Combine tokens back into a single string
+  return processedTokens.join(' ');
 }
 
 // Generic endpoint to evaluate MongoDB queries from the frontend
@@ -194,7 +284,6 @@ app.get('/eval', async (req, res) => {
         return res.status(400).json({ err: "Missing collection name." })
       }
       const coll = getCollectionName(Q);
-      // console.log("coll is ", coll);
 
       // Start assembling the query in segments
       let query = db.collection(coll);
@@ -212,7 +301,7 @@ app.get('/eval', async (req, res) => {
         if (findStart !== -1) {
           const start = findStart + readCommand.FIND.length;
           const end = Q.indexOf(')', start);
-          const args = Q.substring(start, end).trim();
+          const args = addQuotesToWords(Q.substring(start, end).trim());
           console.log("solution args is ", args);
 
           if (isSolutionCheck(args)) {
