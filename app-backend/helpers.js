@@ -4,8 +4,10 @@ const regexes = {
   getCollections: /^db\.getCollectionNames\(\);?$/, // e.g., db.getCollectionNames()
   collName: /^db(\.\w+\.|\['\w+'\]|\["\w+"\])/, // e.g., db.<collName>.
   stringField: /['"]([^'"]+)['"]/, //  e.g., db.collection.distinct("<field>")
-  findArgs: /^(\{[\s\S]*?\s*\})?\s*(,\s*(\{[\s\S]*?\s\}))?\s*\)?$/m,
-  sol: /^\{\s*"name"\s*:\s*"(.*?)"\s*\}$/m,
+  noArgs: /^$/,
+  findArgs: /^\s*(\{\s*[\s\S]*?\s*\})\s*(?:,\s*(\{\s*[\s\S]*?\s*\}))?\s*$/m,
+  ///^(\{[\s\S]*?\s*\})?\s*(,\s*(\{[\s\S]*?\s\}))?\s*\)?$/m,
+  sol: /^\s*{\s*"name"\s*:\s*"(.*?)"\s*\}\s*$/m,
 };
 
 // Check if query is db.getCollectionNames()
@@ -64,28 +66,23 @@ function parseSolutionCheck(Q) {
 }
 
 function isFindArgs(Q) {
-  return regexes.findArgs.test(Q);
+  return regexes.noArgs.test(Q) || regexes.findArgs.test(Q);
 }
 
-
-// TODO - test this function
 function cleanRegexValues(inputString) {
 
   // Check for the various possible formats, modify each transformation accordingly
   // https://www.mongodb.com/docs/manual/reference/operator/query/regex/#syntax
+
+  // regexDoc_json   { "$regex": "pattern", "$options": "<imxsu>" }
+  // regexDoc_hybrid { "$regex": /pattern/, "$options":"<imxsu>" }
+  // regexDoc_object { "$regex": /pattern/<imxsu> }
+  // regexVal_object /pattern/<imxsu>
   const formats = {
-
-    // { "$regex": "pattern", "$options": "<imxsu>" }
-    regexDoc_json: /^\{\s*"\$regex":\s*"[^"]*"(?:,\s*"\$options":\s*"[imxsu]*")?\s*\}$/,
-
-    // { "$regex": /pattern/, "$options":"<imxsu>" }
-    regexDoc_hybrid: /^\{\s*"\$regex":\s*\/(.*?)\/(?:,\s*"\$options":\s*"([imxsu]*)")?\s*\}$/,
-
-    // { "$regex": /pattern/<imxsu> }
-    regexDoc_object: /^\{\s*"\$regex":\s*\/(.*?)\/([imxsu])*\s*\}$/,
-
-    // /pattern/<imxsu>
-    regexVal_object: /\/(.*?)\/([imxsu]*)/
+    regexDoc_json: /^\{\s*(?:"\$regex"|\$regex)\s*:\s*"[^"]*"\s*(?:,\s*(?:"\$options"|\$options)\s*:\s*"([imxsu]{0,5})?")?\s*\}(.*?)/,
+    regexDoc_hybrid: /^\{\s*(?:"\$regex"|\$regex)\s*:\s*\/(.*?)\/\s*(?:,\s*(?:"\$options"|\$options)\s*:\s*"([imxsu]{0,5})?")?\s*\}(.*?)/,
+    regexDoc_object: /^\{\s*(?:"\$regex"|\$regex)\s*:\s*\/(.*?)\/([imxsu]{0,5})?\s*\}(.*?)/,
+    regexVal_object: /^\/(.*?)\/([imxsu]{0,5})?$/
   };
 
   let regexPattern;
@@ -138,20 +135,36 @@ function cleanRegexValues(inputString) {
 }
 
 function parseFindArgs(Q) {
+  // check empty args
+  if (regexes.noArgs.test(Q)) {
+    console.log('parseFindArgs: No args found');
+    return [{}, {}];
+  }
+
   const match = Q.match(regexes.findArgs);
   if (!match) throw new Error("Invalid input format");
 
   let filter = {};
   let projection = {};
 
+  console.log('match is ', match);
+
   try {
-    filter = match[1] ? JSON.parse(cleanRegexValues(match[1])) : {};
+    if (match[1] && match[1] !== '{}') {
+      filter = JSON.parse(cleanRegexValues(match[1]));
+    } else {
+      console.log('parseFindArgs: Empty filter');
+    }
   } catch (error) {
     throw new Error(`Error parsing filter: ${error.message}`);
   }
 
   try {
-    projection = match[3] ? JSON.parse(match[3]) : {};
+    if (match[2] && match[2] !== '{}') {
+      projection = JSON.parse(match[2]);
+    } else {
+      console.log('parseFindArgs: Empty projection');
+    }
   } catch (error) {
     throw new Error(`Error parsing projection: ${error.message}`);
   }

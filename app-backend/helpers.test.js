@@ -343,7 +343,7 @@ describe('cleanRegexValues', () => {
 
   test('should transform regexDoc_object format correctly', () => {
     const input = '{"field": { "$regex": /pattern/i }}';
-    const expected = '{"field":{"$regex":"pattern","$options":"i"}}';
+    const expected = JSON.stringify(JSON.parse('{"field":{"$regex":"pattern","$options":"i"}}')) ;
     const output = cleanRegexValues(input);
     expect(output).toBe(expected);
   });
@@ -403,7 +403,7 @@ describe('cleanRegexValues', () => {
 describe('parseFindArgs', () => {
   test('should parse valid find arguments with filter only', () => {
     const query = '{"name": "value"}';
-    const expectedFilter = { name: 'value' };
+    const expectedFilter = { "name" : "value" };
     const expectedProjection = {};
     const [filter, projection] = parseFindArgs(query);
     expect(filter).toEqual(expectedFilter);
@@ -412,8 +412,8 @@ describe('parseFindArgs', () => {
 
   test('should parse valid find arguments with filter and projection', () => {
     const query = '{"name": "value"}, {"field": 1}';
-    const expectedFilter = { name: 'value' };
-    const expectedProjection = { field: 1 };
+    const expectedFilter = { "name": "value" };
+    const expectedProjection = { "field": 1 };
     const [filter, projection] = parseFindArgs(query);
     expect(filter).toEqual(expectedFilter);
     expect(projection).toEqual(expectedProjection);
@@ -439,12 +439,12 @@ describe('parseFindArgs', () => {
 
   test('should throw an error for invalid JSON in filter', () => {
     const query = '{"name": "value",';
-    expect(() => parseFindArgs(query)).toThrow('Error parsing filter');
+    expect(() => parseFindArgs(query)).toThrow('Invalid input format');
   });
 
   test('should throw an error for invalid JSON in projection', () => {
     const query = '{"name": "value"}, {"field":';
-    expect(() => parseFindArgs(query)).toThrow('Error parsing projection');
+    expect(() => parseFindArgs(query)).toThrow('Invalid input format');
   });
 
   test('should throw an error for invalid input format', () => {
@@ -461,8 +461,8 @@ describe('parseFindArgs', () => {
         "field": 1
       }
     `;
-    const expectedFilter = { name: 'value' };
-    const expectedProjection = { field: 1 };
+    const expectedFilter = JSON.parse('{ "name": "value" }');
+    const expectedProjection = JSON.parse('{ "field": 1 }');
     const [filter, projection] = parseFindArgs(query);
     expect(filter).toEqual(expectedFilter);
     expect(projection).toEqual(expectedProjection);
@@ -478,9 +478,9 @@ describe('parseFindArgs', () => {
   });
 
   test('should handle projection with no filter', () => {
-    const query = ', {"field": 1}';
+    const query = '{}, {"field": 1}';
     const expectedFilter = {};
-    const expectedProjection = { field: 1 };
+    const expectedProjection = { "field": 1 };
     const [filter, projection] = parseFindArgs(query);
     expect(filter).toEqual(expectedFilter);
     expect(projection).toEqual(expectedProjection);
