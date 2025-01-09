@@ -71,6 +71,7 @@ function isFindArgs(Q) {
 
 function cleanRegexValues(inputString) {
 
+
   // Check for the various possible formats, modify each transformation accordingly
   // https://www.mongodb.com/docs/manual/reference/operator/query/regex/#syntax
 
@@ -79,10 +80,10 @@ function cleanRegexValues(inputString) {
   // regexDoc_object { "$regex": /pattern/<imxsu> }
   // regexVal_object /pattern/<imxsu>
   const formats = {
-    regexDoc_json: /^\{\s*(?:"\$regex"|\$regex)\s*:\s*"[^"]*"\s*(?:,\s*(?:"\$options"|\$options)\s*:\s*"([imxsu]{0,5})?")?\s*\}(.*?)/,
-    regexDoc_hybrid: /^\{\s*(?:"\$regex"|\$regex)\s*:\s*\/(.*?)\/\s*(?:,\s*(?:"\$options"|\$options)\s*:\s*"([imxsu]{0,5})?")?\s*\}(.*?)/,
-    regexDoc_object: /^\{\s*(?:"\$regex"|\$regex)\s*:\s*\/(.*?)\/([imxsu]{0,5})?\s*\}(.*?)/,
-    regexVal_object: /^\/(.*?)\/([imxsu]{0,5})?$/
+    regexDoc_json: /\{\s*(?:"\$regex"|\$regex)\s*:\s*"[^"]*"\s*(?:,\s*(?:"\$options"|\$options)\s*:\s*"([imxsu]{0,5})?")?\s*\}/,
+    regexDoc_hybrid: /\{\s*(?:"\$regex"|\$regex)\s*:\s*\/(.*?)\/\s*(?:,\s*(?:"\$options"|\$options)\s*:\s*"([imxsu]{0,5})?")?\s*\}/,
+    regexDoc_object: /\{\s*(?:"\$regex"|\$regex)\s*:\s*\/(.*?)\/([imxsu]{0,5})?\s*\}/,
+    regexVal_object: /\/(.*?)\/([imxsu]{0,5})?/
   };
 
   let regexPattern;
@@ -130,6 +131,18 @@ function cleanRegexValues(inputString) {
   });
 
   console.log('transformedString:', transformedString);
+
+  // checking for valid JSON
+
+  try {
+    JSON.parse(transformedString);
+  } catch (error) {
+    console.log('cleanRegexValues: Invalid JSON after transformation');
+    console.log('cleanRegexValues: Error message: ', error.message);
+    console.log('cleanRegexValues: Returning original input');
+    return inputString;
+
+  }
   return transformedString;
 
 }
