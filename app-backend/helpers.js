@@ -6,7 +6,6 @@ const regexes = {
   stringField: /['"]([^'"]+)['"]/, //  e.g., db.collection.distinct("<field>")
   noArgs: /^$/,
   findArgs: /^\s*(\{\s*[\s\S]*?\s*\})\s*(?:,\s*(\{\s*[\s\S]*?\s*\}))?\s*$/m,
-  ///^(\{[\s\S]*?\s*\})?\s*(,\s*(\{[\s\S]*?\s\}))?\s*\)?$/m,
   sol: /^\s*{\s*"name"\s*:\s*"(.*?)"\s*\}\s*$/m,
 };
 
@@ -69,6 +68,17 @@ function isFindArgs(Q) {
   return regexes.noArgs.test(Q) || regexes.findArgs.test(Q);
 }
 
+
+// Quote unquoted JSON keys, only those that are MongoDB Operators, starting with $
+function quoteJsonKeys(jsonString) {
+  // Regex to match fields starting with $ that are not quoted
+  const regex = /(?<=\{|\s)(\$[a-zA-Z_][a-zA-Z0-9_]*)\s*:/g;
+  // Replace unquoted field names with quoted ones
+  const fixedJsonString = jsonString.replace(regex, '"$1":');
+  return fixedJsonString;
+}
+
+
 function cleanRegexValues(inputString) {
 
 
@@ -80,9 +90,9 @@ function cleanRegexValues(inputString) {
   // regexDoc_object { "$regex": /pattern/<imxsu> }
   // regexVal_object /pattern/<imxsu>
   const formats = {
-    regexDoc_json: /\{\s*(?:"\$regex"|\$regex)\s*:\s*"[^"]*"\s*(?:,\s*(?:"\$options"|\$options)\s*:\s*"([imxsu]{0,5})?")?\s*\}/,
-    regexDoc_hybrid: /\{\s*(?:"\$regex"|\$regex)\s*:\s*\/(.*?)\/\s*(?:,\s*(?:"\$options"|\$options)\s*:\s*"([imxsu]{0,5})?")?\s*\}/,
-    regexDoc_object: /\{\s*(?:"\$regex"|\$regex)\s*:\s*\/(.*?)\/([imxsu]{0,5})?\s*\}/,
+    regexDoc_json: /\{\s*(?:"\$regex")\s*:\s*"[^"]*"\s*(?:,\s*(?:"\$options")\s*:\s*"([imxsu]{0,5})?")?\s*\}/,
+    regexDoc_hybrid: /\{\s*(?:"\$regex")\s*:\s*\/(.*?)\/\s*(?:,\s*(?:"\$options")\s*:\s*"([imxsu]{0,5})?")?\s*\}/,
+    regexDoc_object: /\{\s*(?:"\$regex")\s*:\s*\/(.*?)\/([imxsu]{0,5})?\s*\}/,
     regexVal_object: /\/(.*?)\/([imxsu]{0,5})?/
   };
 
@@ -164,7 +174,7 @@ function parseFindArgs(Q) {
 
   try {
     if (match[1] && match[1] !== '{}') {
-      filter = JSON.parse(cleanRegexValues(match[1]));
+      filter = JSON.parse(cleanRegexValues(quoteJsonKeys(match[1])));
     } else {
       console.log('parseFindArgs: Empty filter');
     }
@@ -185,41 +195,6 @@ function parseFindArgs(Q) {
   return [filter, projection];
 }
 
-
-function addQuotesToWords(input) {
-  console.log('addQuotesToWords feature is under construction, as-is for now.');
-  return input;
-
-
-  // Regex to tokenize the string:
-  // Matches content enclosed in double quotes, /slashes/, or standalone words/numbers
-  const tokens = input.match(/"[^"]*"|\/[^\/]*\/|\S+/g);
-
-
-  // Process each token
-  const processedTokens = tokens.map((token) => {
-    // Check if token is enclosed in double quotes
-    const isQuoted = token.startsWith('"') && token.endsWith('"');
-
-    // Check if token starts with a slash and contains another slash
-    const isSlashWrapped = token.startsWith('/') && token.slice(1).includes('/');
-
-    // If token is already wrapped (either in quotes or slashes), leave it unchanged
-    if (isQuoted || isSlashWrapped) {
-      return token;
-    }
-
-    // If the token is purely numerical, leave it as is
-    if (/^\d+$/.test(token)) {
-      return token;
-    }
-
-    // If the token is not quoted, and is non-numerical, wrap it in quotes
-    return `"${token}"`;
-  });
-  // Combine tokens back into a single string
-  return processedTokens.join(' ');
-}
 // Export all at once
 module.exports = {
   isGetCollections,
@@ -232,7 +207,5 @@ module.exports = {
   isFindArgs,
   cleanRegexValues,
   parseFindArgs,
-  addQuotesToWords
-
-
+  quoteJsonKeys
 };

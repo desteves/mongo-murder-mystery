@@ -8,7 +8,7 @@ const { isGetCollections,
   isFindArgs,
   cleanRegexValues,
   parseFindArgs,
-  addQuotesToWords } = require('./helpers');
+  quoteJsonKeys } = require('./helpers');
 
 describe('isGetCollections', () => {
   test('should return true for db.getCollectionNames()', () => {
@@ -343,7 +343,7 @@ describe('cleanRegexValues', () => {
 
   test('should transform regexDoc_object format correctly', () => {
     const input = '{"field":{ "$regex": /pattern/i }}';
-    const expected = JSON.stringify(JSON.parse('{"field": {"$regex":"pattern","$options":"i"}}')) ;
+    const expected = JSON.stringify(JSON.parse('{"field": {"$regex":"pattern","$options":"i"}}'));
     const output = cleanRegexValues(input);
     expect(output).toBe(expected);
   });
@@ -403,9 +403,9 @@ describe('cleanRegexValues', () => {
 
 
 describe('parseFindArgs', () => {
-  test('should parse valid find arguments with filter only', () => {
+  test('should parse valid find arguments with filter', () => {
     const query = '{"name": "value"}';
-    const expectedFilter = { "name" : "value" };
+    const expectedFilter = { "name": "value" };
     const expectedProjection = {};
     const [filter, projection] = parseFindArgs(query);
     expect(filter).toEqual(expectedFilter);
@@ -486,5 +486,97 @@ describe('parseFindArgs', () => {
     const [filter, projection] = parseFindArgs(query);
     expect(filter).toEqual(expectedFilter);
     expect(projection).toEqual(expectedProjection);
+  });
+});
+
+
+
+describe("quoteJsonKeys", () => {
+  test("should quote unquoted $-prefixed field names in flat JSON", () => {
+    const input = '{ $regex: "[a-z]+", $options: "i", normalField: 123 }';
+    const expected = '{ "$regex": "[a-z]+", "$options": "i", normalField: 123 }';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+  test("should handle nested JSON with unquoted $-prefixed fields", () => {
+    const input = '{ $regex: "[a-z]+", nested: { $options: "i", otherField: 42 } }';
+    const expected = '{ "$regex": "[a-z]+", nested: { "$options": "i", otherField: 42 } }';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+  test("should not modify already quoted $-prefixed field names", () => {
+    const input = '{ "$regex": "[a-z]+", "$options": "i", normalField: 123 }';
+    const expected = '{ "$regex": "[a-z]+", "$options": "i", normalField: 123 }';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+  test("should handle JSON with no $-prefixed fields", () => {
+    const input = '{ normalField: 123, anotherField: true, nested: { field: "value" } }';
+    const expected = '{ normalField: 123, anotherField: true, nested: { field: "value" } }';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+  test("should handle JSON with one unquoted $-prefixed field", () => {
+    const input = '{ $field: "value" }';
+    const expected = '{ "$field": "value" }';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+  test("should handle empty JSON string", () => {
+    const input = '{}';
+    const expected = '{}';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+
+
+  test("should handle malformed JSON gracefully without crashing", () => {
+    const input = '{ $field: "value", $badKey :';
+    const expected = '{ "$field": "value", "$badKey":'; // Still surrounds what it finds
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+
+  test("should handle JSON with whitespace around field names", () => {
+    const input = '{    $regex    : "[a-z]+",  $options:    "i"  }';
+    const expected = '{    "$regex": "[a-z]+",  "$options":    "i"  }';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+
+  // not yet supported
+  // test("should handle JSON with $-prefixed fields and special characters", () => {
+  //   const input = '{ $field_name$: "value", normalField: 123 }';
+  //   const expected = '{ "$field_name$": "value", normalField: 123 }';
+  //   expect(quoteJsonKeys(input)).toBe(expected);
+  // });
+
+  test("should not quote non-$ fields", () => {
+    const input = '{ field: "value", anotherField: 123 }';
+    const expected = '{ field: "value", anotherField: 123 }';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+  test("should handle JSON with extraneous spaces", () => {
+    const input = '  {    $key   :   "value"     }   ';
+    const expected = '  {    "$key":   "value"     }   ';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+  test("should handle $field with numeric values", () => {
+    const input = '{ $key: 42 }';
+    const expected = '{ "$key": 42 }';
+    expect(quoteJsonKeys(input)).toBe(expected);
+  });
+  test("should handle complex nested $-prefixed fields", () => {
+    const input = `{
+            $outer: {
+                $inner: {
+                    $deep: "value"
+                },
+                regularField: true
+            },
+            $anotherOuter: "value"
+        }`;
+    const expected = `{
+            "$outer": {
+                "$inner": {
+                    "$deep": "value"
+                },
+                regularField: true
+            },
+            "$anotherOuter": "value"
+        }`;
+    expect(quoteJsonKeys(input)).toBe(expected);
   });
 });
