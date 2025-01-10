@@ -4,12 +4,19 @@ const cors = require('cors');
 const helpers = require('./helpers');
 const app = express();
 const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://mongomurdermystery.com';
+const { ObjectId } = require('mongodb');
 
 app.use(express.json());
 app.use(cors({
   origin: allowedOrigin, // Allow requests from this origin
   methods: ['GET'], // Only allow GET requests
 }));
+
+
+const CLUE_CRIME = new ObjectId(process.env.CLUE_CRIME) || null;
+const CLUE_WITNESS1 = process.env.CLUE_WITNESS1 || 'missing';
+const CLUE_WITNESS2 = process.env.CLUE_WITNESS2 || 'missing';
+const CLUE_SUSPECT = process.env.CLUE_SUSPECT || 'missing';
 
 // Generic endpoint to evaluate MongoDB queries from the browser
 app.get('/eval', async (req, res) => {
@@ -25,7 +32,7 @@ app.get('/eval', async (req, res) => {
   let result = null
   let type = '';
   try {
-    query, type = helpers.parseComplexQuery(Q);
+    query, queryDescription, type = helpers.parseComplexQuery(Q);
   } catch (error) {
     return res.status(400).json({ err: `${error.message}` });
   }

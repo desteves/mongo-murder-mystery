@@ -15,10 +15,7 @@ const regexes = {
 
 // const PORT = 8080;
 const SALT = process.env.SALT || ''; // Salt for solution check
-const CLUE_CRIME = new ObjectId(process.env.CLUE_CRIME) || null;
-const CLUE_WITNESS1 = process.env.CLUE_WITNESS1 || 'missing';
-const CLUE_WITNESS2 = process.env.CLUE_WITNESS2 || 'missing';
-const CLUE_SUSPECT = process.env.CLUE_SUSPECT || 'missing';
+
 
 const readCommand = {
   COLLECTION: "db",
@@ -239,24 +236,28 @@ function parseFindArgs(Q) {
 
 async function parseComplexQuery(Q) {
 
-
   // this could 500'd if the connection fails but eval does 400
   const db = await connectDB();
+  let queryDescription = '';
+  let query = null;
+  let type = '';
 
-  if (helpers.isGetCollections(Q)) {
-    // console.log('Get collections query');
-    result =
-      query = db.listCollections().toArray();
-    return [query, "getCollections"];
+  if (isGetCollections(Q)) {
+    query = db.listCollections().toArray();
+    queryDescription = 'db.listCollections().toArray()';
+    type = "getCollections";
+    return [query, queryDescription, type];
   }
 
   // parse complex query
-  if (!helpers.hasCollectionName(Q)) {
+  if (!hasCollectionName(Q)) {
     throw new Error("Missing collection name.");
   }
 
   const coll = getCollectionName(Q);
-  let query = db.collection(coll);
+
+  query = db.collection(coll);
+  queryDescription = `db.collection('${coll}')`;
 
   // Locate segments
   const distinctStart = Q.indexOf(readCommand.DISTINCT);
@@ -272,35 +273,17 @@ async function parseComplexQuery(Q) {
       const start = findStart + readCommand.FIND.length;
       const end = Q.indexOf(')', start);
       const args = Q.substring(start, end).trim();
-      console.log("solution args is ", args);
 
       if (isSolutionCheck(args)) {
-        const suspect = helpers.parseSolutionCheck(args);
-
+        const suspect = parseSolutionCheck(args);
         if (!suspect) {
           throw new Error("Missing suspect name.");
         }
-
-        // try {
-
         query = db.collection('solution').updateOne({ "_id": suspect + SALT }, { $inc: { "count": 1 } });
+        queryDescription = `db.collection('solution').updateOne({ "_id": "${suspect}" }, { $inc: { "count": 1 } })`;
+        type = "solutionCheck";
+        return [query, queryDescription, type];
 
-        return [query, "solutionCheck"];
-
-        // result = await db.collection('solution').updateOne({ "_id": suspect + SALT }, { $inc: { "count": 1 } });
-
-        console.log("solution result is ", result);
-        if (result.modifiedCount === 1) {
-          return res.status(200).json({ verdict: 'YOU DID IT! YOU SOLVED THE MONGODB MURDER MYSTERY!!!' });
-        }
-        else {
-          return res.status(200).json({ verdict: "OH NO YOU HAVE ACCUSED THE WRONG PERSON. YIKES." });
-        }
-        // } catch (error) {
-        //   console.error('Internal error with solution query: ', error.message);
-        //   result = { err: 'Internal error with solution query' };
-        //   return res.status(500).json(result);
-        // }
       } else {
         throw new Error("Not allowed. This is a restricted collection.");
       }
@@ -317,7 +300,10 @@ async function parseComplexQuery(Q) {
     const field = parseStringField(Q.substring(start, end));
 
     query = query.distinct(field);
-    return [query, "distinct"];
+    queryDescription = `db.collection('${coll}').distinct('${field}')`;
+    type = "distinct";
+
+    return [query, queryDescription, type];
   }
 
 
@@ -330,15 +316,18 @@ async function parseComplexQuery(Q) {
     if (filter.length > 0) {
       try {
         query = query.count(JSON.parse(filter));
+        queryDescription = `db.collection('${coll}').count(${filter})`;
       } catch (error) {
         throw new Error("Invalid count filter JSON");
       }
     } else { // just do a count
       query = query.count();
+      queryDescription = `db.collection('${coll}').count()`;
     }
 
     if (findStart === -1) {
-      return [query, "count"];
+      type = "count";
+      return [query, queryDescription, type];
     }
   }
 
@@ -349,11 +338,9 @@ async function parseComplexQuery(Q) {
     const args = Q.substring(start, end).trim();
 
     if (isFindArgs(args)) { // okay to be missing / empty
-      // Usage
       const [filter, projection] = parseFindArgs(args);
-      console.log('Filter is :', filter);
-      console.log('Projection is:', projection);
       query = query.find(filter, { projection });
+      queryDescription = `db.collection('${coll}').find(${filter}, ${projection})`;
 
 
       // has a limit, process it
@@ -362,16 +349,15 @@ async function parseComplexQuery(Q) {
         const end = Q.indexOf(')', start);
 
         let limit = 30;
-        // try {
         limit = parseInt(Q.substring(start, end));
         if (isNaN(limit)) {
           throw new Error("Limit needs to be a number");
         }
-
         if (limit < 1 || limit > 30) {
           limit = 30;
         }
         query = query.limit(limit);
+        queryDescription = `${queryDescription}.limit(${limit})`;
       } // end limit
 
       // has a sort, process it
@@ -382,6 +368,7 @@ async function parseComplexQuery(Q) {
 
         try {
           query = query.sort(JSON.parse(filter));
+          queryDescription = `${queryDescription}.sort(${filter})`;
         } catch (error) {
           throw new Error("Invalid sort filter JSON");
         }
@@ -391,21 +378,24 @@ async function parseComplexQuery(Q) {
       if (limitStart === -1 && countStart === -1) {
         console.log('No limit specified for non-count query. Setting limit to 30.');
         query = query.limit(30);
+        queryDescription = `${queryDescription}.limit(30)`;
       }
 
       // not a count query, exhaust the cursor
       if (countStart === -1) {
         query = query.toArray();
+        queryDescription = `${queryDescription}.toArray()`;
       }
 
       if (coll === 'crime') {
-        return [query, "findCrimeClueCheck"];
+        return [query, queryDescription, "findCrimeClueCheck"];
       } else if (coll === 'person') {
-        return [query, "findPersonClueCheck"];
+        return [query, queryDescription, "findPersonClueCheck"];
+      } else {
+        return [query, queryDescription, "find"];
       }
 
     } else {
-
       throw new Error("Invalid find arguments.");
     }
   } // end find
