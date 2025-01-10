@@ -299,6 +299,9 @@ async function parseComplexQuery(Q) {
     const end = Q.indexOf(')', start);
     const field = parseStringField(Q.substring(start, end));
 
+    if (!field || field.length === 0) {
+      throw new Error("Distinct field missing");
+    }
     query = query.distinct(field);
     queryDescription = `db.collection('${coll}').distinct('${field}')`;
     type = "distinct";
@@ -340,7 +343,7 @@ async function parseComplexQuery(Q) {
     if (isFindArgs(args)) { // okay to be missing / empty
       const [filter, projection] = parseFindArgs(args);
       query = query.find(filter, { projection });
-      queryDescription = `db.collection('${coll}').find(${filter}, ${projection})`;
+      queryDescription = `db.collection('${coll}').find(${JSON.stringify(filter)}, ${JSON.stringify(projection)})`;
 
 
       // has a limit, process it

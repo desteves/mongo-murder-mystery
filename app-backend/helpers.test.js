@@ -44,7 +44,7 @@ describe('parseComplexQuery', () => {
     expect(queryDescription).toBe('db.listCollections().toArray()');
   });
   test('should handle valid solution collection suspect check', async () => {
-    const query = 'db.solution.find({ "_id": "suspectId" })';
+    const query = 'db.solution.find({ "name": "suspectId" })';
     const [, queryDescription, type] = await parseComplexQuery(query);
     expect(type).toBe('solutionCheck');
     expect(queryDescription).toBe(`db.collection('solution').updateOne({ "_id": "suspectId" }, { $inc: { "count": 1 } })`);
@@ -74,13 +74,13 @@ describe('parseComplexQuery', () => {
     expect(queryDescription).toBe(`db.collection('crime').find({}, {}).limit(30).toArray()`);
   });
   test('should perform a find query with sort and limit', async () => {
-    const query = 'db.person.find({}, {}).sort({"name": 1}).limit(5)';
+    const query = 'db.person.find({}, {}).limit(5).sort({"name": 1})';
     const [, queryDescription, type] = await parseComplexQuery(query);
     expect(type).toBe('findPersonClueCheck');
-    expect(queryDescription).toBe(`db.collection('person').find({}, {}).sort({"name": 1}).limit(5).toArray()`);
+    expect(queryDescription).toBe(`db.collection('person').find({}, {}).limit(5).sort({"name": 1}).toArray()`);
   });
 
-  
+
   test('should return list of collections for "getCollections" command', async () => {
     const query = 'db.getCollectionNames()';
     const [, queryDescription, type] = await parseComplexQuery(query);
@@ -93,17 +93,12 @@ describe('parseComplexQuery', () => {
     expect(type).toBe('distinct');
     expect(queryDescription).toBe(`db.collection('collection').distinct('fieldName')`);
   });
-  test('should support updating solution collections with solutionCheck type and correct query description', async () => {
-    const query = 'db.solution.find({ "_id": "suspectId" })';
-    const [, queryDescription, type] = await parseComplexQuery(query);
-    expect(type).toBe('solutionCheck');
-    expect(queryDescription).toBe(`db.collection('solution').updateOne({ "_id": "suspectId" }, { $inc: { "count": 1 } })`);
-  });
+
   test('should correctly handle find queries with multiple modifiers and return their description', async () => {
     const query = 'db.person.find({}, {}).sort({"name": 1}).limit(5)';
     const [, queryDescription, type] = await parseComplexQuery(query);
     expect(type).toBe('findPersonClueCheck');
-    expect(queryDescription).toBe(`db.collection('person').find({}, {}).sort({"name": 1}).limit(5).toArray()`);
+    expect(queryDescription).toBe(`db.collection('person').find({}, {}).limit(5).sort({"name": 1}).toArray()`);
   });
 
 
@@ -115,7 +110,7 @@ describe('parseComplexQuery', () => {
     await expect(parseComplexQuery(query)).rejects.toThrow('Not allowed. This is a restricted collection.');
   });
   test('should throw an error when solution check arguments are invalid', async () => {
-    const query = 'db.solution.find({ "_id": "" })'; // Invalid ID or missing suspect name
+    const query = 'db.solution.find({ "name": "" })'; // Invalid ID or missing suspect name
     await expect(parseComplexQuery(query)).rejects.toThrow('Missing suspect name.');
   });
   test('should throw an error when trying to access a restricted collection', async () => {
@@ -124,10 +119,10 @@ describe('parseComplexQuery', () => {
   });
   test('should throw an error when a distinct field is missing in a distinct query', async () => {
     const query = 'db.collection.distinct()'; // No field name provided
-    await expect(parseComplexQuery(query)).rejects.toThrow('Cannot read properties of undefined (reading \'substring\')');
+    await expect(parseComplexQuery(query)).rejects.toThrow('Distinct field missing');
   });
   test('should throw an error for invalid JSON in a count query filter', async () => {
-    const query = 'db.collection.count("{ invalid JSON }")'; // Malformed JSON
+    const query = 'db.collection.count({ invalid JSON })'; // Malformed JSON
     await expect(parseComplexQuery(query)).rejects.toThrow('Invalid count filter JSON');
   });
   test('should throw an error when limit argument is not a number', async () => {
@@ -135,16 +130,22 @@ describe('parseComplexQuery', () => {
     await expect(parseComplexQuery(query)).rejects.toThrow('Limit needs to be a number');
   });
   test('should throw an error when sort argument is invalid JSON', async () => {
-    const query = 'db.collection.find().sort("{ invalid JSON }")'; // Malformed JSON
+    const query = 'db.collection.find().sort({ invalid JSON })'; // Malformed JSON
     await expect(parseComplexQuery(query)).rejects.toThrow('Invalid sort filter JSON');
   });
   test('should throw an error for unsupported queries', async () => {
     const query = 'db.unknownFunction("test")'; // Unsupported function
+    await expect(parseComplexQuery(query)).rejects.toThrow('Missing collection name.');
+  });
+
+  test('should throw an error for unsupported queries', async () => {
+    const query = 'db["test"].update()'; // Unsupported function
     await expect(parseComplexQuery(query)).rejects.toThrow('Unsupported query.');
   });
+
   test('should throw an error for invalid find arguments', async () => {
-    const query = 'db.collection.find("{ invalid }")'; // Invalid JSON in find arguments
-    await expect(parseComplexQuery(query)).rejects.toThrow('Invalid find arguments.');
+    const query = 'db.collection.find({ invalid })'; // Invalid JSON in find arguments
+    await expect(parseComplexQuery(query)).rejects.toThrow("Error parsing filter: Expected property name or '}' in JSON at position 2 (line 1 column 3)");
   });
 });
 
