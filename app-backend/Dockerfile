@@ -13,11 +13,14 @@ RUN npm install
 # Copy the rest of the application code to the working directory
 COPY . .
 
+# Run tests (this step will fail the build if tests fail)
+RUN npm test
+
 # Expose the port the app runs on
 EXPOSE 8080
 
 # Define the command to run the application
-CMD ["node", "server.js"]
+CMD ["node", "index.js"]
 
 # docker build -t my-node-app .
 # docker run -p 3000:3000 --env-file .env my-node-app

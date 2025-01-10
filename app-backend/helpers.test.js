@@ -1,4 +1,5 @@
-const { isGetCollections,
+const { validateQueryString,
+  isGetCollections,
   hasCollectionName,
   getCollectionName,
   cleanCollectionName,
@@ -8,7 +9,32 @@ const { isGetCollections,
   isFindArgs,
   cleanRegexValues,
   parseFindArgs,
-  quoteJsonKeys } = require('./helpers');
+  quoteJsonKeys,
+  parseComplexQuery } = require('./helpers');
+
+
+describe('validateQueryString', () => {
+  test('should decode a valid query string', () => {
+    const query = encodeURIComponent('valid query');
+    expect(validateQueryString(query)).toBe('valid query');
+  });
+  test('should throw an error if query is missing', () => {
+    expect(() => validateQueryString(null)).toThrow('Query is required');
+    expect(() => validateQueryString({})).toThrow('Query is required');
+  });
+  test('should throw an error if query is too large', () => {
+    const largeQuery = 'a'.repeat(1025); // 1025 characters
+    expect(() => validateQueryString(largeQuery)).toThrow('Query too large');
+  });
+  test('should throw an error if query is empty or only whitespace', () => {
+    const emptyQuery = encodeURIComponent('   ');
+    expect(() => validateQueryString(emptyQuery)).toThrow('Bad input');
+  });
+  test('should throw an error if decoding fails', () => {
+    const invalidQuery = '%E0%A4%A'; // Incomplete percent encoding
+    expect(() => validateQueryString(invalidQuery)).toThrow('Bad input');
+  });
+});
 
 describe('isGetCollections', () => {
   test('should return true for db.getCollectionNames()', () => {

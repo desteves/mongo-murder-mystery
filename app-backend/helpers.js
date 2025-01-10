@@ -1,4 +1,8 @@
 
+const connectDB = require('./database'); // Import your database connection module
+const { ObjectId } = require('mongodb');
+
+
 // Global regexes for MongoDB query patterns
 const regexes = {
   getCollections: /^db\.getCollectionNames\(\);?$/, // e.g., db.getCollectionNames()
@@ -8,6 +12,43 @@ const regexes = {
   findArgs: /^\s*(\{\s*[\s\S]*?\s*\})\s*(?:,\s*(\{\s*[\s\S]*?\s*\}))?\s*$/m,
   sol: /^\s*{\s*"name"\s*:\s*"(.*?)"\s*\}\s*$/m,
 };
+
+// const PORT = 8080;
+const SALT = process.env.SALT || ''; // Salt for solution check
+const CLUE_CRIME = new ObjectId(process.env.CLUE_CRIME) || null;
+const CLUE_WITNESS1 = process.env.CLUE_WITNESS1 || 'missing';
+const CLUE_WITNESS2 = process.env.CLUE_WITNESS2 || 'missing';
+const CLUE_SUSPECT = process.env.CLUE_SUSPECT || 'missing';
+
+const readCommand = {
+  COLLECTION: "db",
+  FIND: "find(",
+  LIMIT: ".limit(",
+  SORT: ".sort(",
+  COUNT: ".count(",
+  DISTINCT: ".distinct(",
+};
+
+
+// Function to validate and decode the query string
+function validateQueryString(query) {
+  if (!query || typeof query !== "string" || query === null) {
+    throw new Error("Query is required");
+  } else if (query.length > 1024) {
+    throw new Error("Query too large");
+  }
+
+  try {
+    const decodedQuery = decodeURIComponent(query);
+    if (!decodedQuery.trim()) {
+      throw new Error("Query is empty or whitespace");
+    }
+    return decodedQuery;
+  } catch (error) {
+    throw new Error(`Bad input.`);
+
+  }
+}
 
 // Check if query is db.getCollectionNames()
 function isGetCollections(Q) {
@@ -36,7 +77,7 @@ function cleanCollectionName(collectionName) {
   } else if (collectionName.startsWith('.')) {
     collectionName = collectionName.slice(1, -1); // remove the dots
   }
-  console.log('cleanCollectionName: ', collectionName);
+  // console.log('cleanCollectionName: ', collectionName);
   return collectionName;
 
 }
@@ -99,7 +140,7 @@ function cleanRegexValues(inputString) {
   let regexPattern;
 
   if (formats.regexDoc_json.test(inputString)) {
-    console.log('cleanRegexValues: Found regexDoc_json, skipping transformation');
+    // console.log('cleanRegexValues: Found regexDoc_json, skipping transformation');
     return inputString;
   } else if (formats.regexDoc_hybrid.test(inputString)) {
 
@@ -126,13 +167,13 @@ function cleanRegexValues(inputString) {
     regexPattern = formats.regexVal_object;
 
   } else {
-    console.log('cleanRegexValues: No regex pattern found');
+    // console.log('cleanRegexValues: No regex pattern found');
     return inputString;
   }
 
   // Will only transform one kind of regex pattern, even if such appears multiple times in the input string.
   const transformedString = inputString.replace(regexPattern, (match, pattern, flags) => {
-    console.log('regex pattern found: ', match);
+    // console.log('regex pattern found: ', match);
     const regexObj = { $regex: pattern };
     if (flags) {
       regexObj.$options = flags;
@@ -140,7 +181,7 @@ function cleanRegexValues(inputString) {
     return JSON.stringify(regexObj); // Convert regex object to JSON string
   });
 
-  console.log('transformedString:', transformedString);
+  // console.log('transformedString:', transformedString);
 
   // checking for valid JSON
 
@@ -160,7 +201,7 @@ function cleanRegexValues(inputString) {
 function parseFindArgs(Q) {
   // check empty args
   if (regexes.noArgs.test(Q)) {
-    console.log('parseFindArgs: No args found');
+    // console.log('parseFindArgs: No args found');
     return [{}, {}];
   }
 
@@ -170,13 +211,13 @@ function parseFindArgs(Q) {
   let filter = {};
   let projection = {};
 
-  console.log('match is ', match);
+  // console.log('match is ', match);
 
   try {
     if (match[1] && match[1] !== '{}') {
       filter = JSON.parse(cleanRegexValues(quoteJsonKeys(match[1])));
     } else {
-      console.log('parseFindArgs: Empty filter');
+      // console.log('parseFindArgs: Empty filter');
     }
   } catch (error) {
     throw new Error(`Error parsing filter: ${error.message}`);
@@ -186,7 +227,7 @@ function parseFindArgs(Q) {
     if (match[2] && match[2] !== '{}') {
       projection = JSON.parse(match[2]);
     } else {
-      console.log('parseFindArgs: Empty projection');
+      // console.log('parseFindArgs: Empty projection');
     }
   } catch (error) {
     throw new Error(`Error parsing projection: ${error.message}`);
@@ -195,8 +236,185 @@ function parseFindArgs(Q) {
   return [filter, projection];
 }
 
+
+async function parseComplexQuery(Q) {
+
+
+  // this could 500'd if the connection fails but eval does 400
+  const db = await connectDB();
+
+  if (helpers.isGetCollections(Q)) {
+    // console.log('Get collections query');
+    result =
+      query = db.listCollections().toArray();
+    return [query, "getCollections"];
+  }
+
+  // parse complex query
+  if (!helpers.hasCollectionName(Q)) {
+    throw new Error("Missing collection name.");
+  }
+
+  const coll = getCollectionName(Q);
+  let query = db.collection(coll);
+
+  // Locate segments
+  const distinctStart = Q.indexOf(readCommand.DISTINCT);
+  const limitStart = Q.indexOf(readCommand.LIMIT);
+  const countStart = Q.indexOf(readCommand.COUNT);
+  const sortStart = Q.indexOf(readCommand.SORT);
+  const findStart = Q.indexOf(readCommand.FIND);
+
+
+  if (coll === 'solution') {
+
+    if (findStart !== -1) {
+      const start = findStart + readCommand.FIND.length;
+      const end = Q.indexOf(')', start);
+      const args = Q.substring(start, end).trim();
+      console.log("solution args is ", args);
+
+      if (isSolutionCheck(args)) {
+        const suspect = helpers.parseSolutionCheck(args);
+
+        if (!suspect) {
+          throw new Error("Missing suspect name.");
+        }
+
+        // try {
+
+        query = db.collection('solution').updateOne({ "_id": suspect + SALT }, { $inc: { "count": 1 } });
+
+        return [query, "solutionCheck"];
+
+        // result = await db.collection('solution').updateOne({ "_id": suspect + SALT }, { $inc: { "count": 1 } });
+
+        console.log("solution result is ", result);
+        if (result.modifiedCount === 1) {
+          return res.status(200).json({ verdict: 'YOU DID IT! YOU SOLVED THE MONGODB MURDER MYSTERY!!!' });
+        }
+        else {
+          return res.status(200).json({ verdict: "OH NO YOU HAVE ACCUSED THE WRONG PERSON. YIKES." });
+        }
+        // } catch (error) {
+        //   console.error('Internal error with solution query: ', error.message);
+        //   result = { err: 'Internal error with solution query' };
+        //   return res.status(500).json(result);
+        // }
+      } else {
+        throw new Error("Not allowed. This is a restricted collection.");
+      }
+    } else {
+      throw new Error("Not allowed. This is a restricted collection.");
+    }
+  }
+
+  // is a distinct query
+  if (distinctStart !== -1) {
+
+    const start = distinctStart + readCommand.DISTINCT.length;
+    const end = Q.indexOf(')', start);
+    const field = parseStringField(Q.substring(start, end));
+
+    query = query.distinct(field);
+    return [query, "distinct"];
+  }
+
+
+  // has a count, process it
+  if (countStart !== -1) {
+    const start = countStart + readCommand.COUNT.length;
+    const end = Q.indexOf(')', start);
+    const filter = Q.substring(start, end).trim(); // debating on supporting this....
+
+    if (filter.length > 0) {
+      try {
+        query = query.count(JSON.parse(filter));
+      } catch (error) {
+        throw new Error("Invalid count filter JSON");
+      }
+    } else { // just do a count
+      query = query.count();
+    }
+
+    if (findStart === -1) {
+      return [query, "count"];
+    }
+  }
+
+  // process the find args.
+  if (findStart !== -1) {
+    const start = findStart + readCommand.FIND.length;
+    const end = Q.indexOf(')', start);
+    const args = Q.substring(start, end).trim();
+
+    if (isFindArgs(args)) { // okay to be missing / empty
+      // Usage
+      const [filter, projection] = parseFindArgs(args);
+      console.log('Filter is :', filter);
+      console.log('Projection is:', projection);
+      query = query.find(filter, { projection });
+
+
+      // has a limit, process it
+      if (limitStart !== -1) {
+        const start = limitStart + readCommand.LIMIT.length;
+        const end = Q.indexOf(')', start);
+
+        let limit = 30;
+        // try {
+        limit = parseInt(Q.substring(start, end));
+        if (isNaN(limit)) {
+          throw new Error("Limit needs to be a number");
+        }
+
+        if (limit < 1 || limit > 30) {
+          limit = 30;
+        }
+        query = query.limit(limit);
+      } // end limit
+
+      // has a sort, process it
+      if (sortStart !== -1) {
+        const start = sortStart + readCommand.SORT.length;
+        const end = Q.indexOf(')', start);
+        const filter = Q.substring(start, end).trim();
+
+        try {
+          query = query.sort(JSON.parse(filter));
+        } catch (error) {
+          throw new Error("Invalid sort filter JSON");
+        }
+      } // end sort
+
+      // not a count query and no limit specified, add it
+      if (limitStart === -1 && countStart === -1) {
+        console.log('No limit specified for non-count query. Setting limit to 30.');
+        query = query.limit(30);
+      }
+
+      // not a count query, exhaust the cursor
+      if (countStart === -1) {
+        query = query.toArray();
+      }
+
+      if (coll === 'crime') {
+        return [query, "findCrimeClueCheck"];
+      } else if (coll === 'person') {
+        return [query, "findPersonClueCheck"];
+      }
+
+    } else {
+
+      throw new Error("Invalid find arguments.");
+    }
+  } // end find
+  throw new Error("Unsupported query.");
+}
+
 // Export all at once
 module.exports = {
+  validateQueryString,
   isGetCollections,
   hasCollectionName,
   getCollectionName,
@@ -207,5 +425,6 @@ module.exports = {
   isFindArgs,
   cleanRegexValues,
   parseFindArgs,
-  quoteJsonKeys
+  quoteJsonKeys,
+  parseComplexQuery
 };
