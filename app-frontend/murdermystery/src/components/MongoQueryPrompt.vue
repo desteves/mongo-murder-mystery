@@ -94,7 +94,7 @@ export default {
       }
 
       // import.meta.env.MMM_API_BASE_URL <-- meh needs at build, todo -- figure out later
-      const apiUrl = "https://mmm-be-1020079043644.us-central1.run.app"
+      const apiUrl = "http://localhost:3000"; // "https://mmm-be-1020079043644.us-central1.run.app"
       axios.get(`${apiUrl}/eval`, {
           params: {
             query: encodedQueryStr,

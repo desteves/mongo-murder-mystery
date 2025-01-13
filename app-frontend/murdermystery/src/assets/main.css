@@ -3,22 +3,22 @@
 /* Root Variables for Colors */
 :root {
 
-      --text-color: black;
-      --body-bg: rgb(255, 251, 244);
-      --nav-bg-color: rgb(255, 251, 244);
+  --text-color: black;
+  --body-bg: rgb(255, 251, 244);
+  --nav-bg-color: rgb(255, 251, 244);
 
-      /* Spring Green */
-        --nav-active-bg-color: #00ed64;
+  /* Spring Green */
+  --nav-active-bg-color: #00ed64;
 
-      /* Slate Blue */
-      /* --nav-active-bg-color: #001e2b; */
+  /* Slate Blue */
+  /* --nav-active-bg-color: #001e2b; */
 
-      /* Forrest Green */
-      --header-color: #00684a;
-      --link-color: #00684a;
+  /* Forrest Green */
+  --header-color: #00684a;
+  --link-color: #00684a;
 
-      /* Evergreen */
-      --title-color: #023430;
+  /* Evergreen */
+  --title-color: #023430;
 }
 
 /* Light and Dark Mode Styles */
@@ -63,7 +63,7 @@ body {
   padding: 2rem;
   font-weight: normal;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   padding: 0 2rem;
 }
 
@@ -71,11 +71,14 @@ b,
 strong {
   font-weight: bold;
 }
+
 title {
   color: var(--title-color);
   font-size: 50px;
   font-weight: bold;
   display: block;
+  text-align: center;
+  /* Center horizontally */
   /* Ensure there's enough space above and below the title */
   margin-top: 1em;
   margin-bottom: 1em;
@@ -93,8 +96,12 @@ title {
 subtitle {
   color: var(--header-color);
   font-size: 30px;
+  display: block;
+  text-align: center;
+  /* Center horizontally */
 
 }
+
 /* Header Styles */
 h1 {
   font-size: 30px;
@@ -114,6 +121,7 @@ h3 {
   font-size: 16px;
   /* Same as body text */
   color: var(--header-color);
+  display: block;
   font-weight: bold;
   margin-bottom: 0.5em;
 }
@@ -141,6 +149,15 @@ nav {
   margin-top: 2rem;
   background-color: var(--nav-bg-color);
   padding: 1rem 0;
+  display: flex;
+  /* Use flexbox for precise alignment */
+  justify-content: center;
+  /* Center items horizontally */
+}
+
+nav a:first-of-type {
+  border: 0;
+  /* Remove the border from the first item */
 }
 
 nav a {
@@ -212,6 +229,7 @@ header {
     font-size: 1rem;
   }
 }
+
 /* MongoQuery Styles */
 .mongoqueryitem {
   border: 1px solid #ccc;
@@ -257,7 +275,8 @@ header {
   font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
   color: #333;
-  white-space: pre-wrap; word-wrap: break-word;
+  white-space: pre-wrap;
+  word-wrap: break-word;
   /* Break long words for better readability */
   overflow: auto;
   max-height: 300px;
@@ -337,16 +356,30 @@ button:hover {
 }
 
 /* Item and Details Styles */
+/* Item and Details Styles */
 .item {
   margin-top: 2rem;
   display: flex;
   position: relative;
-
+  flex-wrap: wrap;
+  /* Ensure child elements wrap instead of overlapping */
+  align-items: flex-start;
+  /* Align items to the top for better spacing */
 }
 
 .details {
   flex: 1;
   margin-left: 1rem;
+  min-width: 0;
+  /* Prevent flex items from growing too large */
+  overflow-wrap: break-word;
+  /* Ensure long text breaks to avoid overlap */
+}
+
+/* Prevent Overlap with Adjacent Elements */
+.item+.item {
+  margin-top: 3rem;
+  /* Add extra spacing between items */
 }
 
 i {
@@ -359,13 +392,115 @@ i {
   border-radius: 8px;
 }
 
+/* Responsive Styles */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+    /* Reduce base font size for smaller screens */
+    padding: 1rem;
+    justify-content: flex-start;
+  }
+
+  #app {
+    grid-template-columns: 1fr;
+    /* Switch to single column layout */
+    padding: 1rem;
+
+  }
+
+  header {
+    flex-direction: column;
+    /* Stack items vertically */
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .logo {
+    margin: 0 auto 1rem;
+    /* Center the logo */
+    max-width: 100%;
+    /* Ensure logo scales properly */
+  }
+
+  nav {
+    font-size: 12px;
+    /* Adjust navigation font size */
+    padding: 0.5rem 0;
+  }
+
+  nav a {
+    padding: 0.5rem;
+    /* Reduce padding for links */
+    font-size: 0.9rem;
+  }
+
+  h1 {
+    font-size: 24px;
+    /* Adjust headline sizes */
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 14px;
+  }
+
+  .item {
+    flex-direction: column;
+    /* Stack items vertically */
+    align-items: flex-start;
+    margin-top: 1rem;
+    padding: 1rem;
+  }
+
+  .details {
+    margin-left: 0;
+    /* Remove unnecessary horizontal spacing */
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  button {
+    width: 100%;
+    /* Full-width buttons for easier tap targets */
+    margin-bottom: 8px;
+  }
+}
+
+/* Adjustments for extra small screens */
+@media (max-width: 480px) {
+  body {
+    font-size: 12px;
+    /* Further reduce font size for very small screens */
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  nav a {
+    font-size: 0.8rem;
+    /* Make navigation links smaller */
+  }
+}
+
 @media (min-width: 1024px) {
   .item {
     margin-top: 1;
     padding: 0.4rem 0 1rem calc(var(--section-gap) / 2);
   }
 
-   .item:before,
+  .item:before,
   .item:after {
     content: ' ';
     border-left: 4px solid var(--link-color);
@@ -380,8 +515,7 @@ i {
   }
 
   .item:after {
-    top: calc(50% );
+    top: calc(50%);
     height: calc(50%);
   }
-
 }

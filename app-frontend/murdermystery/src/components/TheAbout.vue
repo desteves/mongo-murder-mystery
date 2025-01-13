@@ -33,13 +33,20 @@ import WelcomeItem from './WelcomeItem.vue'
     </template>
 
     <ul>
-      <li> The application runs in two Google CloudRun services deployed via CloudBuild.
+      <li><a href="https://github.com/desteves/mongo-murder-mystery" target="_blank" rel="noopener noreferrer">
+          View this project on GitHub
+        </a></li>
+
+      <li> The application runs in two Google CloudRun services deployed via CloudBuild with Cloudflare CDN/HTTPS.
       </li>
-      <li>The front end is Vue.JS with Axios. </li>
-      <li>The backend is Javascript which talks to a MongoDB Atlas Cluster via the mongodb js driver. It receives the
-        queries from the front end as strings and translates them. The backend only accepts a very limited mongosh-like
-        commands and by NO means it reflects the full capabilities of the tool. </li>
-      <li>The code is all on GitHub</li>
+      <li>The front end is Vite. </li>
+      <li>The backend is Javascript which talks to a <a
+          href="https://www.mongodb.com/cloud/atlas/register?utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves"
+          target="_blank"> 🆓 MongoDB Atlas Cluster </a> via the mongodb js driver. It receives the
+        queries from the front end as encoded strings and translates them. The backend only accepts a very limited
+        mongosh-like
+        commands and by NO means it reflects its full capabilities. </li>
+
     </ul>
 
   </WelcomeItem>
@@ -48,13 +55,13 @@ import WelcomeItem from './WelcomeItem.vue'
 
 
     <template #heading>
-      <div id="social">
+      <div id=" social">
         <a href="#social">Social Media</a>
       </div>
     </template>
 
     Did you find out <b>whodunnit?</b> Well, don't forget to brag about it! Share your achievement and tag
-    us!<br /><br />
+    us!
 
     <ul>
       <li> <a class="boldlink"
@@ -89,19 +96,20 @@ import WelcomeItem from './WelcomeItem.vue'
     <ul>
       <li>
         The MongoDB Murder Mystery was created by @desteves. See the
-        <a href="https://github.com/desteves/mongo-murder-mystery"> GitHub repository for more information. </a> </li>
+        <a href="https://github.com/desteves/mongo-murder-mystery"> GitHub repository for more information. </a>
+      </li>
       <li>
-        The Schema diagram was a screenshot when migrating the SQL version of this project via MongoDB Relational
+        The Schema diagram was taken when migrating the SQL version of this project via the MongoDB Relational
         Migrator. Another popular source for creating Schema diagrams is Hackolade. If you want to learn more about the
         experience when migrating from SQL to MongoDB, I encourage you to check out my
-        medium blog post (coming soon).
+        medium blog post (coming 🔜).
       </li>
       <li>
         I tried to keep the flow as close as possible to the SQL Version of the Murder Mystery as that was the
         inspiration behind this project.
       </li>
       <li>
-        I'm keeping the same licenses so I'm still using the MIT License and Creative Commons CC BY-SA 4.0.
+        MIT License
       </li>
     </ul>
 

@@ -6,6 +6,7 @@ const app = express();
 const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://mongomurdermystery.com';
 const { ObjectId } = require('mongodb');
 
+
 app.use(express.json());
 app.use(cors({
   origin: allowedOrigin, // Allow requests from this origin
@@ -74,6 +75,8 @@ app.get('/eval', async (req, res) => {
   }
   return res.status(200).json(result);
 });
+
+
 
 // Export all at once
 module.exports = {

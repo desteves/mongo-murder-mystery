@@ -8,31 +8,6 @@
         alt="Illustration depicting an investigation using MongoDB" />
     </subtitle>
 
-
-    <br />
-    <h3 id="plot">
-      <a href="#plot">The Plot</a>
-    </h3>
-    <div> Uh Oh! There's been a murder in MongoDB City, and the detective needs your help. The detective gave you the
-      crime scene report, but
-      you
-      somehow lost it. Tsk tsk! You vaguely remember that the crime was a 💀​murder💀​ that occurred sometime on 🗓️
-      ​January
-      15th,
-      2018,​🗓️
-      and
-      that it took place in 📍 ​MongoDB City📍​. Start by retrieving the corresponding crime scene report from the
-      police
-      department’s
-      database. <br /> <br />
-      This website is designed as a fun game with self-directed
-      lessons
-      to
-      learn
-      MongoDB concepts and commands. Don't forget to <a href="/about#social">brag</a> once you have solved the
-      intriguing crime.
-    </div>
-    <br />
   </div>
 </template>
 <script >

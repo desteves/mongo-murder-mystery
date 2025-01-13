@@ -38,6 +38,7 @@ const readCommand = {
 
 // Function to validate and decode the query string
 function validateQueryString(query) {
+  console.log('validateQueryString called with ', query);
   if (!query || typeof query !== "string" || query === null) {
     throw new Error("Query is required");
   } else if (query.length > 1024) {

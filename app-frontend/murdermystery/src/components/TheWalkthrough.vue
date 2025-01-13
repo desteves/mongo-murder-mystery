@@ -1,6 +1,38 @@
 <template>
 
-  <br /><br /><br /><br />
+  <WelcomeItem>
+
+    <template #heading>
+      <div id="plot">
+        <a href="#plot"> 🍿 The Plot</a>
+      </div>
+    </template>
+
+
+    <div> Uh Oh! There's been a murder in MongoDB City, and the detective needs your help. The detective gave you the
+      crime scene report, but
+      you
+      somehow lost it. Tsk tsk! You vaguely remember that the crime was a 💀​murder💀​ that occurred sometime on 🗓️
+      ​January
+      15th,
+      2018,​🗓️
+      and
+      that it took place in 📍 ​MongoDB City📍​. Start by retrieving the corresponding crime scene report from the
+      police
+      department’s
+      database. <br /> <br />
+      This website is designed as a fun game with self-directed
+      lessons
+      to
+      learn
+      MongoDB concepts and commands. Don't forget to <a href="/about#social">brag</a> once you have solved the
+      intriguing crime.
+    </div>
+    <br />
+
+  </WelcomeItem>
+
+
   <WelcomeItem>
 
     <template #heading>
@@ -27,6 +59,10 @@
     whenever you are ready, you can start adapting the examples to create your own commands in search of clues in any of
     the code boxes below.
 
+    <br /><br />
+    <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
+      ⬆ Back to Top
+    </a>
   </WelcomeItem>
 
   <WelcomeItem>
@@ -99,13 +135,16 @@
     as
     a reference.<br /><br />
 
-    A <b>primary field</b> is a unique identifier for each document in a collection.<br />
+    A <b>primary field</b> is a unique identifier for each document in a collection. Like a person's social security number.<br />
     A <b>reference field</b>​ can be used to relate data in one collection to data in another collection when running
     a
     query.
 
+    <br /><br />
+    <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
+      ⬆ Back to Top
+    </a>
   </WelcomeItem>
-
   <WelcomeItem>
     <template #icon>
       <!-- <ExploreIcon /> -->
@@ -134,7 +173,7 @@
     </h2>
     We'll use <code>mongosh</code>, a popular tool to send our queries to MongoDB. There are many other ways to access
     the database
-    but this is a popular one and it's one we'll continue to use here.
+    but this is a very popular one.
     <br /><br />
     For each of the boxes below,
     click "RUN" to execute the query in the box. You can edit the queries to explore
@@ -175,15 +214,19 @@
     When working with data, always see if you can find documentation that explains the database structure (like the
     <a href="#" @click.prevent="toggleImage">Schema diagram </a>
     <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
-      :class="{ zoomed: isZoomed }" />) and valid values. But sometimes that’s not available. Here we show how use the
+      :class="{ zoomed: isZoomed }" />)
+    and valid values. But sometimes that’s not available. Here we show how use the
     'disticnt()'
     command to give you a quick look at which values are in the collection for a given field. <br />
     <MongoQueryPrompt title="What are the possible types of crimes?"
       subtitle=" Feel free to substitue the field name 'type' for any other valid field name. Consult the Schema diagram as needed"
       preFilledText='db["crime"].distinct("type")' />
     Look at the results and take a wild guess the type of crime we're interested in.
+    <br /><br />
+    <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
+      ⬆ Back to Top
+    </a>
   </WelcomeItem>
-
 
   <WelcomeItem>
     <template #icon>
@@ -334,6 +377,10 @@
       subtitle="Change the date to see how the results change. Note that numbers should NOT be encosed in quotes."
       preFilledText='db["crime"].find({ "date": { "$gt": 20180115, "$lt": 20190215 } })' />
 
+    <br /><br />
+    <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
+      ⬆ Back to Top
+    </a>
   </WelcomeItem>
   <WelcomeItem>
     <template #icon>
@@ -388,12 +435,15 @@
       preFilledText='db["person"].find({"driversLicense.gender": "female"}, { "name": 1, "driversLicense.height": 1 }).sort({"driversLicense.height": -1}).limit(1)' />
 
 
+    <br /><br />
+    <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
+      ⬆ Back to Top
+    </a>
   </WelcomeItem>
 
+
   <WelcomeItem>
-    <template #icon>
-      <!-- <SolutionIcon /> -->
-    </template>
+
     <template #heading>
 
       <div id="go">
@@ -402,7 +452,8 @@
     </template>
 
     You should already have solved the first clue, if not, jump back to the <a href="#multiple-filters"
-      class="boldlink"> multiple query
+      class="boldlink">
+      multiple query
       filtering</a> section.
     Then, come back here.<br /><br />
 
@@ -434,7 +485,8 @@
     match
     the same suspect. And as always, use the <a href="#" @click.prevent="toggleImage">Schema diagram</a>
     <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
-      :class="{ zoomed: isZoomed }" /> for guidance.<br />
+      :class="{ zoomed: isZoomed }" />
+    for guidance.<br />
     <MongoQueryPrompt title="Form a query to learn more about the clues from the interviews."
       subtitle="There's more than one way to do it" preFilledText='db["gymCheckin"].find().limit(1)' />
 
@@ -448,13 +500,19 @@
     the
     mystery. And, use the <a href="#" @click.prevent="toggleImage">Schema diagram</a>
     <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
-      :class="{ zoomed: isZoomed }" /> for guidance.
+      :class="{ zoomed: isZoomed }" />
+    for guidance.
 
     <MongoQueryPrompt title="Solve the muder mystery"
       subtitle="It will take more than one query to find them, but you can just keep editing this box, keeping notes on your results along the way. When you think you know the answer, go to the next section. Ensure to dig all the way to uncover the evil mastermind behind it all. (Modify the sample query below to get started)"
       preFilledText='db["person"].find({ "driversLicense.age": { "$gte": 18, "$lte": 21 }  }).sort( { "age": -1 })' />
 
+    <br /><br />
+    <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
+      ⬆ Back to Top
+    </a>
   </WelcomeItem>
+
   <WelcomeItem>
     <template #heading>
       <div id="solution">
@@ -466,12 +524,18 @@
       your suspect.🔐 " preFilledText='db[" solution"].find({ "name" : "Jack" })' />
     Don't forget to <a class="boldlink" href="/about#social">brag</a> once you have solved the
     intriguing crime.
+
+    <br /><br />
+    <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
+      ⬆ Back to Top
+    </a>
+
   </WelcomeItem>
 
 </template>
 <script setup>
 
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import WelcomeItem from './WelcomeItem.vue'
 import MongoQueryPrompt from './MongoQueryPrompt.vue';
 
@@ -483,7 +547,30 @@ const showImage = ref(false);
 const isZoomed = ref(false);
 const hintVisible = ref(false);
 const hintTwoVisible = ref(false);
+// Reactive reference to track button visibility
+const showBackToTop = ref(false);
 
+// Method to scroll to the top
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
+
+// Method to update button visibility based on scroll position
+const handleScroll = () => {
+  showBackToTop.value = window.scrollY > 100;
+};
+
+// Lifecycle hooks to add/remove event listener
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 const toggleHintTwo = () => {
 
   hintTwoVisible.value = !hintTwoVisible.value;
