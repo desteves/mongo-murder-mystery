@@ -14,6 +14,7 @@ const { validateQueryString,
   cleanRegexValues,
   parseFindArgs,
   quoteJsonKeys,
+  matchField,
   parseComplexQuery } = require('./helpers');
 
 describe('parseComplexQuery', () => {
@@ -35,6 +36,8 @@ describe('parseComplexQuery', () => {
       })),
     };
     connectDB.mockReturnValue(mockDB); // Mock connection return value directly
+
+
   });
   // Valid queries
   test('should handle listing collections', async () => {
@@ -655,48 +658,51 @@ describe('parseFindArgs', () => {
 
 
 describe("quoteJsonKeys", () => {
+
+  // Jest Tests for `matchField.operator`
+
   test("should quote unquoted $-prefixed field names in flat JSON", () => {
     const input = '{ $regex: "[a-z]+", $options: "i", normalField: 123 }';
     const expected = '{ "$regex": "[a-z]+", "$options": "i", normalField: 123 }';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
   test("should handle nested JSON with unquoted $-prefixed fields", () => {
     const input = '{ $regex: "[a-z]+", nested: { $options: "i", otherField: 42 } }';
     const expected = '{ "$regex": "[a-z]+", nested: { "$options": "i", otherField: 42 } }';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
   test("should not modify already quoted $-prefixed field names", () => {
     const input = '{ "$regex": "[a-z]+", "$options": "i", normalField: 123 }';
     const expected = '{ "$regex": "[a-z]+", "$options": "i", normalField: 123 }';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
   test("should handle JSON with no $-prefixed fields", () => {
     const input = '{ normalField: 123, anotherField: true, nested: { field: "value" } }';
     const expected = '{ normalField: 123, anotherField: true, nested: { field: "value" } }';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
   test("should handle JSON with one unquoted $-prefixed field", () => {
     const input = '{ $field: "value" }';
     const expected = '{ "$field": "value" }';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
   test("should handle empty JSON string", () => {
     const input = '{}';
     const expected = '{}';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
 
 
   test("should handle malformed JSON gracefully without crashing", () => {
     const input = '{ $field: "value", $badKey :';
     const expected = '{ "$field": "value", "$badKey":'; // Still surrounds what it finds
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
 
   test("should handle JSON with whitespace around field names", () => {
     const input = '{    $regex    : "[a-z]+",  $options:    "i"  }';
     const expected = '{    "$regex": "[a-z]+",  "$options":    "i"  }';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
 
   // not yet supported
@@ -714,12 +720,12 @@ describe("quoteJsonKeys", () => {
   test("should handle JSON with extraneous spaces", () => {
     const input = '  {    $key   :   "value"     }   ';
     const expected = '  {    "$key":   "value"     }   ';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
   test("should handle $field with numeric values", () => {
     const input = '{ $key: 42 }';
     const expected = '{ "$key": 42 }';
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
   });
   test("should handle complex nested $-prefixed fields", () => {
     const input = `{
@@ -740,6 +746,91 @@ describe("quoteJsonKeys", () => {
             },
             "$anotherOuter": "value"
         }`;
-    expect(quoteJsonKeys(input)).toBe(expected);
+    expect(quoteJsonKeys(input, matchField.operator)).toBe(expected);
+  });
+
+
+
+  // Jest Tests for `matchField.name`
+  test("should quote unquoted field names starting with letters or underscores", () => {
+    const input = '{ _fieldName: "value", anotherField: 123 }';
+    const expected = '{ "_fieldName": "value", "anotherField": 123 }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should not modify already quoted field names", () => {
+    const input = '{ "_fieldName": "value", "anotherField": 123 }';
+    const expected = '{ "_fieldName": "value", "anotherField": 123 }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should handle nested JSON with unquoted field names", () => {
+    const input = '{ _outer: { _inner: "value", regularField: true } }';
+    const expected = '{ "_outer": { "_inner": "value", "regularField": true } }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should quote multiple unquoted field names", () => {
+    const input = '{ _field: 1, anotherField: true, nestedField: { innerField: "text" } }';
+    const expected = '{ "_field": 1, "anotherField": true, "nestedField": { "innerField": "text" } }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should handle JSON with extraneous spaces and unquoted field names", () => {
+    const input = '{    _key   :   "value"     ,    another  :  42    }';
+    const expected = '{    "_key":   "value"     ,    "another":  42    }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should handle JSON with numeric values", () => {
+    const input = '{ firstField: 42, _secondField: 1000 }';
+    const expected = '{ "firstField": 42, "_secondField": 1000 }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should handle an empty JSON string", () => {
+    const input = '{}';
+    const expected = '{}';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should handle malformed JSON gracefully without crashing", () => {
+    const input = '{ validField: "value", _another :';
+    const expected = '{ "validField": "value", "_another":';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should handle complex nested unquoted field names", () => {
+    const input = `{
+          _outer: {
+              innerField: {
+                  deepestField: "value"
+              },
+              regularField: true
+          },
+          anotherOuter: "value"
+      }`;
+    const expected = `{
+          "_outer": {
+              "innerField": {
+                  "deepestField": "value"
+              },
+              "regularField": true
+          },
+          "anotherOuter": "value"
+      }`;
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should not modify numeric or boolean values", () => {
+    const input = '{ _booleanField: true, _numberField: 12345 }';
+    const expected = '{ "_booleanField": true, "_numberField": 12345 }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should handle unquoted field names containing dots", () => {
+    const input = '{ outer.inner.field: "value", anotherField: 42 }';
+    const expected = '{ "outer.inner.field": "value", "anotherField": 42 }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should not quote $-prefixed fields when using matchField.name", () => {
+    const input = '{ $operatorField: "value", _otherField: 123 }';
+    const expected = '{ $operatorField: "value", "_otherField": 123 }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
+  });
+  test("should handle JSON with whitespace around keys", () => {
+    const input = '{    regularField  :    "value" ,    _otherField  : true }';
+    const expected = '{    "regularField":    "value" ,    "_otherField": true }';
+    expect(quoteJsonKeys(input, matchField.name)).toBe(expected);
   });
 });

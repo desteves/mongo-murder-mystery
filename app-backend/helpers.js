@@ -16,6 +16,15 @@ const regexes = {
 // const PORT = 8080;
 const SALT = process.env.SALT || ''; // Salt for solution check
 
+// operator Regex to match fields starting with $ that are not quoted
+// name Regex to match field names that are not quoted.
+const matchField =
+{
+
+  operator: /(?<=\{|\s)(\$[a-zA-Z_][a-zA-Z0-9_]*)\s*:/g,
+  name:     /(?<=\{|\s)([a-zA-Z_][\w.]*)\s*:/g
+
+};
 
 const readCommand = {
   COLLECTION: "db",
@@ -108,9 +117,7 @@ function isFindArgs(Q) {
 
 
 // Quote unquoted JSON keys, only those that are MongoDB Operators, starting with $
-function quoteJsonKeys(jsonString) {
-  // Regex to match fields starting with $ that are not quoted
-  const regex = /(?<=\{|\s)(\$[a-zA-Z_][a-zA-Z0-9_]*)\s*:/g;
+function quoteJsonKeys(jsonString, regex) {
   // Replace unquoted field names with quoted ones
   const fixedJsonString = jsonString.replace(regex, '"$1":');
   return fixedJsonString;
@@ -212,7 +219,12 @@ function parseFindArgs(Q) {
 
   try {
     if (match[1] && match[1] !== '{}') {
-      filter = JSON.parse(cleanRegexValues(quoteJsonKeys(match[1])));
+
+      const quotedOperators = quoteJsonKeys(match[1], matchField.operator);
+      const cleanedRegex = cleanRegexValues(quotedOperators);
+      const quotedFields = quoteJsonKeys(cleanedRegex, matchField.name);
+
+      filter = JSON.parse(quotedFields);
     } else {
       // console.log('parseFindArgs: Empty filter');
     }
@@ -419,5 +431,6 @@ module.exports = {
   cleanRegexValues,
   parseFindArgs,
   quoteJsonKeys,
-  parseComplexQuery
+  parseComplexQuery,
+  matchField
 };

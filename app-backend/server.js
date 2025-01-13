@@ -23,7 +23,7 @@ app.get('/eval', async (req, res) => {
 
   let Q; // decoded query string
   try {
-    Q = validateQueryString(req.query);
+    Q = helpers.validateQueryString(req.query);
   } catch (error) {
     return res.status(400).json({ err: `${error.message}` });
   }
