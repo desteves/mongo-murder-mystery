@@ -250,9 +250,6 @@ function parseFindArgs(Q) {
   return [filter, projection];
 }
 
-
-
-
 async function processQuery(Q) {
 
   let db = null;
@@ -420,7 +417,7 @@ async function processQuery(Q) {
     if (addSort) {
       const start = sortStart + readCommand.SORT.length;
       const end = Q.indexOf(')', start);
-      const filter = Q.substring(start, end).trim();
+      const filter = quoteJsonKeys(Q.substring(start, end).trim(), matchField.name);
 
       try {
         sortFilter = JSON.parse(filter);
