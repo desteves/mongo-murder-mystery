@@ -64,13 +64,18 @@ import WelcomeItem from './WelcomeItem.vue'
     us!
 
     <ul>
-      <li> <a class="boldlink"
-          href="https://x.com/intent/post?text=%F0%9F%95%B5%EF%B8%8F%E2%80%8D%E2%99%82%EF%B8%8F%F0%9F%94%8D%F0%9F%99%8C%20%23MysterySolved%20It%20was...shhhhh!%20Can%20you%20find%20out%20whodunnit%3F%20Go%20to%20mongomudermystery.com%20TY%20%40MongoDB%20%40null_string%20%23LoveYourDevelopers&url=mongomudermystery.com"
-          target="_blank">
+      <li> <a class="boldlink" href="https://x.com/intent/post" target="_blank">
           Share on X
-        </a>
+        </a><b>COPY AND PASTE: </b><br /> <br />
+
+        🕵️‍♂️🔍🙌 #MysterySolved It was...shhhhh! Can you find out #whodunnit? Go to mongomudermystery.com TY @MongoDB
+        @null_string #LoveYourDevelopers
+
+        <br /> <br />
+
       </li>
-      <!-- <li>X: 🕵️‍♂️🔍🙌 #MysterySolved It was...shhhhh! Can you find out whodunnit? Go to mongomudermystery.com TY @MongoDB @null_string #LoveYourDevelopers.</li> -->
+
+
       <li>
         <a class="boldlink"
           href="https://www.linkedin.com/shareArticle?mini=true&url=https://www.mongomurdermystery.com&title=Can%20you%20find%20out%20whodunnit%20&summary=I%20sure%20did&source=MongoMurderMystery"

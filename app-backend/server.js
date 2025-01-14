@@ -27,7 +27,8 @@ app.get('/eval', async (req, res) => {
   }
 
   try {
-    [result, _] = await helpers.processQuery(queryTerm);
+    [result, desc] = await helpers.processQuery(queryTerm);
+    console.log("Ran query:", desc);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(error.code || 500).json({ err: `${error.message || "Internal Server Error"}` });

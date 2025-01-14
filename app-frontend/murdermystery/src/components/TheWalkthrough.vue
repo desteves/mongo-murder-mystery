@@ -411,7 +411,7 @@
 
     <MongoQueryPrompt title="Run this query to see how to control sort order."
       subtitle="Change 1 to -1 and try sorting on other fields too.  Note we also use the limit to cut down the results to only see what we are interested in."
-      preFilledText='db["person"].find().sort({"driversLicense.age": -1}).limit(1)' />
+      preFilledText='db["person"].find().sort({"driversLicense.age": -1})' />
     <br /><br />
 
 
@@ -521,7 +521,7 @@
     </template>
     <MongoQueryPrompt title="Whodunnit?" subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you' ll see a
       congratulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of
-      your suspect.🔐 " preFilledText='db[" solution"].find({ "name" : "Jack" })' />
+      your suspect.🔐 " preFilledText='db["solution"].find({ "name" : "Jack" })' />
     Don't forget to <a class="boldlink" href="/about#social">brag</a> once you have solved the
     intriguing crime.
 

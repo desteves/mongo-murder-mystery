@@ -442,7 +442,7 @@ async function processQuery(Q) {
 
     try {
       desc = `db.${coll}.find(${JSON.stringify(filter)}, ${JSON.stringify(projection)}).limit(${limitFilter}).sort(${JSON.stringify(sortFilter)}).toArray()`;
-      result = await db.collection(coll).find(filter, projection).limit(limitFilter).sort(sortFilter).toArray();
+      result = await db.collection(coll).find(filter, { projection }).limit(limitFilter).sort(sortFilter).toArray();
       if (coll === 'crime' && result.length === 1 && result[0]?._id.equals(CLUE_CRIME)) {
         result[0].isClue = true;
       } else if (coll === 'person' && result.length === 1) {

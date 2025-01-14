@@ -22,9 +22,10 @@ export default {
 
       const metaTags = [
         { property: 'og:title', content: 'MongoDB Murder Mystery' },
-        { property: 'og:image', content: '//mongomurdermystery.com/assets/mdb-search-BLE5yYrV.png' },
-        { property: 'og:description', content: 'Can you find out whodunnit?' },
-        { property: 'og:url', content: '//mongomurdermystery.com' },
+        {
+          property: 'og:image', content: 'https://mongomurdermystery.com/assets/mdb-search-BLE5yYrV.png' },
+        { property: 'og:description', content: 'Can you find out #whodunnit?' },
+        { property: 'og:url', content: 'https://mongomurdermystery.com' },
       ];
 
       metaTags.forEach(({ property, content }) => {
