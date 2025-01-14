@@ -45,8 +45,8 @@
     skills to the test!<br /><br /> Below, we introduce MongoDB concepts and just enough to solve the
     murder. If
     you'd like a more complete course to MongoDB, complete the <a
-      href="https://learn.mongodb.com/learning-paths/introduction-to-mongodb" class="boldlink"
-      target="_blank">Introduction
+      href="https://learn.mongodb.com/learning-paths/introduction-to-mongodb?utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves"
+      class="boldlink" target="_blank">Introduction
       to
       MongoDB</a> <br /> <br />
 
@@ -135,7 +135,8 @@
     as
     a reference.<br /><br />
 
-    A <b>primary field</b> is a unique identifier for each document in a collection. Like a person's social security number.<br />
+    A <b>primary field</b> is a unique identifier for each document in a collection. Like a person's social security
+    number.<br />
     A <b>reference field</b>​ can be used to relate data in one collection to data in another collection when running
     a
     query.

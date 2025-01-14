@@ -78,7 +78,7 @@ import WelcomeItem from './WelcomeItem.vue'
 
       <li>
         <a class="boldlink"
-          href="https://www.linkedin.com/shareArticle?mini=true&url=https://www.mongomurdermystery.com&title=Can%20you%20find%20out%20whodunnit%20&summary=I%20sure%20did&source=MongoMurderMystery"
+          href="https://www.linkedin.com/shareArticle?mini=true&url=https://mongomurdermystery.com&title=Can%20you%20find%20out%20whodunnit%20&summary=I%20sure%20did&source=MongoMurderMystery"
           target="_blank">
           Share on LinkedIn
         </a>

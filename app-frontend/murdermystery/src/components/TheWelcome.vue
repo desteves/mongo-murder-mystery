@@ -46,7 +46,8 @@
       MongoDB, you may prefer
       a
       complete (free) course like
-      <a class="boldlink" href="https://learn.mongodb.com/learning-paths/introduction-to-mongodb"
+      <a class="boldlink"
+        href="https://learn.mongodb.com/learning-paths/introduction-to-mongodb?utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves"
         target="_blank">Introduction to
         MongoDB</a>.
     </div><br />
