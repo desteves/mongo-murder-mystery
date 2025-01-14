@@ -40,7 +40,7 @@
         <a href="#start">👩‍🏫 MongoDB Beginner Walkthrough</a>
       </div>
     </template>
-    If you're comfortable with MongoDB, you can <router-link to="/" class="boldlink">skip these
+    If you're comfortable with MongoDB, you can <router-link to="/#experienced" class="boldlink">skip these
       explanations</router-link> and put your
     skills to the test!<br /><br /> Below, we introduce MongoDB concepts and just enough to solve the
     murder. If
