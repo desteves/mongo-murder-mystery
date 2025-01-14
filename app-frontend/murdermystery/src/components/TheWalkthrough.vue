@@ -25,8 +25,7 @@
       lessons
       to
       learn
-      MongoDB concepts and commands. Don't forget to <a href="/about#social">brag</a> once you have solved the
-      intriguing crime.
+      MongoDB concepts and commands.
     </div>
     <br />
 
@@ -275,7 +274,7 @@
     </h2>
     <MongoQueryPrompt
       title="Here's a simple query to get everything about a specific person. (Don't worry—all of the SSNs are made up.)"
-      subtitle="Note that you need to use double straight quotes (&quot;) around literal text so MongoDB can tell it apart. Try to re-run the query with Yessenia Fossen, Ted Denfip or Davina Gangwer."
+      subtitle="Note that you need to use double quotes (&quot;) around literal text so MongoDB can tell it apart. Try to re-run the query with &quot;Yessenia Fossen&quot;, &quot;Ted Denfip&quot; or &quot;Davina Gangwer&quot;."
       preFilledText='db["person"].find({ "name": "Kinsey Erickson"})' />
     <br />
 

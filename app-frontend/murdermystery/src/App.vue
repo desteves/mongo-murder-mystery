@@ -8,8 +8,8 @@ import HelloWorld from './components/HelloWorld.vue'
     <div class="wrapper">
       <nav>
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/walkthrough"> Walkthrough</RouterLink>
-        <RouterLink to="/about"> About</RouterLink>
+        <RouterLink to="/walkthrough#plot"> Walkthrough</RouterLink>
+        <RouterLink to="/about#motivation"> About</RouterLink>
       </nav>
       <HelloWorld />
     </div>

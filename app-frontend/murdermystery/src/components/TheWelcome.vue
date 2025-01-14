@@ -25,8 +25,7 @@
       lessons
       to
       learn
-      MongoDB concepts and commands. Don't forget to <a href="/about#social">brag</a> once you have solved the
-      intriguing crime.
+      MongoDB concepts and commands.
     </div>
     <br />
 

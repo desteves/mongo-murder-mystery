@@ -60,7 +60,7 @@ import WelcomeItem from './WelcomeItem.vue'
       </div>
     </template>
 
-    Did you find out <b>whodunnit?</b> Well, don't forget to brag about it! Share your achievement and tag
+    Did you find out <b>whodunnit?</b> Share your achievement on social and tag
     us!
 
     <ul>
@@ -106,8 +106,8 @@ import WelcomeItem from './WelcomeItem.vue'
       <li>
         The Schema diagram was taken when migrating the SQL version of this project via the MongoDB Relational
         Migrator. Another popular source for creating Schema diagrams is Hackolade. If you want to learn more about the
-        experience when migrating from SQL to MongoDB, I encourage you to check out my
-        medium blog post (coming 🔜).
+        experience when migrating from SQL to MongoDB, I encourage you to read out my
+        <a href="https://medium.com/mongodb/3-pitfalls-to-avoid-when-migrating-postgresql-to-mongodb-f40ef2f7cf15"> Medium article </a>
       </li>
       <li>
         I tried to keep the flow as close as possible to the SQL Version of the Murder Mystery as that was the
