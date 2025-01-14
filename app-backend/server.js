@@ -1,11 +1,8 @@
-// require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helpers = require('./helpers');
 const app = express();
 const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://mongomurdermystery.com';
-const { ObjectId } = require('mongodb');
-
 
 app.use(express.json());
 app.use(cors({
@@ -13,72 +10,30 @@ app.use(cors({
   methods: ['GET'], // Only allow GET requests
 }));
 
-
-const CLUE_CRIME = new ObjectId(process.env.CLUE_CRIME) || null;
-const CLUE_WITNESS1 = process.env.CLUE_WITNESS1 || 'missing';
-const CLUE_WITNESS2 = process.env.CLUE_WITNESS2 || 'missing';
-const CLUE_SUSPECT = process.env.CLUE_SUSPECT || 'missing';
-
 // Generic endpoint to evaluate MongoDB queries from the browser
 app.get('/eval', async (req, res) => {
 
-  let Q; // decoded query string
-  try {
-    Q = helpers.validateQueryString(req.query);
-  } catch (error) {
-    return res.status(400).json({ err: `${error.message}` });
-  }
+  let queryTerm; // valid query string
+  let result = null; // result from executing the query
 
-  // Evaluate query type and execute corresponding operation
-  let result = null
-  let type = '';
   try {
-    query, queryDescription, type = helpers.parseComplexQuery(Q);
-  } catch (error) {
-    return res.status(400).json({ err: `${error.message}` });
-  }
-  try {
-    result = await query;
-    switch (type) {
-      case "getCollections":
-        result = result.map(item => item.name);
-        result = result.filter(coll => coll !== 'solution');
-        break;
-      case "solutionCheck":
-        if (result.modifiedCount === 1) {
-          result = { verdict: 'YOU DID IT! YOU SOLVED THE MONGODB MURDER MYSTERY!!!' };
-        } else {
-          result = { verdict: "OH NO YOU HAVE ACCUSED THE WRONG PERSON. YIKES." };
-        }
-        break;
-      case "findCrimeClueCheck":
-        if (result.length === 1 && result[0]?._id.equals(CLUE_CRIME)) {
-          result[0].isClue = true;
 
-        }
-        break;
-      case "findPersonClueCheck":
-        if (result.length === 1) {
-          // Clues for witnesses, suspect or mastermind found
-          if (result[0]?.name &&
-            (result[0].name === CLUE_WITNESS1 ||
-              result[0].name === CLUE_WITNESS2 ||
-              result[0].name === CLUE_SUSPECT
-            )) {
-            result[0].isClue = 1;
-          }
-        }
-        break;
+    if (!req.query || !req.query.query) {
+      return res.status(400).json({ err: 'Missing query term: query' });
     }
+    queryTerm = helpers.validateQueryString(req.query.query);
   } catch (error) {
-    return res.status(500).json({ err: `${error.message}` });
+    return res.status(400).json({ err: `Cannot validate ${error.message}` });
   }
-  return res.status(200).json(result);
+
+  try {
+    [result, _] = await helpers.processQuery(queryTerm);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(error.code || 500).json({ err: `${error.message || "Internal Server Error"}` });
+  }
 });
 
-
-
-// Export all at once
 module.exports = {
-  app // for testing
+  app
 };

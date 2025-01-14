@@ -20,7 +20,7 @@ describe('GET /eval', () => {
     {
       queryParam: 'foo=bar',  // Represents an invalid query string
       expectedStatus: 400,
-      expectedBody: { err: expect.stringContaining('Query is required') }, // Assuming this is part of the error message
+      expectedBody: { err: expect.stringContaining('Missing query term: query') }, // Assuming this is part of the error message
     },
     // TODO: Add more test cases here
 
@@ -35,7 +35,7 @@ describe('GET /eval', () => {
     // TODO: Add more test cases here
 
 
-    // Test case: Query causes parsing error in helpers.parseComplexQuery
+    // Test case: Query causes parsing error in helpers.processQuery
     // {
     //   queryParam: 'invalidMongoQuery={ x: "}" }',  // An intentionally malformed query
     //   expectedStatus: 400,

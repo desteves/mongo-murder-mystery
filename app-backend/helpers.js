@@ -2,6 +2,13 @@
 const connectDB = require('./database'); // Import your database connection module
 const { ObjectId } = require('mongodb');
 
+class APIError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.name = 'APIError';
+    this.code = code; // HTTP Status Code
+  }
+}
 
 // Global regexes for MongoDB query patterns
 const regexes = {
@@ -22,7 +29,7 @@ const matchField =
 {
 
   operator: /(?<=\{|\s)(\$[a-zA-Z_][a-zA-Z0-9_]*)\s*:/g,
-  name:     /(?<=\{|\s)([a-zA-Z_][\w.]*)\s*:/g
+  name: /(?<=\{|\s)([a-zA-Z_][\w.]*)\s*:/g
 
 };
 
@@ -38,7 +45,6 @@ const readCommand = {
 
 // Function to validate and decode the query string
 function validateQueryString(query) {
-  console.log('validateQueryString called with ', query);
   if (!query || typeof query !== "string" || query === null) {
     throw new Error("Query is required");
   } else if (query.length > 1024) {
@@ -53,7 +59,6 @@ function validateQueryString(query) {
     return decodedQuery;
   } catch (error) {
     throw new Error(`Bad input.`);
-
   }
 }
 
@@ -84,7 +89,6 @@ function cleanCollectionName(collectionName) {
   } else if (collectionName.startsWith('.')) {
     collectionName = collectionName.slice(1, -1); // remove the dots
   }
-  // console.log('cleanCollectionName: ', collectionName);
   return collectionName;
 
 }
@@ -247,30 +251,34 @@ function parseFindArgs(Q) {
 }
 
 
-async function parseComplexQuery(Q) {
 
-  // this could 500'd if the connection fails but eval does 400
-  const db = await connectDB();
-  let queryDescription = '';
-  let query = null;
-  let type = '';
+
+async function processQuery(Q) {
+
+  let db = null;
+  let desc = ''; // for jests
+
+  try {
+    db = await connectDB();
+  } catch (error) {
+    throw new APIError("Database connection failed", 500);
+  }
+
 
   if (isGetCollections(Q)) {
-    query = db.listCollections().toArray();
-    queryDescription = 'db.listCollections().toArray()';
-    type = "getCollections";
-    return [query, queryDescription, type];
+    try {
+      desc = 'db.listCollections().toArray()';
+      result = await db.listCollections().toArray().map(item => item.name).filter(coll => coll !== 'solution');
+      return [result, desc];
+    } catch (error) {
+      throw new APIError("Cannot list collections", 500);
+    }
+  } else if (!hasCollectionName(Q)) {
+    throw new APIError("Missing collection name", 400);
   }
 
-  // parse complex query
-  if (!hasCollectionName(Q)) {
-    throw new Error("Missing collection name.");
-  }
 
   const coll = getCollectionName(Q);
-
-  query = db.collection(coll);
-  queryDescription = `db.collection('${coll}')`;
 
   // Locate segments
   const distinctStart = Q.indexOf(readCommand.DISTINCT);
@@ -279,30 +287,39 @@ async function parseComplexQuery(Q) {
   const sortStart = Q.indexOf(readCommand.SORT);
   const findStart = Q.indexOf(readCommand.FIND);
 
-
   if (coll === 'solution') {
 
-    if (findStart !== -1) {
-      const start = findStart + readCommand.FIND.length;
-      const end = Q.indexOf(')', start);
-      const args = Q.substring(start, end).trim();
-
-      if (isSolutionCheck(args)) {
-        const suspect = parseSolutionCheck(args);
-        if (!suspect) {
-          throw new Error("Missing suspect name.");
-        }
-        query = db.collection('solution').updateOne({ "_id": suspect + SALT }, { $inc: { "count": 1 } });
-        queryDescription = `db.collection('solution').updateOne({ "_id": "${suspect}" }, { $inc: { "count": 1 } })`;
-        type = "solutionCheck";
-        return [query, queryDescription, type];
-
-      } else {
-        throw new Error("Not allowed. This is a restricted collection.");
-      }
-    } else {
-      throw new Error("Not allowed. This is a restricted collection.");
+    if (findStart === -1) {
+      throw new APIError("Not allowed. This is a restricted collection", 400);
     }
+    const start = findStart + readCommand.FIND.length;
+    const end = Q.indexOf(')', start);
+    const args = Q.substring(start, end).trim();
+
+    if (!isSolutionCheck(args)) {
+      throw new APIError("Not allowed. This is a restricted collection", 400);
+    }
+
+    const suspect = parseSolutionCheck(args);
+
+    if (!suspect) {
+      throw new APIError("Missing suspect name", 400);
+    }
+
+    try {
+      desc = `db.solution.find({ "name": "${suspect}" })`;
+      result = await db.collection('solution').updateOne({ "_id": suspect + SALT }, { $inc: { "count": 1 } });
+      if (result.modifiedCount === 1) {
+        result = { verdict: 'YOU DID IT! YOU SOLVED THE MONGODB MURDER MYSTERY!!!' };
+      } else {
+        result = { verdict: "OH NO YOU HAVE ACCUSED THE WRONG PERSON. YIKES." };
+      }
+      return [result, desc];
+    } catch (error) {
+      throw new APIError("Cannot check suspect", 500);
+    }
+
+
   }
 
   // is a distinct query
@@ -315,107 +332,124 @@ async function parseComplexQuery(Q) {
     if (!field || field.length === 0) {
       throw new Error("Distinct field missing");
     }
-    query = query.distinct(field);
-    queryDescription = `db.collection('${coll}').distinct('${field}')`;
-    type = "distinct";
 
-    return [query, queryDescription, type];
-  }
-
-
-  // has a count, process it
-  if (countStart !== -1) {
-    const start = countStart + readCommand.COUNT.length;
-    const end = Q.indexOf(')', start);
-    const filter = Q.substring(start, end).trim(); // debating on supporting this....
-
-    if (filter.length > 0) {
-      try {
-        query = query.count(JSON.parse(filter));
-        queryDescription = `db.collection('${coll}').count(${filter})`;
-      } catch (error) {
-        throw new Error("Invalid count filter JSON");
-      }
-    } else { // just do a count
-      query = query.count();
-      queryDescription = `db.collection('${coll}').count()`;
-    }
-
-    if (findStart === -1) {
-      type = "count";
-      return [query, queryDescription, type];
+    try {
+      desc = `db.${coll}.distinct('${field}')`;
+      result = await db.collection(coll).distinct(field);
+      return [result, desc];
+    } catch (error) {
+      throw new Error("Cannot run distinct query");
     }
   }
 
-  // process the find args.
+  // just a count query, process it (no find)
+  if (countStart !== -1 && findStart === -1) {
+
+    // debating on supporting this....not at this moment
+    // const start = countStart + readCommand.COUNT.length;
+    // const end = Q.indexOf(')', start);
+    // let filter = Q.substring(start, end).trim();
+
+    // if (filter.length > 0) {
+    //   try {
+    //     filter = JSON.parse(filter);
+    //   } catch (error) {
+    //     throw new APIError("Invalid count filter JSON", 400);
+    //   }
+    // } else {
+    //   filter = None;
+    // }
+
+    try {
+      desc = `db.${coll}.count()`;
+      result = await db.collection(coll).count();
+      return [result, desc];
+    } catch (error) {
+      throw new APIError("Cannot run count query", 500);
+    }
+  }
+
+  // process the find query.
   if (findStart !== -1) {
     const start = findStart + readCommand.FIND.length;
     const end = Q.indexOf(')', start);
     const args = Q.substring(start, end).trim();
 
-    if (isFindArgs(args)) { // okay to be missing / empty
-      const [filter, projection] = parseFindArgs(args);
-      query = query.find(filter, { projection });
-      queryDescription = `db.collection('${coll}').find(${JSON.stringify(filter)}, ${JSON.stringify(projection)})`;
-
-
-      // has a limit, process it
-      if (limitStart !== -1) {
-        const start = limitStart + readCommand.LIMIT.length;
-        const end = Q.indexOf(')', start);
-
-        let limit = 30;
-        limit = parseInt(Q.substring(start, end));
-        if (isNaN(limit)) {
-          throw new Error("Limit needs to be a number");
-        }
-        if (limit < 1 || limit > 30) {
-          limit = 30;
-        }
-        query = query.limit(limit);
-        queryDescription = `${queryDescription}.limit(${limit})`;
-      } // end limit
-
-      // has a sort, process it
-      if (sortStart !== -1) {
-        const start = sortStart + readCommand.SORT.length;
-        const end = Q.indexOf(')', start);
-        const filter = Q.substring(start, end).trim();
-
-        try {
-          query = query.sort(JSON.parse(filter));
-          queryDescription = `${queryDescription}.sort(${filter})`;
-        } catch (error) {
-          throw new Error("Invalid sort filter JSON");
-        }
-      } // end sort
-
-      // not a count query and no limit specified, add it
-      if (limitStart === -1 && countStart === -1) {
-        console.log('No limit specified for non-count query. Setting limit to 30.');
-        query = query.limit(30);
-        queryDescription = `${queryDescription}.limit(30)`;
-      }
-
-      // not a count query, exhaust the cursor
-      if (countStart === -1) {
-        query = query.toArray();
-        queryDescription = `${queryDescription}.toArray()`;
-      }
-
-      if (coll === 'crime') {
-        return [query, queryDescription, "findCrimeClueCheck"];
-      } else if (coll === 'person') {
-        return [query, queryDescription, "findPersonClueCheck"];
-      } else {
-        return [query, queryDescription, "find"];
-      }
-
-    } else {
-      throw new Error("Invalid find arguments.");
+    if (!isFindArgs(args)) { // okay to be missing / empty
+      throw new APIError("Invalid find arguments", 400);
     }
-  } // end find
-  throw new Error("Unsupported query.");
+
+    const [filter, projection] = parseFindArgs(args);
+    const addLimit = (limitStart !== -1);
+    const addSort = (sortStart !== -1);
+    const addCount = (countStart !== -1);
+
+    let limitFilter = 30;
+    let sortFilter = { "_id": 1 };
+    // let countFilter = {}; // not supported
+
+    if (addCount) {
+
+      try {
+        desc = `db.${coll}.find(${JSON.stringify(filter)}, ${JSON.stringify(projection)}).count()`;
+        result = await db.collection(coll).find(filter, projection).count();
+        return [result, desc];
+      }
+      catch (error) {
+        throw new APIError("Cannot run find-count query", 500);
+      }
+    } // end count
+
+
+    // has a limit, process it
+    if (addLimit) {
+      const start = limitStart + readCommand.LIMIT.length;
+      const end = Q.indexOf(')', start);
+
+      limit = parseInt(Q.substring(start, end));
+      if (isNaN(limit)) {
+        throw new APIError("Limit needs to be a number", 400);
+      }
+      if (limit < 1 || limit > 30) {
+        limit = 30;
+      }
+      limitFilter = limit;
+    }
+
+    // has a sort, process it
+    if (addSort) {
+      const start = sortStart + readCommand.SORT.length;
+      const end = Q.indexOf(')', start);
+      const filter = Q.substring(start, end).trim();
+
+      try {
+        sortFilter = JSON.parse(filter);
+      } catch (error) {
+        throw new APIError("Invalid sort filter JSON", 400);
+      }
+    } // end sort
+
+    try {
+      desc = `db.${coll}.find(${JSON.stringify(filter)}, ${JSON.stringify(projection)}).limit(${limitFilter}).sort(${JSON.stringify(sortFilter)}).toArray()`;
+      result = await db.collection(coll).find(filter, projection).limit(limitFilter).sort(sortFilter).toArray();
+      if (coll === 'crime' && result.length === 1 && result[0]?._id.equals(CLUE_CRIME)) {
+        result[0].isClue = true;
+      } else if (coll === 'person' && result.length === 1) {
+        if (result[0]?.name &&
+          (result[0].name === CLUE_WITNESS1 ||
+            result[0].name === CLUE_WITNESS2 ||
+            result[0].name === CLUE_SUSPECT
+          )) {
+          result[0].isClue = 1;
+        }
+      }
+      return [result, desc];
+    } catch (error) {
+      throw new APIError("Cannot run find query", 500);
+    }
+  }
+  throw new APIError("Unsupported query", 400);
+
 }
 
 // Export all at once
@@ -432,6 +466,6 @@ module.exports = {
   cleanRegexValues,
   parseFindArgs,
   quoteJsonKeys,
-  parseComplexQuery,
+  processQuery,
   matchField
 };
