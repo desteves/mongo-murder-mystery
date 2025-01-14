@@ -43,8 +43,15 @@ describe('processQuery', () => {
   test('should handle listing collections', async () => {
     const query = 'db.getCollectionNames()';
     const [_, desc] = await processQuery(query);
-    expect(desc).toBe('db.listCollections().toArray()');
+    expect(desc).toBe('db.listCollections()');
   });
+
+  test('should handle listing collections with ending semi', async () => {
+    const query = 'db.getCollectionNames();';
+    const [_, desc] = await processQuery(query);
+    expect(desc).toBe('db.listCollections()');
+  });
+
   test('should handle valid solution collection suspect check', async () => {
     const query = 'db.solution.find({ "name": "suspectId" })';
     const [_, desc] = await processQuery(query);
@@ -126,6 +133,98 @@ describe('processQuery', () => {
   test('should throw an error for invalid find arguments', async () => {
     const query = 'db.collection.find({ invalid })'; // Invalid JSON in find arguments
     await expect(processQuery(query)).rejects.toThrow("Error parsing filter: Expected property name or '}' in JSON at position 2 (line 1 column 3)");
+  });
+
+
+  // front-end queries
+  const queries = [
+    {
+      query: 'db["solution"].find({ "name": "Jack" })',
+      expectedDesc: 'db.solution.find({ "name": "Jack" })',
+    },
+    {
+      query: 'db["person"].count()',
+      expectedDesc: 'db.person.count()',
+    },
+    {
+      query: 'db["person"].count();',
+      expectedDesc: 'db.person.count()',
+    },
+    {
+      query: 'db.person.count()',
+      expectedDesc: 'db.person.count()',
+    },
+    {
+      query: 'db.person.count();',
+      expectedDesc: 'db.person.count()',
+    },
+    {
+      query: 'db["person"].find().limit(3)',
+      expectedDesc: 'db.person.find({}, {}).limit(3).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["crime"].find({}, {"type": 1, "city": 1}).limit(3)',
+      expectedDesc: 'db.crime.find({}, {"type":1,"city":1}).limit(3).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["crime"].distinct("type")',
+      expectedDesc: 'db.crime.distinct(\'type\')',
+    },
+    {
+      query: 'db["crime"].find({}, {"type": 1, "city": 1 })',
+      expectedDesc: 'db.crime.find({}, {"type":1,"city":1}).limit(30).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["person"].find({ "name": "Kinsey Erickson"})',
+      expectedDesc: 'db.person.find({"name":"Kinsey Erickson"}, {}).limit(30).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["crime"].find({ "type": "theft", "city": "Chicago" })',
+      expectedDesc: 'db.crime.find({"type":"theft","city":"Chicago"}, {}).limit(30).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["crime"].find({ "city": /^I/ })',
+      expectedDesc: 'db.crime.find({"city":{"$regex":"^I"}}, {}).limit(30).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["crime"].find({ "date": { "$gt": 20180115, "$lt": 20190215 } })',
+      expectedDesc: 'db.crime.find({"date":{"$gt":20180115,"$lt":20190215}}, {}).limit(30).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["crime"].find({ "date": { $gt: 20180115, $lt: 20190215 } })',
+      expectedDesc: 'db.crime.find({"date":{"$gt":20180115,"$lt":20190215}}, {}).limit(30).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["crime"].find({ date: { $gt: 20180115, $lt: 20190215 } })',
+      expectedDesc: 'db.crime.find({"date":{"$gt":20180115,"$lt":20190215}}, {}).limit(30).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["person"].find().sort({ "driversLicense.age": -1 }).limit(1)',
+      expectedDesc: 'db.person.find({}, {}).limit(1).sort({"driversLicense.age":-1}).toArray()',
+    },
+    {
+      query: 'db["person"].find({"driversLicense.gender": "female"}, { "name": 1, "driversLicense.height": 1 }).sort({"driversLicense.height": -1}).limit(1)',
+      expectedDesc: 'db.person.find({"driversLicense.gender":"female"}, {"name":1,"driversLicense.height":1}).limit(1).sort({"driversLicense.height":-1}).toArray()',
+    },
+    {
+      query: 'db["gymCheckin"].find().limit(1)',
+      expectedDesc: 'db.gymCheckin.find({}, {}).limit(1).sort({"_id":1}).toArray()',
+    },
+    {
+      query: 'db["person"].find({ "driversLicense.age": { "$gte": 18, "$lte": 21 }  }).sort( { "age": -1 })',
+      expectedDesc: 'db.person.find({"driversLicense.age":{"$gte":18,"$lte":21}}, {}).limit(30).sort({"age":-1}).toArray()',
+    },
+    {
+      query: 'db["person"].find({ "driversLicense.age": { "$gte": 18, "$lte": 21 }  }).sort( { age: -1 })',
+      expectedDesc: 'db.person.find({"driversLicense.age":{"$gte":18,"$lte":21}}, {}).limit(30).sort({"age":-1}).toArray()',
+    },
+  ];
+
+  queries.forEach(({ query, expectedDesc }) => {
+    test(`should process ${query}`, async () => {
+      const [_, actualDesc] = await processQuery(query);
+      expect(actualDesc).toBe(expectedDesc);
+    });
   });
 });
 

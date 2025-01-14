@@ -1,12 +1,5 @@
 const request = require('supertest'); // Import Supertest
 const { app } = require('./server.js'); // Adjust the path as necessary
-const helpers = require('./helpers');
-const { ObjectId } = require('mongodb');
-
-
-// Define the ObjectId based on the mocked environment variable
-const CLUE_CRIME = new ObjectId(process.env.CLUE_CRIME);
-
 
 describe('GET /eval', () => {
 

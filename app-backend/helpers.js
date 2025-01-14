@@ -22,6 +22,10 @@ const regexes = {
 
 // const PORT = 8080;
 const SALT = process.env.SALT || ''; // Salt for solution check
+const CLUE_CRIME = new ObjectId(process.env.CLUE_CRIME) || 'missing';
+const CLUE_WITNESS1 = process.env.CLUE_WITNESS1 || 'missing';
+const CLUE_WITNESS2 = process.env.CLUE_WITNESS2 || 'missing';
+const CLUE_SUSPECT = process.env.CLUE_SUSPECT || 'missing';
 
 // operator Regex to match fields starting with $ that are not quoted
 // name Regex to match field names that are not quoted.
@@ -264,10 +268,13 @@ async function processQuery(Q) {
 
   if (isGetCollections(Q)) {
     try {
-      desc = 'db.listCollections().toArray()';
-      result = await db.listCollections().toArray().map(item => item.name).filter(coll => coll !== 'solution');
+      desc = 'db.listCollections()';
+      result = await db.listCollections().toArray();
+      result = result.map(item => item.name).filter(coll => coll !== 'solution');
       return [result, desc];
     } catch (error) {
+      console.log('Error in listCollections');
+      console.log(error);
       throw new APIError("Cannot list collections", 500);
     }
   } else if (!hasCollectionName(Q)) {
@@ -313,6 +320,7 @@ async function processQuery(Q) {
       }
       return [result, desc];
     } catch (error) {
+      console.log(error);
       throw new APIError("Cannot check suspect", 500);
     }
 
@@ -327,7 +335,7 @@ async function processQuery(Q) {
     const field = parseStringField(Q.substring(start, end));
 
     if (!field || field.length === 0) {
-      throw new Error("Distinct field missing");
+      throw new APIError("Distinct field missing", 400);
     }
 
     try {
@@ -335,7 +343,8 @@ async function processQuery(Q) {
       result = await db.collection(coll).distinct(field);
       return [result, desc];
     } catch (error) {
-      throw new Error("Cannot run distinct query");
+      console.log(error);
+      throw new APIError("Cannot run distinct query", 500);
     }
   }
 
@@ -362,6 +371,8 @@ async function processQuery(Q) {
       result = await db.collection(coll).count();
       return [result, desc];
     } catch (error) {
+
+      console.log(error);
       throw new APIError("Cannot run count query", 500);
     }
   }
@@ -373,6 +384,8 @@ async function processQuery(Q) {
     const args = Q.substring(start, end).trim();
 
     if (!isFindArgs(args)) { // okay to be missing / empty
+
+      console.log(error);
       throw new APIError("Invalid find arguments", 400);
     }
 
@@ -393,6 +406,7 @@ async function processQuery(Q) {
         return [result, desc];
       }
       catch (error) {
+        console.log(error);
         throw new APIError("Cannot run find-count query", 500);
       }
     } // end count
@@ -442,6 +456,7 @@ async function processQuery(Q) {
       }
       return [result, desc];
     } catch (error) {
+      console.log(error);
       throw new APIError("Cannot run find query", 500);
     }
   }
