@@ -15,6 +15,13 @@ All the code to run the https://mongomurdermystery.com site can be found in this
 
 This murder mystery was inspired by the [SQL Murder Mystery](https://github.com/NUKnightLab/sql-mysteries).
 
+
+
+## TODOs
+
+- Add arch diagram
+- Use EJSON
+
 ## Copyright and License
 Original code for this project is released under the MIT License.
 

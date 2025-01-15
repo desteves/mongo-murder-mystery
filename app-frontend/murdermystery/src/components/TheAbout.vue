@@ -22,9 +22,6 @@ import WelcomeItem from './WelcomeItem.vue'
   </WelcomeItem>
 
   <WelcomeItem>
-
-
-
     <template #heading>
       <div id="tech">
         <a href="#tech">Tech Stack</a>
@@ -37,16 +34,19 @@ import WelcomeItem from './WelcomeItem.vue'
           View this project on GitHub
         </a></li>
 
-      <li> The application runs in two Google CloudRun services deployed via CloudBuild with Cloudflare CDN/HTTPS.
+      <li> The application runs in two Google CloudRun services deployed via CloudBuild with Cloudflare.
       </li>
       <li>The front end is Vite. </li>
       <li>The backend is Javascript which talks to a <a
           href="https://www.mongodb.com/cloud/atlas/register?utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves"
-          target="_blank"> 🆓 MongoDB Atlas Cluster </a> via the mongodb js driver. It receives the
+          target="_blank"> 🆓 MongoDB Atlas Cluster </a> via a PrivateEndpoint and uses the via the node mongodb native driver. It receives the
         queries from the front end as encoded strings and translates them. The backend only accepts a very limited
         mongosh-like
         commands and by NO means it reflects its full capabilities. </li>
 
+      <li>
+        MIT License
+      </li>
     </ul>
 
   </WelcomeItem>
@@ -106,15 +106,13 @@ import WelcomeItem from './WelcomeItem.vue'
       <li>
         The Schema diagram was taken when migrating the SQL version of this project via the MongoDB Relational
         Migrator. Another popular source for creating Schema diagrams is Hackolade. If you want to learn more about the
-        experience when migrating from SQL to MongoDB, I encourage you to read out my
-        <a href="https://medium.com/mongodb/3-pitfalls-to-avoid-when-migrating-postgresql-to-mongodb-f40ef2f7cf15"> Medium article </a>
+        experience when migrating from SQL to MongoDB, I encourage you to read my
+        <a href="https://medium.com/mongodb/3-pitfalls-to-avoid-when-migrating-postgresql-to-mongodb-f40ef2f7cf15">
+          Medium article </a>
       </li>
       <li>
         I tried to keep the flow as close as possible to the SQL Version of the Murder Mystery as that was the
         inspiration behind this project.
-      </li>
-      <li>
-        MIT License
       </li>
     </ul>
 
