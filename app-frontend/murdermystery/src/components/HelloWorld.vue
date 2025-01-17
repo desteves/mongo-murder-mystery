@@ -1,6 +1,6 @@
 <template>
   <div>
-    <title>Mongo Murder Mystery</title>
+    <title>MongoDB Murder Mystery</title>
 
     <subtitle>
       🧐 Can you find out <b>whodunnit</b> ?
