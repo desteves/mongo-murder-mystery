@@ -31,6 +31,10 @@
 
   </WelcomeItem>
 
+  <div>
+    <Timer />
+  </div>
+
   <WelcomeItem>
 
     <template #heading>
@@ -125,6 +129,7 @@
 import { ref } from 'vue';
 import WelcomeItem from './WelcomeItem.vue';
 import MongoQueryPrompt from './MongoQueryPrompt.vue';
+import Timer from "./Timer.vue";
 
 // Import the image file
 import mdbSchemaImage from '@/assets/mdb-schema.png';
