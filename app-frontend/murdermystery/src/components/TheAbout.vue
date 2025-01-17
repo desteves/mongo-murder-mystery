@@ -39,8 +39,8 @@ import WelcomeItem from './WelcomeItem.vue'
       <li>The front end is Vite. </li>
       <li>The backend is Javascript which talks to a <a
           href="https://www.mongodb.com/cloud/atlas/register?utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves"
-          target="_blank"> 🆓 MongoDB Atlas Cluster </a> via a PrivateEndpoint and uses the via the node mongodb native driver. It receives the
-        queries from the front end as encoded strings and translates them. The backend only accepts a very limited
+          target="_blank"> 🆓 MongoDB Atlas Cluster </a> via a PrivateEndpoint and uses the node mongodb native driver. It receives the
+        queries from the front end as encoded strings and translates them. The backend only accepts a VERY limited
         mongosh-like
         commands and by NO means it reflects its full capabilities. </li>
 
