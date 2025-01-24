@@ -7,10 +7,12 @@
     </div>
 
     <textarea v-model="queryText" :placeholder="placeholder" class="query-textarea"></textarea>
+
     <div class="button-group">
       <button @click="runQuery">RUN</button>
       <button @click="resetQuery">RESET</button>
     </div>
+
     <!-- Conditionally display this div when showClue is true -->
     <div v-if="showClue" class="clue-message">
       <br /><br />
@@ -19,6 +21,7 @@
       </b>
       <br /><br />
     </div>
+    
     <div v-if="queryResult" class="query-result">
       <!-- Use v-html to render the formatted JSON inside pre with syntax highlighting -->
       <pre ref="codeBlock" class="language-json" v-html="queryResult"></pre>

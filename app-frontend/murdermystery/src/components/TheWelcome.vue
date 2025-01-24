@@ -1,4 +1,5 @@
 <template>
+  <MongoQueryPromptAuto />
 
   <WelcomeItem>
 
@@ -45,7 +46,8 @@
     <div>
       This exercise is a way to practice MongoDB skills (rather than a full tutorial). If you've never tried MongoDB,
       check out the
-      <router-link class="boldlink" to="/walkthrough#start">walkthrough</router-link>. If you want to learn a lot about
+      <router-link class="boldlink" to="/walkthrough#start">walkthrough</router-link>. If you want to learn a lot
+      about
       MongoDB, you may prefer
       a
       complete (free) course like
@@ -86,7 +88,7 @@
     </div>
     <MongoQueryPrompt title="See the details of the crime collection"
       subtitle="Change &quot;crime&quot; to see other collections. You'll need to keep those quotes around the collection name so MongoDB can recognize them properly. Click 'RESET' if you get stuck."
-      preFilledText='db["crime"].find().limit(1)' />
+      preFilledText='db.crime.find().limit(1)' />
   </WelcomeItem>
   <WelcomeItem>
     <!-- <template #icon>
@@ -119,7 +121,7 @@
     </template>
     <MongoQueryPrompt title="Whodunnit?"
       subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you'll see a congratulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of your suspect.🔐 "
-      preFilledText='db["solution"].find({ "name": "Jack" })' />
+      preFilledText='db.solution.find({ "name": "Jack" })' />
     Don't forget to <a class="boldlink" href="/about#social">brag</a> once you have solved the
     intriguing crime.
   </WelcomeItem>
@@ -129,6 +131,7 @@
 import { ref } from 'vue';
 import WelcomeItem from './WelcomeItem.vue';
 import MongoQueryPrompt from './MongoQueryPrompt.vue';
+import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import Timer from "./Timer.vue";
 
 // Import the image file

@@ -1,7 +1,6 @@
 <template>
   <div>
     <title>MongoDB Murder Mystery</title>
-
     <subtitle>
       🧐 Can you find out <b>whodunnit</b> ?
       <img class="responsive-img" src="../assets/mdb-search.png"

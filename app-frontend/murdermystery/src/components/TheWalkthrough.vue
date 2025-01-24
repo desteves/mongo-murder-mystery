@@ -200,10 +200,10 @@
     use these names to query the data in the collections. Keep in mind, they are case-sensitive.
     <MongoQueryPrompt title="How many people are there?"
       subtitle="Try changing person to any other collection to see how many documents it has."
-      preFilledText='db["person"].count()' />
+      preFilledText='db.person.count()' />
     <MongoQueryPrompt title="What do we know about those people?"
       subtitle="If you want all the data for each document in a collection, use the 'find()' command. As you just learned, there are thousands of people, so rather than seeing all of them, we'll limit the results to just the first 3. Try changing the number."
-      preFilledText='db["person"].find().limit(3)' />
+      preFilledText='db.person.find().limit(3)' />
 
     Sometimes a single document can have many many fields and it can be hard scroll through all of
     these. We can specify which fields the database returns by modifying our query. Field names are also
@@ -211,7 +211,7 @@
 
     <MongoQueryPrompt title="Only show some details about a crime."
       subtitle=" Execute the query below. See the difference? Go ahead and re-run the query with different field names and collections."
-      preFilledText='db["crime"].find({}, {"type": 1, "city": 1}).limit(3)' />
+      preFilledText='db.crime.find({}, {"type": 1, "city": 1}).limit(3)' />
 
 
     <h2 id="distinct">
@@ -226,7 +226,7 @@
     command to give you a quick look at which values are in the collection for a given field. <br />
     <MongoQueryPrompt title="What are the possible types of crimes?"
       subtitle=" Feel free to substitue the field name 'type' for any other valid field name. Consult the Schema diagram as needed"
-      preFilledText='db["crime"].distinct("type")' />
+      preFilledText='db.crime.distinct("type")' />
     Look at the results and take a wild guess the type of crime we're interested in.
     <br /><br />
     <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
@@ -273,7 +273,7 @@
 
     <MongoQueryPrompt title="Return only the crime type and city information."
       subtitle="Try different field names and toggling between either all 0s or all 1s. You'll quickly learn that using 0s omits the specified field(s) whereas using 1s returns the specified field(s)."
-      preFilledText='db["crime"].find({}, {"type": 1, "city": 1 })' />
+      preFilledText='db.crime.find({}, {"type": 1, "city": 1 })' />
 
     <h2 id="filtering">
       <a href="#filtering">🔬 Filtering documents</a>
@@ -281,7 +281,7 @@
     <MongoQueryPrompt
       title="Here's a simple query to get everything about a specific person. (Don't worry—all of the SSNs are made up.)"
       subtitle="Note that you need to use double quotes (&quot;) around literal text so MongoDB can tell it apart. Try to re-run the query with &quot;Yessenia Fossen&quot;, &quot;Ted Denfip&quot; or &quot;Davina Gangwer&quot;."
-      preFilledText='db["person"].find({ "name": "Kinsey Erickson"})' />
+      preFilledText='db.person..find({ "name": "Kinsey Erickson"})' />
     <br />
 
     <h2 id="multiple-filters">
@@ -292,7 +292,7 @@
 
     <MongoQueryPrompt title="Show me thefts in Chicago."
       subtitle="Notice that when querying for text values, you must match the data as it is in the database. Try changing 'Chicago' to 'chicago' and running the query. Then, see if you can edit this query to find the very first clue based on the items you vaguely remebered from way at the top above (💀🗓️📍)."
-      preFilledText='db["crime"].find({ "type": "theft", "city": "Chicago" })' />
+      preFilledText='db.crime.find({ "type": "theft", "city": "Chicago" })' />
 
     Feeling super stuck? Re-read <a href="#plot"> <b>the plot</b> </a> or
 
@@ -302,7 +302,7 @@
 
     <div v-if="hintVisible" class="hint-text"> <br />
       Paste the following on box above and RUN it to get your first clue. <br />
-      <code>db["crime"].find({"type": "murder", "city": "MongoDB City", "date": 20180115})</code>
+      <code>db.crime.find({"type": "murder", "city": "MongoDB City", "date": 20180115})</code>
       <br />
     </div>
 
@@ -351,7 +351,7 @@
     <br /><br />
     <MongoQueryPrompt title="Find all crimes in cities that start with I."
       subtitle="Try variations like /^Irvin/ and /^I/ or come up with your own. Remember, the regex pattern should be enclosed in forward slashes."
-      preFilledText='db["crime"].find({ "city": /^I/ })' />
+      preFilledText='db.crime.find({ "city": /^I/ })' />
 
 
 
@@ -381,7 +381,7 @@
 
     <MongoQueryPrompt title="Which crimes happened after mid January of 2018 and before mid February 2019?"
       subtitle="Change the date to see how the results change. Note that numbers should NOT be encosed in quotes."
-      preFilledText='db["crime"].find({ "date": { "$gt": 20180115, "$lt": 20190215 } })' />
+      preFilledText='db.crime.find({"date": { $gt: 20180115, $lt: 20190215 } })' />
 
     <br /><br />
     <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
@@ -411,13 +411,13 @@
     look over that list to find the answer. Instead, we'll use a sorting command to help us out. <br /><br />
     It's really quite intuitive: just add <code>.sort({ "field": 1 })</code> at the end of
     your <code>find()</code> query. The
-    1 indicates results will show the smallest values first. If you want the largest values first,
+    1 indicates results will show the smallest (or most recent) values first. If you want the largest (oldest) values first,
     use -1.
     <br /><br />
 
     <MongoQueryPrompt title="Run this query to see how to control sort order."
       subtitle="Change 1 to -1 and try sorting on other fields too.  Note we also use the limit to cut down the results to only see what we are interested in."
-      preFilledText='db["person"].find().sort({"driversLicense.age": -1})' />
+      preFilledText='db.person.find().sort({"driversLicense.age": -1})' />
     <br /><br />
 
 
@@ -438,7 +438,7 @@
 
     <MongoQueryPrompt title="How tall is the tallest female?"
       subtitle="Sorry my fellow non-Americans, the number is shown in inches. Notice how we can put everything we've learned to optimize our results with the filter and projection parts of the query!"
-      preFilledText='db["person"].find({"driversLicense.gender": "female"}, { "name": 1, "driversLicense.height": 1 }).sort({"driversLicense.height": -1}).limit(1)' />
+      preFilledText='db.person.find({"driversLicense.gender": "female"}, { "name": 1, "driversLicense.height": 1 }).sort({"driversLicense.height": -1}).limit(1)' />
 
 
     <br /><br />
@@ -475,7 +475,7 @@
 
     <div v-if="hintTwoVisible" class="hint-text"> <br />
       Paste the following on box above and RUN it to get your next clue. <br />
-      <code>db["person"].find({"addressStreetName": "Northwestern Dr"}).sort({"addressNumber": -1}).limit(1)</code>
+      <code>db.person.find({"addressStreetName": "Northwestern Dr"}).sort({"addressNumber": -1}).limit(1)</code>
 
       <br />
       Now go ahead and put a query together to find the other witness. <br />
@@ -494,7 +494,7 @@
       :class="{ zoomed: isZoomed }" />
     for guidance.<br />
     <MongoQueryPrompt title="Form a query to learn more about the clues from the interviews."
-      subtitle="There's more than one way to do it" preFilledText='db["gymCheckin"].find().limit(1)' />
+      subtitle="There's more than one way to do it" preFilledText='db.gymCheckin.find().limit(1)' />
 
     <br /><br />
 
@@ -511,7 +511,7 @@
 
     <MongoQueryPrompt title="Solve the muder mystery"
       subtitle="It will take more than one query to find them, but you can just keep editing this box, keeping notes on your results along the way. When you think you know the answer, go to the next section. Ensure to dig all the way to uncover the evil mastermind behind it all. (Modify the query below to get started)"
-      preFilledText='db["person"].find({ "driversLicense.age": { "$gte": 18, "$lte": 21 }  }).sort( { "age": -1 })' />
+      preFilledText='db.person.find({ "driversLicense.age": { $gte: 18, $lte: 21 } }).sort( { "age": -1 })' />
 
     <br /><br />
     <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">
@@ -527,7 +527,7 @@
     </template>
     <MongoQueryPrompt title="Whodunnit?" subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you' ll see a
       congratulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of
-      your suspect.🔐 " preFilledText='db["solution"].find({ "name" : "Jack" })' />
+      your suspect.🔐 " preFilledText='db.solution.find({ "name" : "Jack" })' />
     Don't forget to <a class="boldlink" href="/about#social">brag</a> once you have solved the
     intriguing crime.
 
