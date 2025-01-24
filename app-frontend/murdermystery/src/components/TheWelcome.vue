@@ -1,5 +1,5 @@
 <template>
-  <MongoQueryPromptAuto />
+
 
   <WelcomeItem>
 
