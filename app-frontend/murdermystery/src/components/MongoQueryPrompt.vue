@@ -21,7 +21,7 @@
       </b>
       <br /><br />
     </div>
-    
+
     <div v-if="queryResult" class="query-result">
       <!-- Use v-html to render the formatted JSON inside pre with syntax highlighting -->
       <pre ref="codeBlock" class="language-json" v-html="queryResult"></pre>
@@ -56,7 +56,8 @@ export default {
     return {
       queryText: this.preFilledText,
       queryResult: null,
-      showClue: false // New reactive property to toggle the clue div
+      showClue: false, // New reactive property to toggle the clue div
+      apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
     };
   },
   computed: {
@@ -96,18 +97,18 @@ export default {
         return false;
       }
 
-      // import.meta.env.MMM_API_BASE_URL <-- meh needs at build, todo -- figure out later
-      const apiUrl = "https://mmm-be-1020079043644.us-central1.run.app" // "http://localhost:3000"; //
-      axios.get(`${apiUrl}/eval`, {
-          params: {
-            query: encodedQueryStr,
-            language: 'mongosh' // Add the language query param
-          },
-          headers: {
-            'Accept': 'application/json', // Request JSON response
+      console.log('Sending query for eval to:', this.apiUrl);
+      
+      axios.get(`${this.apiUrl}/eval`, {
+        params: {
+          query: encodedQueryStr,
+          language: 'mongosh' // Add the language query param
+        },
+        headers: {
+          'Accept': 'application/json', // Request JSON response
 
-          }
-        })
+        }
+      })
         .then(response => {
           // Directly stringify the JSON response
 

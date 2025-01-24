@@ -511,7 +511,7 @@
 
     <MongoQueryPrompt title="Solve the muder mystery"
       subtitle="It will take more than one query to find them, but you can just keep editing this box, keeping notes on your results along the way. When you think you know the answer, go to the next section. Ensure to dig all the way to uncover the evil mastermind behind it all. (Modify the query below to get started)"
-      preFilledText='db.person.find({ "driversLicense.age": { $gte: 18, $lte: 21 } }).sort( { "age": -1 })' />
+      preFilledText='db.person.find({ "driversLicense.age": { $gte: 18, $lte: 21 } }).sort({ "age": -1 })' />
 
     <br /><br />
     <a href="#" class="back-to-top" v-show="showBackToTop" @click.prevent="scrollToTop" title="Back to Top">

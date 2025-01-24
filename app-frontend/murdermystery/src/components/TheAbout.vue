@@ -39,7 +39,8 @@ import WelcomeItem from './WelcomeItem.vue'
       <li>The front end is Vite. </li>
       <li>The backend is Javascript which talks to a <a
           href="https://www.mongodb.com/cloud/atlas/register?utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves"
-          target="_blank"> 🆓 MongoDB Atlas Cluster </a> via a PrivateEndpoint and uses the node mongodb native driver. It receives the
+          target="_blank"> 🆓 MongoDB Atlas Cluster </a> via a PrivateEndpoint and uses the node mongodb native driver.
+        It receives the
         queries from the front end as encoded strings and translates them. The backend only accepts a VERY limited
         mongosh-like
         commands and by NO means it reflects its full capabilities. </li>
@@ -53,41 +54,29 @@ import WelcomeItem from './WelcomeItem.vue'
 
   <WelcomeItem>
 
-
     <template #heading>
       <div id=" social">
         <a href="#social">Social Media</a>
       </div>
     </template>
 
-    Did you find out <b>whodunnit?</b> Share your achievement on social and tag
-    us!
+    Did you find out <b>whodunnit?</b> Share your achievement on social.
 
     <ul>
-      <li> <a class="boldlink" href="https://x.com/intent/post" target="_blank">
-          Share on X
-        </a><b>COPY AND PASTE: </b><br /> <br />
-
-        🕵️‍♂️🔍🙌 #MysterySolved It was...shhhhh! Can you find out #whodunnit? Go to mongomudermystery.com TY @MongoDB
-        @null_string #LoveYourDevelopers
-
-        <br /> <br />
-
-      </li>
-
-
       <li>
-        <a class="boldlink"
-          href="https://www.linkedin.com/shareArticle?mini=true&url=https://mongomurdermystery.com&title=Can%20you%20find%20out%20whodunnit%20&summary=I%20sure%20did&source=MongoMurderMystery"
-          target="_blank">
-          Share on LinkedIn
-        </a>
+        Hint: Consider taking a screenshot of the congratulatory message along with the time it took you to solve the
+        mystery!
+      </li>
+      <li>
+        <b>COPY AND PASTE: </b><br /> <br />
+        🕵️‍♂️🔍🙌 #MysterySolved It was...shhhhh! Can you find out #whodunnit? Go to mongomudermystery.com TY
+        #LoveYourDevelopers
+        <br /> <br />
 
       </li>
 
     </ul>
   </WelcomeItem>
-
 
   <WelcomeItem>
 

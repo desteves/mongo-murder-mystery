@@ -1,6 +1,5 @@
 <template>
 
-
   <WelcomeItem>
 
     <template #heading>
@@ -43,6 +42,7 @@
         <a href="#new">🍼 New to MongoDB?</a>
       </div>
     </template>
+
     <div>
       This exercise is a way to practice MongoDB skills (rather than a full tutorial). If you've never tried MongoDB,
       check out the
@@ -62,9 +62,6 @@
   </WelcomeItem>
 
   <WelcomeItem>
-    <!-- <template #icon>
-      <ExploreIcon />
-    </template> -->
     <template #heading>
 
       <div id="experienced">
@@ -79,7 +76,8 @@
       Experienced MongoDB users can often infer the structure of any database by querying it. We use a tool called
       <code>mongosh</code> to find out what's in the Murder Mystery database.
     </div>
-    <MongoQueryPrompt title="Find the list of collections (places where data is stored)." subtitle="This command works in mongosh. There are many other ways to access the database but this is a popular one and it's one we'll continue to use here.
+    <br /><br /><br /><br />TEST TEST TODO REMOVE TEST TEST <br /><br /><br /><br />
+    <MongoQueryPromptAuto title="Find the list of collections (places where data is stored)." subtitle="This command works in mongosh. There are many other ways to access the database but this is a popular one and it's one we'll continue to use here.
 
       When you're ready, click 'RUN'. The results will show you all the names of the collections in the database."
       preFilledText="db.getCollectionNames()" />
@@ -91,9 +89,6 @@
       preFilledText='db.crime.find().limit(1)' />
   </WelcomeItem>
   <WelcomeItem>
-    <!-- <template #icon>
-      <SolutionIcon />
-    </template> -->
     <template #heading>
       <div id="go">
         <a href="#go">🧩 The rest is up to you!</a>
@@ -131,7 +126,7 @@
 import { ref } from 'vue';
 import WelcomeItem from './WelcomeItem.vue';
 import MongoQueryPrompt from './MongoQueryPrompt.vue';
-import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
+import MongoQueryPromptAuto from './<MongoQueryPromptAuto.vue';
 import Timer from "./Timer.vue";
 
 // Import the image file

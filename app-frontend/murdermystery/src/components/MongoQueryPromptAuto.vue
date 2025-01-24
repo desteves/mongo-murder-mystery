@@ -6,7 +6,8 @@
     </div>
 
     <!-- USES CODEMIRROR CUSTOM MONGODB AUTOCOMPLETIONS -->
-    <div class="editor-container">
+    <!-- class="query-textarea" -->
+    <div class="editor" ref="editor">
     </div>
 
     <div class="button-group">
@@ -32,18 +33,47 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { EditorView, basicSetup } from '@codemirror/basic-setup';
-import { javascript } from '@codemirror/lang-javascript';  // For JavaScript mode
-import { autocompletion, completeFromList } from '@codemirror/autocomplete';
+import axios from 'axios';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism.css'; // Import Prism theme
+import 'prismjs/components/prism-json.min.js'; // Import JSON language support for Prism
+
+import { basicSetup, EditorView } from "codemirror";
+import { autocompletion } from "@codemirror/autocomplete";
+import { javascript } from "@codemirror/lang-javascript";
+import { mongoCompletions } from "../utils/mongoUtils";
 
 export default {
-  name: 'MongoQueryPromptWithCodeMirrorEditor',
+  name: 'MongoQueryPromptAuto',
+  props: {
+    title: {
+      type: String,
+      required: true
+    },
+    subtitle: {
+      type: String,
+      required: true
+    },
+    preFilledText: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
+      queryText: this.preFilledText,
+      queryResult: null,
+      showClue: false, // New reactive property to toggle the clue div
+      apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
+
       code: '',  // Two-way data binding for textarea content
       editorInstance: null,
     };
+  },
+  computed: {
+    placeholder() {
+      return this.preFilledText ? '' : 'Enter your query here...';
+    }
   },
   mounted() {
     this.initCodeMirror();
@@ -55,37 +85,114 @@ export default {
     }
   },
   methods: {
+    runQuery() {
+      this.showClue = false; // Reset the clue display
+      let encodedQueryStr = '';
+      try {
+        if (this.queryText) {
+          if (typeof this.queryText !== 'string') {
+            this.queryResult = JSON.stringify({ msg: 'Query must be text.' }, null, 2);
+            return false;
+          }
+
+          const MAX_QUERY_LENGTH = 1024;
+          if (this.queryText.length > MAX_QUERY_LENGTH) {
+            this.queryResult = JSON.stringify({ msg: 'Query is too large.' }, null, 2);
+            return false;
+          }
+
+          const normalizedQueryText = this.queryText
+            .normalize('NFC')
+            .replace(/[\n\t]+/g, ' ')
+            .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+            .trim(); // Remove leading/trailing spaces
+          encodedQueryStr = encodeURIComponent(normalizedQueryText);
+        } else {
+          this.queryResult = JSON.stringify({ msg: 'Query is empty or undefined.' }, null, 2);
+          return false;
+        }
+      } catch (error) {
+        this.queryResult = JSON.stringify({ msg: error.message }, null, 2);
+        return false;
+      }
+
+      console.log('Sending query for eval to:', this.apiUrl);
+
+      axios.get(`${this.apiUrl}/eval`, {
+        params: {
+          query: encodedQueryStr,
+          language: 'mongosh' // Add the language query param
+        },
+        headers: {
+          'Accept': 'application/json', // Request JSON response
+
+        }
+      })
+        .then(response => {
+          // Directly stringify the JSON response
+
+          if (typeof response === 'object' &&
+            response !== null &&
+            response?.data?.[0]?.isClue) {
+            delete response.data[0].isClue;
+            // Logic here
+            this.showClue = true;
+          }
+
+
+          this.queryResult = JSON.stringify(response.data, null, 2);
+          // Trigger syntax highlighting after the HTML is rendered
+          this.$nextTick(() => {
+            this.highlightCode();
+          });
+        })
+        .catch(error => {
+          if (error.response && error.response.data) {
+            // Stringify error response data
+            this.queryResult = JSON.stringify(error.response.data, null, 2);
+          } else {
+            console.log(error);
+            // Generic error message if no response data is available
+            this.queryResult = JSON.stringify({ error: 'Failed to fetch data' }, null, 2);
+          }
+          this.$nextTick(() => {
+            this.highlightCode();
+          });
+          return false;
+        });
+    },
+    resetQuery() {
+      this.queryText = this.preFilledText;
+      this.queryResult = null;
+      this.showClue = false; // Reset the clue display
+    },
+    highlightCode() {
+      // Apply syntax highlighting using Prism.js
+      const codeBlock = this.$refs.codeBlock;
+      if (codeBlock) {
+        Prism.highlightElement(codeBlock);
+      }
+    },
     initCodeMirror() {
       // Create the CodeMirror editor instance
       this.editorInstance = new EditorView({
-        // state: EditorState.create({
-        //   doc: this.code,  // Set the initial code in the editor
-        //   extensions: [
-        //     basicSetup,  // Adds the basic setup (keybindings, etc.)
-        //     javascript(),  // Set the language mode to JavaScript (or MongoDB specific)
-        //     autocompletion({
-        //       override: [
-        //         completeFromList(['find', 'insert', 'update', 'delete', 'aggregate'])  // Custom completions for MongoDB-like queries
-        //       ]
-        //     }),
-        //   ]
-        // }),
-        parent: this.$refs.editor,  // Attach to the div element
-      });
+        doc: "",
+        extensions: [
+          basicSetup,
+          autocompletion({
+            override: [mongoCompletions],
+            activateOnTyping: true,  // Ensures completions trigger automatically
+            activateOnCompletion: () => true,  // Ensures completions trigger after selecting an option
+            autoTrigger: "always"    // Forces automatic triggering as the user types
+          }),
+          javascript()
+        ],
+        parent: this.$refs.editor, // Attach only to the editor container
+      }
+      );
     },
   },
 };
 </script>
 
-<style scoped>
-.editor-container {
-  position: relative;
-}
-
-.CodeMirror {
-  width: 100%;
-  height: 200px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-}
-</style>
+<style scoped></style>
