@@ -58,18 +58,18 @@ export default {
     initCodeMirror() {
       // Create the CodeMirror editor instance
       this.editorInstance = new EditorView({
-        state: EditorState.create({
-          doc: this.code,  // Set the initial code in the editor
-          extensions: [
-            basicSetup,  // Adds the basic setup (keybindings, etc.)
-            javascript(),  // Set the language mode to JavaScript (or MongoDB specific)
-            autocompletion({
-              override: [
-                completeFromList(['find', 'insert', 'update', 'delete', 'aggregate'])  // Custom completions for MongoDB-like queries
-              ]
-            }),
-          ]
-        }),
+        // state: EditorState.create({
+        //   doc: this.code,  // Set the initial code in the editor
+        //   extensions: [
+        //     basicSetup,  // Adds the basic setup (keybindings, etc.)
+        //     javascript(),  // Set the language mode to JavaScript (or MongoDB specific)
+        //     autocompletion({
+        //       override: [
+        //         completeFromList(['find', 'insert', 'update', 'delete', 'aggregate'])  // Custom completions for MongoDB-like queries
+        //       ]
+        //     }),
+        //   ]
+        // }),
         parent: this.$refs.editor,  // Attach to the div element
       });
     },
