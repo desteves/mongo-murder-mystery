@@ -98,7 +98,7 @@ export default {
       }
 
       console.log('Sending query for eval to:', this.apiUrl);
-      
+
       axios.get(`${this.apiUrl}/eval`, {
         params: {
           query: encodedQueryStr,

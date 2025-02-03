@@ -1,15 +1,14 @@
 <template>
   <div>
     <title>MongoDB Murder Mystery</title>
-    <subtitle>
+    <div class="subtitle" ref="subtitle">
       🧐 Can you find out <b>whodunnit</b> ?
       <img class="responsive-img" src="../assets/mdb-search.png"
         alt="Illustration depicting an investigation using MongoDB" />
-    </subtitle>
-
+    </div>
   </div>
 </template>
-<script >
+<script>
 
 import { onMounted } from 'vue';
 export default {
@@ -22,7 +21,8 @@ export default {
       const metaTags = [
         { property: 'og:title', content: 'MongoDB Murder Mystery' },
         {
-          property: 'og:image', content: 'https://mongomurdermystery.com/assets/mdb-search-BLE5yYrV.png' },
+          property: 'og:image', content: 'https://mongomurdermystery.com/assets/mdb-search-BLE5yYrV.png'
+        },
         { property: 'og:description', content: 'Can you find out #whodunnit?' },
         { property: 'og:url', content: 'https://mongomurdermystery.com' },
       ];

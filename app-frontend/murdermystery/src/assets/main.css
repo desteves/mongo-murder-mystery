@@ -93,7 +93,7 @@ title {
   /* Uncomment or modify as needed to fix specific layout issues */
 }
 
-subtitle {
+.subtitle {
   color: var(--header-color);
   font-size: 30px;
   display: block;
@@ -449,11 +449,17 @@ i {
   }
 
   .item {
+    display: flex;
+      /* Enable flex layout for .item */
+
     flex-direction: column;
-    /* Stack items vertically */
+    /* Stacks flex items vertically */
     align-items: flex-start;
+    /* Aligns the items to the start of the container */
     margin-top: 1rem;
+    /* Adds space above the element */
     padding: 1rem;
+    /* Adds space inside the element */
   }
 
   .details {

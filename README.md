@@ -18,13 +18,13 @@ The front-end is a Vite.js application. It has mostly static content and a Mongo
 
 ```bash
 cd app-frontend/murdermystery
-docker build -t fe
-docker run -p 8080:8080 --env-file .env fe
+docker build --build-arg API_BASE_URL=http://localhost:3000 -t fe .
+docker run -p 8080:8080 fe
 ```
 
 ### Back-end
 
-The back-end is a Node.js application. It accepts GET requests on the  `/eva` endpoint with a `query` parameter. This is an URI-encoded mongodb query. It gets parsed and send to MongoDB Atlas. The results are returned as a `JSON` response. MongoDB Atlas runs on a free-forever small instance. To run the back-end locally,
+The back-end is a Node.js application. It accepts GET requests on the  `/eval` endpoint with a `query` parameter. This is an URI-encoded mongodb query. It gets parsed and send to MongoDB Atlas. The results are returned as a `JSON` response. MongoDB Atlas runs on a free-forever small instance. To run the back-end locally,
 
 ```bash
 cd app-backend
@@ -39,7 +39,9 @@ This murder mystery was inspired by the [SQL Murder Mystery](https://github.com/
 ## TODOs
 
 - Add arch diagram
-- Use EJSON
+- Use EJSON instead of JSON
+- Add a Python version
+- Add an AI track
 
 ## Copyright and License
 

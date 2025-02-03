@@ -2,25 +2,27 @@
   <div class="timer-container">
     <!-- Table Layout for Timer and Toggle Button -->
     <table class="timer-table">
-      <tr>
-        <td class="timer-cell">
-          <!-- Timer Display (Floating in Bottom-Right) -->
-          <div v-if="isVisible" class="timer">
-            <h2>⏳ {{ formattedTime }}</h2>
-            <button @click="startTimer" :disabled="isRunning">▶️ </button>
-            <button @click="pauseTimer" :disabled="!isRunning">⏸️ </button>
-            <button @click="resetTimer">🔄</button>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td class="toggle-btn-cell">
-          <!-- Toggle Button (Above Timer) -->
-          <button class="toggle-btn" @click="toggleVisibility">
-            {{ isVisible ? "👀 Hide Timer" : "⏳ Show Timer" }}
-          </button>
-        </td>
-      </tr>
+      <tbody>
+        <tr>
+          <td class="timer-cell">
+            <!-- Timer Display (Floating in Bottom-Right) -->
+            <div v-if="isVisible" class="timer">
+              <h2>⏳ {{ formattedTime }}</h2>
+              <button @click="startTimer" :disabled="isRunning">▶️ </button>
+              <button @click="pauseTimer" :disabled="!isRunning">⏸️ </button>
+              <button @click="resetTimer">🔄</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="toggle-btn-cell">
+            <!-- Toggle Button (Above Timer) -->
+            <button class="toggle-btn" @click="toggleVisibility">
+              {{ isVisible ? "👀 Hide Timer" : "⏳ Show Timer" }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </template>

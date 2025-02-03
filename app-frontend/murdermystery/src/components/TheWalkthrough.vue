@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <Timer />
+    <SelfTimer />
   </div>
 
 
@@ -185,7 +185,7 @@
     click "RUN" to execute the query in the box. You can edit the queries to explore
     more. If you get stuck at any point, click "RESET" to start over. <br /><br />
 
-    <MongoQueryPrompt title="Find the list of collections (places where data is stored)." subtitle="
+    <MongoQueryPromptAuto title="Find the list of collections (places where data is stored)." subtitle="
   The results will show you all the names of the collections in the database."
       preFilledText=" db.getCollectionNames()" />
 
@@ -198,10 +198,10 @@
       :class="{ zoomed: isZoomed }" />
     You can
     use these names to query the data in the collections. Keep in mind, they are case-sensitive.
-    <MongoQueryPrompt title="How many people are there?"
+    <MongoQueryPromptAuto title="How many people are there?"
       subtitle="Try changing person to any other collection to see how many documents it has."
       preFilledText='db.person.count()' />
-    <MongoQueryPrompt title="What do we know about those people?"
+    <MongoQueryPromptAuto title="What do we know about those people?"
       subtitle="If you want all the data for each document in a collection, use the 'find()' command. As you just learned, there are thousands of people, so rather than seeing all of them, we'll limit the results to just the first 3. Try changing the number."
       preFilledText='db.person.find().limit(3)' />
 
@@ -209,7 +209,7 @@
     these. We can specify which fields the database returns by modifying our query. Field names are also
     case sensitive.<br />
 
-    <MongoQueryPrompt title="Only show some details about a crime."
+    <MongoQueryPromptAuto title="Only show some details about a crime."
       subtitle=" Execute the query below. See the difference? Go ahead and re-run the query with different field names and collections."
       preFilledText='db.crime.find({}, {"type": 1, "city": 1}).limit(3)' />
 
@@ -224,7 +224,7 @@
     and valid values. But sometimes that’s not available. Here we show how use the
     'disticnt()'
     command to give you a quick look at which values are in the collection for a given field. <br />
-    <MongoQueryPrompt title="What are the possible types of crimes?"
+    <MongoQueryPromptAuto title="What are the possible types of crimes?"
       subtitle=" Feel free to substitue the field name 'type' for any other valid field name. Consult the Schema diagram as needed"
       preFilledText='db.crime.distinct("type")' />
     Look at the results and take a wild guess the type of crime we're interested in.
@@ -271,14 +271,14 @@
       <a href="#projection">📽️ Projecting fields</a>
     </h2>
 
-    <MongoQueryPrompt title="Return only the crime type and city information."
+    <MongoQueryPromptAuto title="Return only the crime type and city information."
       subtitle="Try different field names and toggling between either all 0s or all 1s. You'll quickly learn that using 0s omits the specified field(s) whereas using 1s returns the specified field(s)."
       preFilledText='db.crime.find({}, {"type": 1, "city": 1 })' />
 
     <h2 id="filtering">
       <a href="#filtering">🔬 Filtering documents</a>
     </h2>
-    <MongoQueryPrompt
+    <MongoQueryPromptAuto
       title="Here's a simple query to get everything about a specific person. (Don't worry—all of the SSNs are made up.)"
       subtitle="Note that you need to use double quotes (&quot;) around literal text so MongoDB can tell it apart. Try to re-run the query with &quot;Yessenia Fossen&quot;, &quot;Ted Denfip&quot; or &quot;Davina Gangwer&quot;."
       preFilledText='db.person..find({ "name": "Kinsey Erickson"})' />
@@ -290,7 +290,7 @@
     You can have many filters. These are internally combined so that all filters must match for a document to be
     included in the results.
 
-    <MongoQueryPrompt title="Show me thefts in Chicago."
+    <MongoQueryPromptAuto title="Show me thefts in Chicago."
       subtitle="Notice that when querying for text values, you must match the data as it is in the database. Try changing 'Chicago' to 'chicago' and running the query. Then, see if you can edit this query to find the very first clue based on the items you vaguely remebered from way at the top above (💀🗓️📍)."
       preFilledText='db.crime.find({ "type": "theft", "city": "Chicago" })' />
 
@@ -349,7 +349,7 @@
     </ul>
 
     <br /><br />
-    <MongoQueryPrompt title="Find all crimes in cities that start with I."
+    <MongoQueryPromptAuto title="Find all crimes in cities that start with I."
       subtitle="Try variations like /^Irvin/ and /^I/ or come up with your own. Remember, the regex pattern should be enclosed in forward slashes."
       preFilledText='db.crime.find({ "city": /^I/ })' />
 
@@ -379,7 +379,7 @@
     the 16th day of the month. MongoDB does offer a date type but we won't make use of those today.
     <br /><br />
 
-    <MongoQueryPrompt title="Which crimes happened after mid January of 2018 and before mid February 2019?"
+    <MongoQueryPromptAuto title="Which crimes happened after mid January of 2018 and before mid February 2019?"
       subtitle="Change the date to see how the results change. Note that numbers should NOT be encosed in quotes."
       preFilledText='db.crime.find({"date": { $gt: 20180115, $lt: 20190215 } })' />
 
@@ -411,13 +411,14 @@
     look over that list to find the answer. Instead, we'll use a sorting command to help us out. <br /><br />
     It's really quite intuitive: just add <code>.sort({ "field": 1 })</code> at the end of
     your <code>find()</code> query. The
-    1 indicates results will show the smallest (or most recent) values first. If you want the largest (oldest) values first,
+    1 indicates results will show the smallest (or most recent) values first. If you want the largest (oldest) values
+    first,
     use -1.
     <br /><br />
 
-    <MongoQueryPrompt title="Run this query to see how to control sort order."
+    <MongoQueryPromptAuto title="Run this query to see how to control sort order."
       subtitle="Change 1 to -1 and try sorting on other fields too.  Note we also use the limit to cut down the results to only see what we are interested in."
-      preFilledText='db.person.find().sort({"driversLicense.age": -1})' />
+      preFilledText='db.person.find().sort({"driversLicense.age": -1}).limit(3)' />
     <br /><br />
 
 
@@ -436,7 +437,7 @@
     are nested. In the person collection, the nested fields are "gym", "driversLicense" and "vehicle".
     <br /><br />
 
-    <MongoQueryPrompt title="How tall is the tallest female?"
+    <MongoQueryPromptAuto title="How tall is the tallest female?"
       subtitle="Sorry my fellow non-Americans, the number is shown in inches. Notice how we can put everything we've learned to optimize our results with the filter and projection parts of the query!"
       preFilledText='db.person.find({"driversLicense.gender": "female"}, { "name": 1, "driversLicense.height": 1 }).sort({"driversLicense.height": -1}).limit(1)' />
 
@@ -467,7 +468,7 @@
       <a href="#clue-one">🪪 Identify the witnesses</a>
     </h2>
     By now, you know enough MongoDB to identify the witnesses. Give it a try!
-    <MongoQueryPrompt title="Write a query that identifies one of the witnessness."
+    <MongoQueryPromptAuto title="Write a query that identifies one of the witnessness."
       subtitle="There's more than one way to do it, if you get the correct name, you'll see a congratulatory message. After you identified one of the witnesses, go ahead, update your query and identify the second witness. Ensure your results only return 1 document at a time and show the name field!" />
     Feeling super duper stuck? <a @click="toggleHintTwo" class="boldlink">
       {{ hintTwoVisible ? 'Hide Hint' : 'Show Hint' }}
@@ -493,7 +494,7 @@
     <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     for guidance.<br />
-    <MongoQueryPrompt title="Form a query to learn more about the clues from the interviews."
+    <MongoQueryPromptAuto title="Form a query to learn more about the clues from the interviews."
       subtitle="There's more than one way to do it" preFilledText='db.gymCheckin.find().limit(1)' />
 
     <br /><br />
@@ -509,7 +510,7 @@
       :class="{ zoomed: isZoomed }" />
     for guidance.
 
-    <MongoQueryPrompt title="Solve the muder mystery"
+    <MongoQueryPromptAuto title="Solve the muder mystery"
       subtitle="It will take more than one query to find them, but you can just keep editing this box, keeping notes on your results along the way. When you think you know the answer, go to the next section. Ensure to dig all the way to uncover the evil mastermind behind it all. (Modify the query below to get started)"
       preFilledText='db.person.find({ "driversLicense.age": { $gte: 18, $lte: 21 } }).sort({ "age": -1 })' />
 
@@ -525,7 +526,7 @@
         <a href="#solution">🎯 Check your solution</a>
       </div>
     </template>
-    <MongoQueryPrompt title="Whodunnit?" subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you' ll see a
+    <MongoQueryPromptAuto title="Whodunnit?" subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you' ll see a
       congratulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of
       your suspect.🔐 " preFilledText='db.solution.find({ "name" : "Jack" })' />
     Don't forget to <a class="boldlink" href="/about#social">brag</a> once you have solved the
@@ -543,11 +544,9 @@
 
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import WelcomeItem from './WelcomeItem.vue'
-import MongoQueryPrompt from './MongoQueryPrompt.vue';
-import Timer from "./Timer.vue";
-
-// Import the image file
-import mdbSchemaImage from '@/assets/mdb-schema.png';
+import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
+import SelfTimer from "./SelfTimer.vue";
+import mdbSchemaImage from '@/assets/mdb-schema.png'
 
 // Reactive references to track image visibility and zoom state
 const showImage = ref(false);

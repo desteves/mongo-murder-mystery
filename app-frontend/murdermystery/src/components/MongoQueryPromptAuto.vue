@@ -6,9 +6,7 @@
     </div>
 
     <!-- USES CODEMIRROR CUSTOM MONGODB AUTOCOMPLETIONS -->
-    <!-- class="query-textarea" -->
-    <div class="editor" ref="editor">
-    </div>
+    <div class="editor" ref="editor"></div>
 
     <div class="button-group">
       <button @click="runQuery">RUN</button>
@@ -28,7 +26,6 @@
       <!-- Use v-html to render the formatted JSON inside pre with syntax highlighting -->
       <pre ref="codeBlock" class="language-json" v-html="queryResult"></pre>
     </div>
-
   </div>
 </template>
 
@@ -61,18 +58,22 @@ export default {
   },
   data() {
     return {
-      queryText: this.preFilledText,
       queryResult: null,
-      showClue: false, // New reactive property to toggle the clue div
+      showClue: false,
       apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
-
-      code: '',  // Two-way data binding for textarea content
       editorInstance: null,
     };
   },
   computed: {
     placeholder() {
       return this.preFilledText ? '' : 'Enter your query here...';
+    }
+  },
+  watch: {
+    preFilledText(newValue) {
+      if (this.editorInstance) {
+        this.editorInstance.setState(EditorView.state.of({ doc: newValue }));
+      }
     }
   },
   mounted() {
@@ -87,21 +88,22 @@ export default {
   methods: {
     runQuery() {
       this.showClue = false; // Reset the clue display
+      let queryText = this.editorInstance.state.doc.toString(); // Get content from the editor
       let encodedQueryStr = '';
       try {
-        if (this.queryText) {
-          if (typeof this.queryText !== 'string') {
+        if (queryText) {
+          if (typeof queryText !== 'string') {
             this.queryResult = JSON.stringify({ msg: 'Query must be text.' }, null, 2);
             return false;
           }
 
           const MAX_QUERY_LENGTH = 1024;
-          if (this.queryText.length > MAX_QUERY_LENGTH) {
+          if (queryText.length > MAX_QUERY_LENGTH) {
             this.queryResult = JSON.stringify({ msg: 'Query is too large.' }, null, 2);
             return false;
           }
 
-          const normalizedQueryText = this.queryText
+          const normalizedQueryText = queryText
             .normalize('NFC')
             .replace(/[\n\t]+/g, ' ')
             .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
@@ -116,7 +118,7 @@ export default {
         return false;
       }
 
-      console.log('Sending query for eval to:', this.apiUrl);
+      console.log(`Sending ${encodedQueryStr} for eval to ${this.apiUrl}`);
 
       axios.get(`${this.apiUrl}/eval`, {
         params: {
@@ -125,44 +127,34 @@ export default {
         },
         headers: {
           'Accept': 'application/json', // Request JSON response
-
         }
       })
         .then(response => {
-          // Directly stringify the JSON response
-
-          if (typeof response === 'object' &&
-            response !== null &&
-            response?.data?.[0]?.isClue) {
+          if (typeof response === 'object' && response !== null && response?.data?.[0]?.isClue) {
             delete response.data[0].isClue;
-            // Logic here
             this.showClue = true;
           }
-
-
           this.queryResult = JSON.stringify(response.data, null, 2);
-          // Trigger syntax highlighting after the HTML is rendered
           this.$nextTick(() => {
             this.highlightCode();
           });
         })
         .catch(error => {
           if (error.response && error.response.data) {
-            // Stringify error response data
             this.queryResult = JSON.stringify(error.response.data, null, 2);
           } else {
             console.log(error);
-            // Generic error message if no response data is available
             this.queryResult = JSON.stringify({ error: 'Failed to fetch data' }, null, 2);
           }
           this.$nextTick(() => {
             this.highlightCode();
           });
-          return false;
         });
     },
     resetQuery() {
-      this.queryText = this.preFilledText;
+      this.editorInstance.dispatch({
+        changes: { from: 0, to: this.editorInstance.state.doc.length, insert: this.preFilledText } // Reset content to preFilledText
+      });
       this.queryResult = null;
       this.showClue = false; // Reset the clue display
     },
@@ -176,20 +168,19 @@ export default {
     initCodeMirror() {
       // Create the CodeMirror editor instance
       this.editorInstance = new EditorView({
-        doc: "",
+        doc: this.preFilledText, // Initialize with preFilledText
         extensions: [
           basicSetup,
           autocompletion({
             override: [mongoCompletions],
-            activateOnTyping: true,  // Ensures completions trigger automatically
-            activateOnCompletion: () => true,  // Ensures completions trigger after selecting an option
-            autoTrigger: "always"    // Forces automatic triggering as the user types
+            activateOnTyping: true,
+            activateOnCompletion: () => true,
+            autoTrigger: "always"
           }),
           javascript()
         ],
         parent: this.$refs.editor, // Attach only to the editor container
-      }
-      );
+      });
     },
   },
 };
