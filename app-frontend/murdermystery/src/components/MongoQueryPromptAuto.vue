@@ -60,7 +60,8 @@ export default {
     return {
       queryResult: null,
       showClue: false,
-      apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
+      // import.meta.env.VITE_MMM_API_BASE_URL ??
+      apiUrl: 'https://mmm-be-1020079043644.us-central1.run.app',
       editorInstance: null,
     };
   },
