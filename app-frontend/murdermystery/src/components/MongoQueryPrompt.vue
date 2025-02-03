@@ -57,7 +57,7 @@ export default {
       queryText: this.preFilledText,
       queryResult: null,
       showClue: false, // New reactive property to toggle the clue div
-      apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
+      apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'https://mmm-be-1020079043644.us-central1.run.app',
     };
   },
   computed: {

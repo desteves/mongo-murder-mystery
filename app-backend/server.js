@@ -2,11 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const helpers = require('./helpers');
 const app = express();
-const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://mongomurdermystery.com';
+const allowedOrigins = [
+  process.env.ALLOWED_ORIGIN,
+  'https://mongomurdermystery.com',
+  'https://mongodbmurdermystery.com'
+];
 
 app.use(express.json());
 app.use(cors({
-  origin: allowedOrigin, // Allow requests from this origin
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // Allow request
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET'], // Only allow GET requests
 }));
 
