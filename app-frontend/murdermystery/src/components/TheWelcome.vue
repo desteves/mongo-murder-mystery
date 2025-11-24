@@ -110,6 +110,19 @@
 
   <WelcomeItem>
     <template #heading>
+      <div id="ai-helper">
+        <a href="#ai-helper">🆕 Ask your AI Agent sidekick ✨</a>
+      </div>
+    </template>
+    <div>
+      Prefer to ask questions in plain English? Describe what you're hunting for and your AI Agent sidekick will search the
+      murder mystery data for you. Try different prompts to explore the data.
+    </div>
+    <AgentPrompt/>
+  </WelcomeItem>
+
+  <WelcomeItem>
+    <template #heading>
       <div id="solution">
         <a href="#solution">🎯 Check your solution</a>
       </div>
@@ -127,6 +140,7 @@ import { ref } from 'vue';
 import WelcomeItem from './WelcomeItem.vue';
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from "./SelfTimer.vue";
+import AgentPrompt from './AgentPrompt.vue';
 
 // Import the image file
 import mdbSchemaImage from '@/assets/mdb-schema.png';

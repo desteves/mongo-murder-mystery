@@ -30,11 +30,12 @@ import WelcomeItem from './WelcomeItem.vue'
     </template>
 
     <ul>
+
       <li><a href="https://github.com/desteves/mongo-murder-mystery" target="_blank" rel="noopener noreferrer">
           View this project on GitHub
         </a></li>
 
-      <li> The application runs in two Google CloudRun services deployed via CloudBuild with Cloudflare.
+      <li> The application runs in three Google CloudRun services deployed via CloudBuild with Cloudflare.
       </li>
       <li>The front end is Vite. </li>
       <li>The backend is Javascript which talks to a <a
@@ -44,7 +45,11 @@ import WelcomeItem from './WelcomeItem.vue'
         queries from the front end as encoded strings and translates them. The backend only accepts a VERY limited
         mongosh-like
         commands and by NO means it reflects its full capabilities. </li>
-
+      <li> 🆕 The LLM prompt feature uses the openai/gpt-oss-20b:free model via OpenRouter.
+      </li>
+      <li> 🆕 The Agent uses an [Atlas MCP Server](https://github.com/mongodb-js/mongodb-mcp-server) for
+        tools to assist with MongoDB queries and provide intelligent responses. This is hosted in a separate CloudRun
+        service. </li>
       <li>
         MIT License
       </li>

@@ -258,6 +258,8 @@ async function processQuery(Q) {
 
   let db = null;
   let desc = ''; // for jests
+  let result;
+  let limit;
 
   try {
     db = await connectDB();
@@ -368,7 +370,7 @@ async function processQuery(Q) {
 
     try {
       desc = `db.${coll}.count()`;
-      result = await db.collection(coll).count();
+      result = await db.collection(coll).estimatedDocumentCount();
       return [result, desc];
     } catch (error) {
 
@@ -401,8 +403,8 @@ async function processQuery(Q) {
     if (addCount) {
 
       try {
-        desc = `db.${coll}.find(${JSON.stringify(filter)}, ${JSON.stringify(projection)}).count()`;
-        result = await db.collection(coll).find(filter, projection).count();
+        desc = `db.${coll}.find(${JSON.stringify(filter)}, ${JSON.stringify(projection)}).countDocuments()`;
+        result = await db.collection(coll).countDocuments(filter);
         return [result, desc];
       }
       catch (error) {
@@ -417,7 +419,7 @@ async function processQuery(Q) {
       const start = limitStart + readCommand.LIMIT.length;
       const end = Q.indexOf(')', start);
 
-      limit = parseInt(Q.substring(start, end));
+      limit = parseInt(Q.substring(start, end), 10);
       if (isNaN(limit)) {
         throw new APIError("Limit needs to be a number", 400);
       }

@@ -29,7 +29,8 @@ describe('processQuery', () => {
           limit: jest.fn().mockReturnThis(),
           toArray: jest.fn(() => [{ name: 'John Doe' }, { name: 'Jane Doe' }]), // Mock return value directly
         })),
-        count: jest.fn(() => 5), // Mock return value directly
+        countDocuments: jest.fn(() => 5), // Mock return value directly
+        estimatedDocumentCount: jest.fn(() => 5), // Mock return value directly
       })),
       listCollections: jest.fn(() => ({
         toArray: jest.fn(() => ['c1', 'c2']), // Mock return value directly
