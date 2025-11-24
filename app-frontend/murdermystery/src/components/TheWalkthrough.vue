@@ -4,7 +4,6 @@
     <SelfTimer />
   </div>
 
-
   <WelcomeItem>
 
     <template #heading>
@@ -35,6 +34,7 @@
     <br />
 
   </WelcomeItem>
+
 
 
   <WelcomeItem>
