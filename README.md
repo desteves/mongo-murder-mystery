@@ -32,6 +32,30 @@ docker build -t mmm-api .
 docker run -p 3000:8080 --env-file .env mmm-api
 ```
 
+### **NEW** 🤖✨ Agent endpoint (`/agent`)
+
+The backend also exposes a POST `/agent` endpoint that routes your prompt through the AI Agent (OpenRouter/OpenAI) and the Atlas MCP server.
+
+Example:
+```bash
+curl -s http://localhost:3000/agent \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"List the collections in the murder mystery database"}'
+```
+Expected reply:
+```json
+{"reply":"The collections in the murder mystery database are as follows:\n\n1. gymCheckin\n2. person\n3. crime\n4. solution\n5. socialEventCheckin"}
+```
+
+Environment (see `app-backend/README.md` for full details):
+- `OPENAI_API_KEY` (for the model) and optionally `OPENAI_MODEL`
+- `MCP_SERVER_URL` (e.g., `http://localhost:3001/mcp`)
+- `MDB_MCP_CONNECTION_STRING` (read-only Atlas connection string)
+
+### MCP service
+
+A dedicated MCP service lives in `app-mcp`. It exposes the MCP HTTP transport used by the Agent to talk to the murder mystery database. See `app-mcp/README.md` for how to run it (locally or on Cloud Run), including required env vars like `MONGODB_URI`.
+
 ## Inspiration
 
 This murder mystery was inspired by the [SQL Murder Mystery](https://github.com/NUKnightLab/sql-mysteries).
@@ -41,7 +65,7 @@ This murder mystery was inspired by the [SQL Murder Mystery](https://github.com/
 - Add arch diagram
 - Use EJSON instead of JSON
 - Add a Python version
-- Add an AI track
+- Add an AI track --> Agent added!!
 
 ## Copyright and License
 
