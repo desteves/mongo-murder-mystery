@@ -45,9 +45,9 @@ import WelcomeItem from './WelcomeItem.vue'
         queries from the front end as encoded strings and translates them. The backend only accepts a VERY limited
         mongosh-like
         commands and by NO means it reflects its full capabilities. </li>
-      <li> 🆕 The LLM prompt feature uses the openai/gpt-oss-20b:free model via OpenRouter.
+      <li> 🆕 The LLM prompt (Agent) feature uses the <code>openai/gpt-oss-20b:free</code> model via OpenRouter.
       </li>
-      <li> 🆕 The Agent uses an [Atlas MCP Server](https://github.com/mongodb-js/mongodb-mcp-server) for
+      <li> 🆕 The Agent uses an <a target="_blank" rel="noopener noreferrer" href="https://github.com/mongodb-js/mongodb-mcp-server">Atlas MCP Server</a> for
         tools to assist with MongoDB queries and provide intelligent responses. This is hosted in a separate CloudRun
         service. </li>
       <li>

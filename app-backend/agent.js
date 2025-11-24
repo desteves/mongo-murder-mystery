@@ -2,7 +2,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const OpenAI = require('openai');
 
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp';
-const MCP_CONNECTION_STRING = process.env.MDB_MCP_CONNECTION_STRING || process.env.MCP_CONNECTION_STRING;
+// const MCP_CONNECTION_STRING = process.env.MDB_MCP_CONNECTION_STRING || process.env.MCP_CONNECTION_STRING;
 const MCP_DATABASE = process.env.MCP_DATABASE || 'mmm';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -12,9 +12,9 @@ if (!openaiApiKey) {
   console.warn('OPENAI_API_KEY is missing. Agent endpoint will reject requests.');
 }
 
-if (!MCP_CONNECTION_STRING) {
-  console.warn('MCP connection string is missing. Set MDB_MCP_CONNECTION_STRING.');
-}
+// if (!MCP_CONNECTION_STRING) {
+//   console.warn('MCP connection string is missing. Set MDB_MCP_CONNECTION_STRING.');
+// }
 
 const openaiClient = openaiApiKey
   ? new OpenAI({ apiKey: openaiApiKey, baseURL: 'https://openrouter.ai/api/v1' })
@@ -110,12 +110,12 @@ async function callMcp(sessionId, toolName, args) {
   return json.result || json;
 }
 
-async function ensureConnect(sessionId) {
-  if (!MCP_CONNECTION_STRING) {
-    throw new Error('MDB_MCP_CONNECTION_STRING is not configured.');
-  }
-  return callMcp(sessionId, 'connect', { connectionString: MCP_CONNECTION_STRING });
-}
+// async function ensureConnect(sessionId) {
+//   if (!MCP_CONNECTION_STRING) {
+//     throw new Error('MDB_MCP_CONNECTION_STRING is not configured.');
+//   }
+//   return callMcp(sessionId, 'connect', { connectionString: MCP_CONNECTION_STRING });
+// }
 
 const allowedTools = new Set([
   'list-databases',
@@ -180,7 +180,7 @@ async function runAgent(prompt) {
 
   // console.log('[agent] starting runAgent with prompt:', prompt);
   const sessionId = await initSession();
-  await ensureConnect(sessionId);
+  // await ensureConnect(sessionId);
 
   const messages = [
     {

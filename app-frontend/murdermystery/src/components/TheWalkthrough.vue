@@ -4,7 +4,6 @@
     <SelfTimer />
   </div>
 
-
   <WelcomeItem>
 
     <template #heading>
@@ -14,19 +13,28 @@
     </template>
 
 
-    <div>
-      Use this as a starter prompt if you want the Agent to begin the investigation:
-      <br /><br />
-      <code>
-        "There was a murder in MongoDB City on January 15, 2018. Search the Murder Mystery Atlas database, retrieve the
-        crime scene report, and surface any suspects, witnesses, and key events connected to that crime."
-      </code>
-      <br /><br />
-      This website is designed as a fun game with self-directed lessons to learn MongoDB concepts and commands.
+    <div> Uh Oh! There's been a murder in MongoDB City, and the detective needs your help. The detective gave you the
+      crime scene report, but
+      you
+      somehow lost it. Tsk tsk! You vaguely remember that the crime was a 💀​murder💀​ that occurred sometime on 🗓️
+      ​January
+      15th,
+      2018,​🗓️
+      and
+      that it took place in 📍 ​MongoDB City📍​. Start by retrieving the corresponding crime scene report from the
+      police
+      department’s
+      database. <br /> <br />
+      This website is designed as a fun game with self-directed
+      lessons
+      to
+      learn
+      MongoDB concepts and commands.
     </div>
     <br />
 
   </WelcomeItem>
+
 
 
   <WelcomeItem>

@@ -7,7 +7,10 @@ const app = express();
 const allowedOrigins = [
   process.env.ALLOWED_ORIGIN,
   'https://mongomurdermystery.com',
-  'https://mongodbmurdermystery.com'
+  'https://mongodbmurdermystery.com',
+  'http://localhost:5173',
+  'http://localhost:8080',
+  'http://localhost:3000',
 ];
 
 app.use(express.json());

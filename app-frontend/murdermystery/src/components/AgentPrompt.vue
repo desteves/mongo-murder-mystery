@@ -12,18 +12,15 @@
       <button @click="resetPrompt">RESET</button>
     </div>
 
-    <div v-if="resultsText" class="query-result">
-      <b>Result</b>
-      <pre ref="resultsBlock" class="language-json" v-html="resultsText"></pre>
+    <div class="query-result plain-result">
+      <div v-if="loading" class="plain-text">💭 Thinking...</div>
+      <div v-else-if="resultsText" class="plain-text">{{ resultsText }}</div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import Prism from 'prismjs';
-import 'prismjs/themes/prism.css';
-import 'prismjs/components/prism-json.min.js';
 
 export default {
   name: 'AgentPrompt',
@@ -32,6 +29,7 @@ export default {
       userPrompt: '',
       resultsText: null,
       apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
+      loading: false,
     };
   },
   computed: {
@@ -42,44 +40,55 @@ export default {
   methods: {
     runPrompt() {
       this.resultsText = null;
+      this.loading = true;
 
       const MAX_PROMPT_LENGTH = 512;
       if (typeof this.userPrompt !== 'string' || !this.userPrompt.trim()) {
-        this.resultsText = JSON.stringify({ msg: 'Prompt is empty or undefined.' }, null, 2);
+        this.resultsText = 'Prompt is empty or undefined.';
+        this.loading = false;
         return false;
       }
       if (this.userPrompt.length > MAX_PROMPT_LENGTH) {
-        this.resultsText = JSON.stringify({ msg: 'Prompt is too large.' }, null, 2);
+        this.resultsText = 'Prompt is too large.';
+        this.loading = false;
         return false;
       }
 
       axios.post(`${this.apiUrl}/agent`, { prompt: this.userPrompt })
         .then(response => {
-          this.resultsText = JSON.stringify(response.data, null, 2);
-          this.$nextTick(() => {
-            this.highlightCode('resultsBlock');
-          });
+          const data = response.data;
+          const reply = typeof data?.reply === 'string' ? data.reply : JSON.stringify(data);
+          this.resultsText = reply;
         })
         .catch(error => {
           const payload = error.response && error.response.data
             ? error.response.data
             : { error: 'Failed to fetch data' };
-          this.resultsText = JSON.stringify(payload, null, 2);
-          this.$nextTick(() => {
-            this.highlightCode('resultsBlock');
-          });
+          this.resultsText = payload.err || payload.error || JSON.stringify(payload);
+        })
+        .finally(() => {
+          this.loading = false;
         });
     },
     resetPrompt() {
       this.userPrompt = '';
       this.resultsText = null;
-    },
-    highlightCode(refName) {
-      const codeBlock = this.$refs[refName];
-      if (codeBlock) {
-        Prism.highlightElement(codeBlock);
-      }
+      this.loading = false;
     }
   }
 };
 </script>
+
+<style scoped>
+.plain-result {
+  background: #f4f4f4;
+  border: 1px solid black;
+  color: teal;
+  font-family: inherit;
+}
+.plain-text {
+  color: teal;
+  white-space: pre-wrap;
+  font-size: 1.05rem;
+}
+</style>
