@@ -4,6 +4,9 @@ const helpers = require('./helpers');
 const { runAgent } = require('./agent');
 const rateLimit = require('express-rate-limit');
 const app = express();
+
+// Trust the first proxy (e.g., Cloud Run/NGINX) so rate limiting can read X-Forwarded-For correctly.
+app.set('trust proxy', 1);
 const allowedOrigins = [
   process.env.ALLOWED_ORIGIN,
   'https://mongomurdermystery.com',
