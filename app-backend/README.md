@@ -29,4 +29,5 @@ curl -s http://localhost:3000/agent \
 Expect a JSON reply. Errors to check:
 - 400: prompt missing/too long (max 512 chars)
 - 429: rate limit exceeded
-- 500: missing envs or MCP/OpenAI connectivity issues
+- 503: missing envs (OPENAI_API_KEY, MDB_MCP_CONNECTION_STRING, MCP_SERVER_URL)
+- 500: MCP/OpenAI connectivity issues

@@ -43,7 +43,8 @@ async function initSession() {
   });
 
   if (!res.ok) {
-    throw new Error(`Initialize failed: ${res.status} ${res.statusText}`);
+    console.log('[agent] MCP init failed:', JSON.stringify(res));
+    throw new Error(`MCP init failed: ${res.status} ${res.statusText}`);
   }
 
   const sessionId = res.headers.get('mcp-session-id');

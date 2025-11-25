@@ -8,6 +8,7 @@ This folder packages the official `mongodb-mcp-server` running in HTTP mode for 
 - `MDB_MCP_READ_ONLY` (default: `true` via start script)
 - `MDB_MCP_HTTP_HOST` (default: `0.0.0.0` via start script)
 - `MDB_MCP_HTTP_PORT` (default: `8080` via start script / Cloud Run `PORT`)
+- `MDB_MCP_DISABLED_TOOLS` (default: `atlas,atlas-local` via start script to silence Atlas Local/Docker warnings)
 
 ## Run locally
 

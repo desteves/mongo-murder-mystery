@@ -4,7 +4,7 @@
   "description": "MongoDB MCP server for the Murder Mystery app (Atlas, read-only)",
   "type": "commonjs",
   "scripts": {
-    "start": "MDB_MCP_READ_ONLY=${MDB_MCP_READ_ONLY:-true} mongodb-mcp-server --transport http --httpHost=${MDB_MCP_HTTP_HOST:-0.0.0.0} --httpPort=${MDB_MCP_HTTP_PORT:-8080}",
+    "start": "MDB_MCP_READ_ONLY=${MDB_MCP_READ_ONLY:-true} MDB_MCP_DISABLED_TOOLS=${MDB_MCP_DISABLED_TOOLS:-atlas,atlas-local} mongodb-mcp-server --transport http --httpHost=${MDB_MCP_HTTP_HOST:-0.0.0.0} --httpPort=${MDB_MCP_HTTP_PORT:-8080}",
     "dev": "npm run start"
   },
   "dependencies": {

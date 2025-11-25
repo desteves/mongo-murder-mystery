@@ -64,12 +64,26 @@ const agentLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const requiredAgentEnvs = ['OPENAI_API_KEY', 'MDB_MCP_CONNECTION_STRING', 'MCP_SERVER_URL'];
+const getMissingAgentEnvs = () => requiredAgentEnvs.filter((key) => !process.env[key]);
+const MAX_PROMPT_LENGTH = 512;
+
 app.post('/agent', agentLimiter, async (req, res) => {
   try {
     const prompt = req.body?.prompt;
     if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
       return res.status(400).json({ err: 'Missing prompt' });
     }
+    if (prompt.length > MAX_PROMPT_LENGTH) {
+      return res.status(400).json({ err: `Prompt too long (max ${MAX_PROMPT_LENGTH} characters).` });
+    }
+
+    const missing = getMissingAgentEnvs();
+    if (missing.length) {
+      console.error('Agent envs missing:', missing.join(', '));
+      return res.status(503).json({ err: `Agent unavailable. Missing envs: ${missing.join(', ')}` });
+    }
+
     const { reply } = await runAgent(prompt.trim());
     return res.status(200).json({ reply });
   } catch (error) {
