@@ -26,7 +26,7 @@ const headers = {
 };
 
 async function initSession() {
-  // console.log('[agent] initializing MCP session at', MCP_SERVER_URL);
+  console.log('[agent] initializing MCP session at ', MCP_SERVER_URL);
   const res = await fetch(MCP_SERVER_URL, {
     method: 'POST',
     headers,
