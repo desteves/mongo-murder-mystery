@@ -119,11 +119,6 @@ A dedicated MCP service lives in `app-mcp`. It exposes the MCP HTTP transport us
 
 This murder mystery was inspired by the [SQL Murder Mystery](https://github.com/NUKnightLab/sql-mysteries).
 
-## TODOs
-
-- Use EJSON instead of JSON
-- Add a Python version
-
 ## Copyright and License
 
 - [MIT License](./LICENSE)
