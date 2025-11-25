@@ -12,6 +12,65 @@ If you just want to solve the mystery, go to [mongomurdermystery.com](https://mo
 
 All the code to run the https://mongomurdermystery.com site can be found in this repo.
 
+
+### Asciitechture Diagram
+
+```sh
+                               ┌────────────────────────────────┐
+                               │          Web Browser           │
+                               │        (Vite + Vue UI)         │
+                               │--------------------------------│
+                               │  • Query shell ( /eval )       │
+                               │  • Agent chat   ( /agent )     │
+                               └───────────────┬────────────────┘
+                                               │   HTTPS (JSON)
+                                               │
+                         ┌─────────────────────┴──────────────────────┐
+                         │             Backend API Server             │
+                         │                  (Node.js)                 │
+                         │────────────────────────────────────────────│
+                         │                                            │
+                         │   /eval                                    │
+                         │     • Validates user queries               │
+                         │     • Uses MongoDB Driver                  │
+                         │     • Connects via **Private Endpoint**    │
+                         │                                            │
+                         │   /agent                                   │
+                         │     • Runs the Murder Mystery AI agent     │
+                         │     • Uses mcp_call only                   │
+                         │     • Executes validated read-only tools   │
+                         │                                            │
+                         └───────────────┬────────────────────────────┘
+                                         │
+                               ┌─────────┴─────────┐
+                               │                   │
+                               │                   │
+                     ┌─────────▼──────────┐   ┌────▼───────────────────┐
+                     │  Private Endpoint  │   │   MCP Tools Interface  │
+                     │ (Direct Driver API)│   │ (Controlled DB Access) │
+                     │────────────────────│   │────────────────────────│
+                     │ • Used by /eval    │   │ • Used by /agent       │
+                     │ • Internal only    │   │ • Safe read-only ops   │
+                     │ • No public access │   │ • No direct writes     │
+                     └─────────┬──────────┘   └───────────┬────────────┘
+                               │                          │
+                               │                          │
+                               └──────────────┬───────────┘
+                                              │
+                                              ▼
+                   ┌──────────────────────────────────────────────────┐
+                   │                    MongoDB Atlas                 │
+                   │              Murder Mystery Collections          │
+                   │──────────────────────────────────────────────────│
+                   │  • gymCheckin                                    │
+                   │  • person                                        │
+                   │  • crime                                         │
+                   │  • socialEventCheckin                            │
+                   └──────────────────────────────────────────────────┘
+```
+
+
+
 ### Front-end
 
 The front-end is a Vite.js application. It has mostly static content and a MongoDB Shell-like prompt so the users can write their own queries and send them to the backend when they click "RUN". To run the front-end locally,
@@ -62,10 +121,8 @@ This murder mystery was inspired by the [SQL Murder Mystery](https://github.com/
 
 ## TODOs
 
-- Add arch diagram
 - Use EJSON instead of JSON
 - Add a Python version
-- Add an AI track --> Agent added!!
 
 ## Copyright and License
 
