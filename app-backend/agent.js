@@ -4,7 +4,7 @@ const OpenAI = require('openai');
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp';
 const MCP_CONNECTION_STRING = process.env.MDB_MCP_CONNECTION_STRING || process.env.MCP_CONNECTION_STRING;
 const MCP_DATABASE = process.env.MCP_DATABASE || 'mmm';
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'openai/gpt-oss-20b:free';
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 if (!openaiApiKey) {
