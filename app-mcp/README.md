@@ -14,7 +14,7 @@ This folder packages the official `mongodb-mcp-server` running in HTTP mode for 
 ```bash
 cd app-mcp
 # pick a free port (backend often uses 8080); 3001 is usually free locally
-PORT=3001 MDB_MCP_HTTP_PORT=3001 MDB_MCP_CONNECTION_STRING="mongodb+srv://readonly:..." npm start
+PORT=3001 MDB_MCP_HTTP_PORT=3001 MDB_MCP_CONNECTION_STRING="mongodb+srv://..." npm start
 # HTTP MCP transport will listen on http://localhost:3001
 
 # or load from .env (Unix)
@@ -44,7 +44,7 @@ echo "Session: $SESSION_ID"
 
 2) Connect (registers the DB tools for this session) using `tools/call`:
 
-```bash
+```sh
 curl -s http://localhost:3001/mcp \
   -H "Accept: application/json, text/event-stream" \
   -H "Content-Type: application/json" \
@@ -53,7 +53,8 @@ curl -s http://localhost:3001/mcp \
 ```
 
 3) Call a tool (e.g., list databases) via `tools/call`:
-```bash
+
+```sh
 curl -s http://localhost:3001/mcp \
   -H "Accept: application/json, text/event-stream" \
   -H "Content-Type: application/json" \
@@ -62,17 +63,3 @@ curl -s http://localhost:3001/mcp \
 ```
 
 A successful response returns JSON with the available databases.
-
-## Build and deploy to Cloud Run
-
-```bash
-cd app-mcp
-gcloud builds submit --tag gcr.io/PROJECT_ID/mm-mcp
-gcloud run deploy mm-mcp \
-  --image gcr.io/PROJECT_ID/mm-mcp \
-  --region REGION \
-  --allow-unauthenticated \
-  --set-env-vars "MDB_MCP_CONNECTION_STRING=mongodb+srv://...,MDB_MCP_READ_ONLY=true,MDB_MCP_HTTP_HOST=0.0.0.0"
-```
-
-The MCP server will run in read-only mode and bind to the Cloud Run-provided `PORT`.

@@ -104,8 +104,15 @@
       <br />
       Need extra help? Follow the <router-link class="boldlink" to="/walkthrough#start">Walkthrough.</router-link>
     </div>
-    <MongoQueryPromptAuto title="Solve the muder mystery"
-      subtitle="It will take more than one query to solve everything, but you can just keep editing this box, keeping notes on your results along the way. When you think you know the answer, go to the next section. Ensure to dig down all the way to uncover the evil mastermind behind it all." />
+    <div class="solve-layout">
+      <div class="solve-card">
+        <MongoQueryPromptAuto title="Solve the muder mystery"
+          subtitle="It will take more than one query to solve everything, but you can just keep editing this box, keeping notes on your results along the way. When you think you know the answer, go to the next section. Ensure to dig down all the way to uncover the evil mastermind behind it all." />
+      </div>
+      <div class="solve-card">
+        <IncidentNotes />
+      </div>
+    </div>
   </WelcomeItem>
 
   <WelcomeItem>
@@ -141,6 +148,7 @@ import WelcomeItem from './WelcomeItem.vue';
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from "./SelfTimer.vue";
 import AgentPrompt from './AgentPrompt.vue';
+import IncidentNotes from './IncidentNotes.vue';
 
 // Import the image file
 import mdbSchemaImage from '@/assets/mdb-schema.png';
@@ -174,5 +182,23 @@ a {
   /* color: inherit; */
 
   /* Optional: Match the link color to the surrounding text */
+}
+
+.solve-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.solve-card {
+  flex: 1 1 320px;
+  min-width: 280px;
+  display: flex;
+}
+
+.solve-card > * {
+  flex: 1;
+  width: 100%;
 }
 </style>

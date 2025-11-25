@@ -14,7 +14,7 @@
 1) Start the backend:
 ```bash
 export OPENAI_API_KEY=sk-...
-export MDB_MCP_CONNECTION_STRING="mongodb+srv://readonly:.../mmm"
+export MDB_MCP_CONNECTION_STRING="mongodb+srv://.../mmm"
 export MCP_SERVER_URL="http://localhost:3001/mcp"
 PORT=3000 npm start   # change the port if needed
 ```

@@ -55,6 +55,8 @@ export default {
         return false;
       }
 
+      console.log(`Sending ${this.userPrompt} for agent to ${this.apiUrl}`);
+
       axios.post(`${this.apiUrl}/agent`, { prompt: this.userPrompt })
         .then(response => {
           const data = response.data;
