@@ -28,7 +28,8 @@ export default {
     return {
       userPrompt: '',
       resultsText: null,
-      apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
+      // apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
+      apiUrl: 'https://mmm-be-1020079043644.us-central1.run.app',
       loading: false,
     };
   },
@@ -57,6 +58,11 @@ export default {
       axios.post(`${this.apiUrl}/agent`, { prompt: this.userPrompt })
         .then(response => {
           const data = response.data;
+          // Detect misconfigured endpoints that return HTML
+          if (typeof data === 'string' && data.toLowerCase().includes('<!doctype html')) {
+            this.resultsText = 'The agent endpoint is misconfigured.';
+            return;
+          }
           const reply = typeof data?.reply === 'string' ? data.reply : JSON.stringify(data);
           this.resultsText = reply;
         })
