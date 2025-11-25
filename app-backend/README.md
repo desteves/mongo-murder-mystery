@@ -5,7 +5,8 @@
 - Env required:
   - `OPENAI_API_KEY`
   - `MDB_MCP_CONNECTION_STRING` (read-only Atlas connection string)
-  - `MCP_SERVER_URL` (e.g., `http://localhost:3001/mcp`)
+  - `MCP_SERVER_URL` (e.g., `http://localhost:3001/mcp`; if pointing to a secured Cloud Run URL, the backend will fetch an ID token automatically)
+  - `MCP_ID_TOKEN_AUDIENCE` (optional; defaults to `MCP_SERVER_URL` for ID token audience override)
 - Rate limited: 10 requests/minute by default.
 - Custom port: set `PORT` (defaults to `8080`).
 

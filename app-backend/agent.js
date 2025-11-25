@@ -1,7 +1,9 @@
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const OpenAI = require('openai');
+const { GoogleAuth } = require('google-auth-library');
 
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp';
+const MCP_ID_TOKEN_AUDIENCE = process.env.MCP_ID_TOKEN_AUDIENCE || MCP_SERVER_URL;
 const MCP_CONNECTION_STRING = process.env.MDB_MCP_CONNECTION_STRING || process.env.MCP_CONNECTION_STRING;
 const MCP_DATABASE = process.env.MCP_DATABASE || 'mmm';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'openai/gpt-oss-20b:free';
@@ -20,16 +22,41 @@ const openaiClient = openaiApiKey
   ? new OpenAI({ apiKey: openaiApiKey, baseURL: 'https://openrouter.ai/api/v1' })
   : null;
 
-const headers = {
+const baseMcpHeaders = {
   'Accept': 'application/json, text/event-stream',
   'Content-Type': 'application/json'
 };
 
+const auth = new GoogleAuth();
+let mcpAuthClientPromise = null;
+
+const shouldUseIdToken = () => {
+  if (!MCP_ID_TOKEN_AUDIENCE) return false;
+  return !/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(MCP_ID_TOKEN_AUDIENCE);
+};
+
+async function getMcpAuthHeaders() {
+  if (!MCP_SERVER_URL || !shouldUseIdToken()) return {};
+  if (!mcpAuthClientPromise) {
+    mcpAuthClientPromise = auth.getIdTokenClient(MCP_ID_TOKEN_AUDIENCE);
+  }
+  try {
+    const client = await mcpAuthClientPromise;
+    return await client.getRequestHeaders();
+  } catch (err) {
+    throw new Error(`Failed to obtain MCP ID token: ${err.message}`);
+  }
+}
+
 async function initSession() {
+  const authHeaders = await getMcpAuthHeaders();
   console.log('[agent] initializing MCP session at ', MCP_SERVER_URL);
   const res = await fetch(MCP_SERVER_URL, {
     method: 'POST',
-    headers,
+    headers: {
+      ...baseMcpHeaders,
+      ...authHeaders
+    },
     body: JSON.stringify({
       jsonrpc: '2.0',
       id: 'init-1',
@@ -56,10 +83,12 @@ async function initSession() {
 
 async function callMcp(sessionId, toolName, args) {
   // console.log('[agent] calling MCP tool', toolName, 'args:', args);
+  const authHeaders = await getMcpAuthHeaders();
   const res = await fetch(MCP_SERVER_URL, {
     method: 'POST',
     headers: {
-      ...headers,
+      ...baseMcpHeaders,
+      ...authHeaders,
       'mcp-session-id': sessionId
     },
     body: JSON.stringify({
