@@ -2,7 +2,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const OpenAI = require('openai');
 
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp';
-// const MCP_CONNECTION_STRING = process.env.MDB_MCP_CONNECTION_STRING || process.env.MCP_CONNECTION_STRING;
+const MCP_CONNECTION_STRING = process.env.MDB_MCP_CONNECTION_STRING || process.env.MCP_CONNECTION_STRING;
 const MCP_DATABASE = process.env.MCP_DATABASE || 'mmm';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -12,9 +12,9 @@ if (!openaiApiKey) {
   console.warn('OPENAI_API_KEY is missing. Agent endpoint will reject requests.');
 }
 
-// if (!MCP_CONNECTION_STRING) {
-//   console.warn('MCP connection string is missing. Set MDB_MCP_CONNECTION_STRING.');
-// }
+if (!MCP_CONNECTION_STRING) {
+  console.warn('MCP connection string is missing. Set MDB_MCP_CONNECTION_STRING.');
+}
 
 const openaiClient = openaiApiKey
   ? new OpenAI({ apiKey: openaiApiKey, baseURL: 'https://openrouter.ai/api/v1' })
@@ -110,12 +110,12 @@ async function callMcp(sessionId, toolName, args) {
   return json.result || json;
 }
 
-// async function ensureConnect(sessionId) {
-//   if (!MCP_CONNECTION_STRING) {
-//     throw new Error('MDB_MCP_CONNECTION_STRING is not configured.');
-//   }
-//   return callMcp(sessionId, 'connect', { connectionString: MCP_CONNECTION_STRING });
-// }
+async function ensureConnect(sessionId) {
+  if (!MCP_CONNECTION_STRING) {
+    throw new Error('MDB_MCP_CONNECTION_STRING is not configured.');
+  }
+  return callMcp(sessionId, 'connect', { connectionString: MCP_CONNECTION_STRING });
+}
 
 const allowedTools = new Set([
   'list-databases',
@@ -178,9 +178,9 @@ async function runAgent(prompt) {
     throw new Error('Agent unavailable: OPENAI_API_KEY is not configured.');
   }
 
-  // console.log('[agent] starting runAgent with prompt:', prompt);
+  console.log('[agent] starting runAgent with prompt:', prompt);
   const sessionId = await initSession();
-  // await ensureConnect(sessionId);
+  await ensureConnect(sessionId);
 
   const messages = [
     {
@@ -189,22 +189,23 @@ async function runAgent(prompt) {
         {
           type: 'text',
           text: [
-            "You are an assistant for the Mongo Murder Mystery Atlas database only.",
-            "Your job is to answer questions strictly about the murder mystery data and collections available through the MCP tools.",
+              "You are an assistant dedicated exclusively to the Mongo Murder Mystery Atlas database.",
+              "You must answer questions strictly about the murder mystery scenario and the collections exposed through the MCP tools.",
+              "If a user request is ambiguous, reinterpret it in the context of the Mongo Murder Mystery Atlas database when reasonable.",
 
-            // Completion rules
-            "When you have enough information, produce a FINAL concise answer.",
-            "Never call tools repeatedly. If a tool returns the same result twice or returns no new information, stop and answer with what you have.",
+              // Completion rules
+              "When you have enough information, produce a FINAL, concise answer.",
+              "Do not call tools repeatedly. If a tool call returns identical results, no new information, or an error, stop and answer with what you have.",
 
-            // Tool-use rules
-            "Use only the provided `mcp_call` function connected to the Atlas MCP server.",
-            "Do not invent tools, connection strings, queries, or data sources.",
-            "If any MCP tool call returns an error or fails, stop immediately and inform the user.",
+              // Tool-use rules
+              "Use only the `mcp_call` function wired to the Atlas MCP server.",
+              "Never invent tools, connection strings, query shapes, or data sources.",
+              "If any MCP tool call returns an error or unexpected response, stop immediately and inform the user.",
 
-            // Scope restriction
-            "Decline any request that is not about the murder mystery scenario or its associated Atlas collections.",
-            "If the user asks about anything else, respond: 'I can only assist with the Mongo Murder Mystery Atlas database.'"
-          ].join(' ')
+              // Scope limitation
+              "Decline any request unrelated to the murder mystery or its Atlas collections.",
+              "If the user asks for anything outside this scope, respond: 'I can only assist with the Mongo Murder Mystery Atlas database.'"
+            ].join(" ")
         }
       ]
     },
