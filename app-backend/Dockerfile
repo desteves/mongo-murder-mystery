@@ -1,26 +1,28 @@
-# Use the official Node.js image as the base image
-FROM node:lts-alpine
-
-# Set the working directory inside the container
+FROM node:lts-alpine AS base
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json (if available) to the working directory
+# Install only production dependencies for the final image.
+FROM base AS prod-deps
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install the application dependencies
-RUN npm install
+# Install all dependencies for running tests.
+FROM base AS dev-deps
+COPY package*.json ./
+RUN npm ci
 
-# Copy the rest of the application code to the working directory
+# Run tests in an isolated stage (caches dev deps separately).
+FROM base AS test
+ENV NODE_ENV=test
+COPY --from=dev-deps /usr/src/app/node_modules ./node_modules
 COPY . .
-
-# Run tests (this step will fail the build if tests fail)
 RUN npm test
 
-# Expose the port the app runs on
+# Lightweight runtime image with just app code + prod deps.
+FROM base AS runtime
+ENV NODE_ENV=production
+COPY package*.json ./
+COPY --from=prod-deps /usr/src/app/node_modules ./node_modules
+COPY . .
 EXPOSE 8080
-
-# Define the command to run the application
 CMD ["node", "index.js"]
-
-# docker build -t my-node-app .
-# docker run -p 3000:3000 --env-file .env my-node-app
