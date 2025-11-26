@@ -1,6 +1,8 @@
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const OpenAI = require('openai');
 const { GoogleAuth } = require('google-auth-library');
+const http = require('http');
+const https = require('https');
 
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp';
 const MCP_ID_TOKEN_AUDIENCE = process.env.MCP_ID_TOKEN_AUDIENCE || MCP_SERVER_URL;
@@ -29,6 +31,8 @@ const baseMcpHeaders = {
 
 const auth = new GoogleAuth();
 let mcpAuthClientPromise = null;
+const keepAliveHttpAgent = new http.Agent({ keepAlive: true });
+const keepAliveHttpsAgent = new https.Agent({ keepAlive: true });
 
 const shouldUseIdToken = () => {
   if (!MCP_ID_TOKEN_AUDIENCE) return false;
@@ -53,6 +57,7 @@ async function initSession() {
   console.log('[agent] initializing MCP session at ', MCP_SERVER_URL);
   const res = await fetch(MCP_SERVER_URL, {
     method: 'POST',
+    agent: (url) => url.protocol === 'http:' ? keepAliveHttpAgent : keepAliveHttpsAgent,
     headers: {
       ...baseMcpHeaders,
       ...authHeaders
@@ -86,6 +91,7 @@ async function callMcp(sessionId, toolName, args) {
   const authHeaders = await getMcpAuthHeaders();
   const res = await fetch(MCP_SERVER_URL, {
     method: 'POST',
+    agent: (url) => url.protocol === 'http:' ? keepAliveHttpAgent : keepAliveHttpsAgent,
     headers: {
       ...baseMcpHeaders,
       ...authHeaders,

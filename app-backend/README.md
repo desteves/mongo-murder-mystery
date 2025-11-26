@@ -7,6 +7,8 @@
   - `MDB_MCP_CONNECTION_STRING` (read-only Atlas connection string)
   - `MCP_SERVER_URL` (e.g., `http://localhost:3001/mcp`; if pointing to a secured Cloud Run URL, the backend will fetch an ID token automatically)
   - `MCP_ID_TOKEN_AUDIENCE` (optional; defaults to `MCP_SERVER_URL` for ID token audience override)
+- Perf knobs:
+  - `MONGODB_MAX_POOL` (default 20), `MONGODB_MIN_POOL` (default 2), `MONGODB_SERVER_SELECTION_TIMEOUT_MS` (default 5000), `MONGODB_SOCKET_TIMEOUT_MS` (default 20000)
 - Rate limited: 10 requests/minute by default.
 - Custom port: set `PORT` (defaults to `8080`).
 

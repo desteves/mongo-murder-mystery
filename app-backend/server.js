@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const helpers = require('./helpers');
 const { runAgent } = require('./agent');
@@ -10,13 +11,26 @@ app.set('trust proxy', 1);
 const allowedOrigins = [
   process.env.ALLOWED_ORIGIN,
   'https://mongomurdermystery.com',
-  'https://mongodbmurdermystery.com',
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'http://localhost:3000',
+  'https://mongodbmurdermystery.com'
 ];
 
-app.use(express.json());
+function requireApiKey(req, res, next) {
+  const apiKey = req.headers["x-api-key"];
+
+  if (!apiKey) {
+    return res.status(400).json({ error: "Missing API key" });
+  }
+
+  if (apiKey !== process.env.INTERNAL_API_KEY) {
+    return res.status(401).json({ error: "Invalid API key" });
+  }
+
+  next();
+}
+
+app.use(requireApiKey);
+app.use(express.json({ limit: '64kb' }));
+app.use(compression());
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {

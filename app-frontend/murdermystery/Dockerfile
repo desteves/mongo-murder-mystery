@@ -1,32 +1,22 @@
-# Use the official Node.js image as the base image
-FROM node:lts-alpine
-
-# Set the working directory inside the container
+FROM node:lts-alpine AS build
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json (if available) to the working directory
+# Install deps (use cache-friendly layer keyed by lockfile)
 COPY package*.json ./
+RUN npm ci
 
-# Install the application dependencies
-RUN npm install
-
-# Copy the rest of the application code to the working directory
+# Build static site
 COPY . .
-
-# Set environment variables from Docker build arguments
-ARG API_BASE_URL
-
-# Expose the variables at runtime
-ENV VITE_MMM_API_BASE_URL=$API_BASE_URL
-
-# Build the Vue.js app
+# ARG VITE_MMM_API_BASE_URL
+# ENV VITE_MMM_API_BASE_URL=$VITE_MMM_API_BASE_URL
+# ARG VITE_MMM_API_KEY
+# ENV VITE_MMM_API_KEY=$VITE_MMM_API_KEY
 RUN npm run build
 
-# Install a simple server to serve the static files
-RUN npm install -g serve
-
-# Run the web service on container startup.
-CMD ["serve", "-s", "dist", "-l", "8080"]
-
-
-# docker run -p 8080:8080 --env-file .env mm-web
+# Runtime: serve static assets with nginx (gzip + long cache for hashed assets)
+FROM nginx:1.27-alpine AS runtime
+WORKDIR /usr/share/nginx/html
+COPY --from=build /usr/src/app/dist ./
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]

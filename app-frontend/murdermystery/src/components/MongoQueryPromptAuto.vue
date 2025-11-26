@@ -17,7 +17,7 @@
     <div v-if="showClue" class="clue-message">
       <br /><br />
       <b>
-        🎉 Woo-hoo! Clue matched! You're on fire! 🔥 Well done, detective! 🕵️‍♂️🎉
+        🎉 Woo-hoo, a clue was matched! You're on fire! 🔥 Well done, detective! Keep at it. 🕵️‍♂️🎉
       </b>
       <br /><br />
     </div>
@@ -128,6 +128,7 @@ export default {
         },
         headers: {
           'Accept': 'application/json', // Request JSON response
+          'X-API-Key': "mmm-frontend-N0v3mb3R-2025" //import.meta.env.VITE_MMM_API_KEY
         }
       })
         .then(response => {
