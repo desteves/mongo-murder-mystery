@@ -67,10 +67,10 @@ app.get('/eval', async (req, res) => {
   }
 });
 
-// Rate limit the agent endpoint to reduce abuse
-const agentLimiter = rateLimit({
+// // Rate limit all endpoint
+const rateLimit = rateLimit({
   windowMs: 60 * 1000,
-  max: 10,
+  max: 20,
   handler: (_req, res) => {
     res.status(429).json({ err: 'Too many requests. Please slow down and retry in a minute.' });
   },
@@ -78,11 +78,14 @@ const agentLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Apply to all routes
+app.use(rateLimit);
+
 const requiredAgentEnvs = ['OPENAI_API_KEY', 'MDB_MCP_CONNECTION_STRING', 'MCP_SERVER_URL'];
 const getMissingAgentEnvs = () => requiredAgentEnvs.filter((key) => !process.env[key]);
 const MAX_PROMPT_LENGTH = 512;
 
-app.post('/agent', agentLimiter, async (req, res) => {
+app.post('/agent', /*agentLimiter,*/ async (req, res) => {
   try {
     const prompt = req.body?.prompt;
     if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
