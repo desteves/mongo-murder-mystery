@@ -67,19 +67,19 @@ app.get('/eval', async (req, res) => {
   }
 });
 
-// // Rate limit all endpoint
-const rateLimit = rateLimit({
-  windowMs: 60 * 1000,
-  max: 20,
-  handler: (_req, res) => {
-    res.status(429).json({ err: 'Too many requests. Please slow down and retry in a minute.' });
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// // // Rate limit all endpoint
+// const rateLimit = rateLimit({
+//   windowMs: 60 * 1000,
+//   max: 20,
+//   handler: (_req, res) => {
+//     res.status(429).json({ err: 'Too many requests. Please slow down and retry in a minute.' });
+//   },
+//   standardHeaders: true,
+//   legacyHeaders: false,
+// });
 
-// Apply to all routes
-app.use(rateLimit);
+// // Apply to all routes
+// app.use(rateLimit);
 
 const requiredAgentEnvs = ['OPENAI_API_KEY', 'MDB_MCP_CONNECTION_STRING', 'MCP_SERVER_URL'];
 const getMissingAgentEnvs = () => requiredAgentEnvs.filter((key) => !process.env[key]);
