@@ -24,7 +24,6 @@ All the code to run the https://mongomurdermystery.com site can be found in this
                                │  • Agent chat   ( /agent )     │
                                └───────────────┬────────────────┘
                                                │   HTTPS (JSON)
-                                               │
                          ┌─────────────────────┴──────────────────────┐
                          │             Backend API Server             │
                          │                  (Node.js)                 │
@@ -33,7 +32,6 @@ All the code to run the https://mongomurdermystery.com site can be found in this
                          │   /eval                                    │
                          │     • Validates user queries               │
                          │     • Uses MongoDB Driver                  │
-                         │     • Connects via **Private Endpoint**    │
                          │                                            │
                          │   /agent                                   │
                          │     • Runs the Murder Mystery AI agent     │
@@ -44,7 +42,6 @@ All the code to run the https://mongomurdermystery.com site can be found in this
                                          │
                                ┌─────────┴─────────┐
                                │                   │
-                               │                   │
                      ┌─────────▼──────────┐   ┌────▼───────────────────┐
                      │  Private Endpoint  │   │   MCP Tools Interface  │
                      │ (Direct Driver API)│   │ (Controlled DB Access) │
@@ -52,9 +49,8 @@ All the code to run the https://mongomurdermystery.com site can be found in this
                      │ • Used by /eval    │   │ • Used by /agent       │
                      │ • Internal only    │   │ • Safe read-only ops   │
                      │ • No public access │   │ • No direct writes     │
+                     │ • Custom User+Role │   │ • Private Endpoint     │
                      └─────────┬──────────┘   └───────────┬────────────┘
-                               │                          │
-                               │                          │
                                └──────────────┬───────────┘
                                               │
                                               ▼
@@ -62,10 +58,11 @@ All the code to run the https://mongomurdermystery.com site can be found in this
                    │                    MongoDB Atlas                 │
                    │              Murder Mystery Collections          │
                    │──────────────────────────────────────────────────│
-                   │  • gymCheckin                                    │
-                   │  • person                                        │
-                   │  • crime                                         │
-                   │  • socialEventCheckin                            │
+                   │  • gymCheckin (read only)                        │
+                   │  • person     (read only)                        │
+                   │  • crime      (read only)                        │
+                   │  • socialEventCheckin  (read only)               │
+                   │  • solution   (update only)                      │
                    └──────────────────────────────────────────────────┘
 ```
 
