@@ -110,6 +110,28 @@ app.use(cors({
   methods: ['GET', 'POST'], // Allow GET and POST
 }));
 
+// Rate limiting for query endpoint
+const evalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // 30 requests per minute per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({ err: 'Too many requests. Please slow down and retry in a minute.' });
+  },
+});
+
+// Rate limiting for agent endpoint (more restrictive)
+const agentLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 requests per minute per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({ err: 'Too many agent requests. Please slow down and retry in a minute.' });
+  },
+});
+
 // Generic endpoint to evaluate MongoDB queries from the browser
 app.get('/eval', evalLimiter, async (req, res) => {
 
@@ -134,28 +156,6 @@ app.get('/eval', evalLimiter, async (req, res) => {
     req.log.error({ error: error.message, code: error.code }, "Query execution failed");
     return res.status(error.code || 500).json({ err: `${error.message || "Internal Server Error"}` });
   }
-});
-
-// Rate limiting for query endpoint
-const evalLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 30, // 30 requests per minute per IP
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (_req, res) => {
-    res.status(429).json({ err: 'Too many requests. Please slow down and retry in a minute.' });
-  },
-});
-
-// Rate limiting for agent endpoint (more restrictive)
-const agentLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // 10 requests per minute per IP
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (_req, res) => {
-    res.status(429).json({ err: 'Too many agent requests. Please slow down and retry in a minute.' });
-  },
 });
 
 const requiredAgentEnvs = ['OPENAI_API_KEY', 'MDB_MCP_CONNECTION_STRING', 'MCP_SERVER_URL'];

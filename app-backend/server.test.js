@@ -57,8 +57,11 @@ describe('GET /eval', () => {
 
   testCases.forEach(({ queryParam, expectedStatus, expectedBody }) => {
     test(`should return ${expectedStatus} for ${queryParam}}`, async () => {
-      // Make the request
-      const response = await request(app).get('/eval').query(queryParam);
+      // Make the request with API key header
+      const response = await request(app)
+        .get('/eval')
+        .set('x-api-key', process.env.INTERNAL_API_KEY)
+        .query(queryParam);
       // Assert the response status
       expect(response.statusCode).toBe(expectedStatus);
       // Assert the response body (if applicable)

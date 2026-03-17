@@ -202,9 +202,7 @@ function cleanRegexValues(inputString) {
   try {
     JSON.parse(transformedString);
   } catch (error) {
-    console.log('cleanRegexValues: Invalid JSON after transformation');
-    console.log('cleanRegexValues: Error message: ', error.message);
-    console.log('cleanRegexValues: Returning original input');
+    logger.warn({ error: error.message, input: inputString }, 'cleanRegexValues: Invalid JSON after transformation, returning original input');
     return inputString;
 
   }
