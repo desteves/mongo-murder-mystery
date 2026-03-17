@@ -1,6 +1,7 @@
 
 const connectDB = require('./database'); // Import your database connection module
 const { ObjectId } = require('mongodb');
+const logger = require('./logger');
 
 class APIError extends Error {
   constructor(message, code) {
@@ -275,8 +276,7 @@ async function processQuery(Q) {
       result = result.map(item => item.name).filter(coll => coll !== 'solution');
       return [result, desc];
     } catch (error) {
-      console.log('Error in listCollections');
-      console.log(error);
+      logger.error({ error: error.message }, 'Error in listCollections');
       throw new APIError("Cannot list collections", 500);
     }
   } else if (!hasCollectionName(Q)) {

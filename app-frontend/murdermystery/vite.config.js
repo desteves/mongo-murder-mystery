@@ -33,15 +33,29 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
-    target: 'es2019',
+    target: 'es2020', // Modern browsers only
     minify: 'esbuild',
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
+        // Better chunking strategy for optimal caching
         manualChunks: {
-          vendor: ['vue', 'vue-router', 'axios']
-        }
+          'vendor-vue': ['vue', 'vue-router'],
+          'vendor-editor': ['codemirror', '@codemirror/autocomplete', '@codemirror/lang-javascript', '@codemirror/language', '@codemirror/basic-setup'],
+          'vendor-utils': ['axios', 'prismjs']
+        },
+        // Better file naming for cache busting
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
-    }
+    },
+    // Enable compression reporting
+    reportCompressedSize: true
   },
-  esbuild: isProd ? { drop: ['console', 'debugger'] } : undefined
+  esbuild: isProd ? {
+    drop: ['console', 'debugger'],
+    legalComments: 'none' // Remove comments in production
+  } : undefined
 });

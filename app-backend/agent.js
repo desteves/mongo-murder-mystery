@@ -3,6 +3,7 @@ const OpenAI = require('openai');
 const { GoogleAuth } = require('google-auth-library');
 const http = require('http');
 const https = require('https');
+const logger = require('./logger');
 
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp';
 const MCP_ID_TOKEN_AUDIENCE = process.env.MCP_ID_TOKEN_AUDIENCE || MCP_SERVER_URL;
@@ -13,11 +14,11 @@ const openaiApiKey = process.env.OPENAI_API_KEY;
 
 if (!openaiApiKey) {
   // Fail fast during boot when the agent is invoked
-  console.warn('OPENAI_API_KEY is missing. Agent endpoint will reject requests.');
+  logger.warn('OPENAI_API_KEY is missing. Agent endpoint will reject requests.');
 }
 
 if (!MCP_CONNECTION_STRING) {
-  console.warn('MCP connection string is missing. Set MDB_MCP_CONNECTION_STRING.');
+  logger.warn('MCP connection string is missing. Set MDB_MCP_CONNECTION_STRING.');
 }
 
 const openaiClient = openaiApiKey
@@ -54,7 +55,7 @@ async function getMcpAuthHeaders() {
 
 async function initSession() {
   const authHeaders = await getMcpAuthHeaders();
-  console.log('[agent] initializing MCP session at ', MCP_SERVER_URL);
+  logger.info({ url: MCP_SERVER_URL }, 'Initializing MCP session');
   const res = await fetch(MCP_SERVER_URL, {
     method: 'POST',
     agent: (url) => url.protocol === 'http:' ? keepAliveHttpAgent : keepAliveHttpsAgent,
@@ -75,7 +76,7 @@ async function initSession() {
   });
 
   if (!res.ok) {
-    console.log('[agent] MCP init failed:', JSON.stringify(res));
+    logger.error({ status: res.status, statusText: res.statusText }, 'MCP init failed');
     throw new Error(`MCP init failed: ${res.status} ${res.statusText}`);
   }
 
@@ -214,7 +215,7 @@ async function runAgent(prompt) {
     throw new Error('Agent unavailable: OPENAI_API_KEY is not configured.');
   }
 
-  console.log('[agent] starting runAgent with prompt:', prompt);
+  logger.info({ prompt }, 'Starting agent with prompt');
   const sessionId = await initSession();
   await ensureConnect(sessionId);
 

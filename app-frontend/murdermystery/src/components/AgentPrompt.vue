@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiService from '@/services/api';
 
 export default {
   name: 'AgentPrompt',
@@ -28,8 +28,6 @@ export default {
     return {
       userPrompt: '',
       resultsText: null,
-      // apiUrl: import.meta.env.VITE_MMM_API_BASE_URL ?? 'http://localhost:3000',
-      apiUrl: 'https://mmm-be-1020079043644.us-central1.run.app',
       loading: false,
     };
   },
@@ -39,44 +37,21 @@ export default {
     }
   },
   methods: {
-    runPrompt() {
+    async runPrompt() {
       this.resultsText = null;
       this.loading = true;
 
-      const MAX_PROMPT_LENGTH = 512;
-      if (typeof this.userPrompt !== 'string' || !this.userPrompt.trim()) {
-        this.resultsText = 'Prompt is empty or undefined.';
+      try {
+        // Use API service which handles validation
+        const data = await apiService.sendAgentPrompt(this.userPrompt);
+        const reply = typeof data?.reply === 'string' ? data.reply : JSON.stringify(data);
+        this.resultsText = reply;
+      } catch (error) {
+        // Use user-friendly error message from API service
+        this.resultsText = error.userMessage || error.message || 'Failed to get response from agent';
+      } finally {
         this.loading = false;
-        return false;
       }
-      if (this.userPrompt.length > MAX_PROMPT_LENGTH) {
-        this.resultsText = 'Prompt is too large.';
-        this.loading = false;
-        return false;
-      }
-
-      console.log(`Sending ${this.userPrompt} for agent to ${this.apiUrl}`);
-
-      axios.post(`${this.apiUrl}/agent`, { prompt: this.userPrompt })
-        .then(response => {
-          const data = response.data;
-          // Detect misconfigured endpoints that return HTML
-          if (typeof data === 'string' && data.toLowerCase().includes('<!doctype html')) {
-            this.resultsText = 'The agent endpoint is misconfigured.';
-            return;
-          }
-          const reply = typeof data?.reply === 'string' ? data.reply : JSON.stringify(data);
-          this.resultsText = reply;
-        })
-        .catch(error => {
-          const payload = error.response && error.response.data
-            ? error.response.data
-            : { error: 'Failed to fetch data' };
-          this.resultsText = payload.err || payload.error || JSON.stringify(payload);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
     },
     resetPrompt() {
       this.userPrompt = '';

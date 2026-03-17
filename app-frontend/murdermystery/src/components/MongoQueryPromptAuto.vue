@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import apiService from '@/services/api';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.css'; // Import Prism theme
 import 'prismjs/components/prism-json.min.js'; // Import JSON language support for Prism
@@ -60,9 +60,9 @@ export default {
     return {
       queryResult: null,
       showClue: false,
-      // import.meta.env.VITE_MMM_API_BASE_URL ??
-      apiUrl: 'https://mmm-be-1020079043644.us-central1.run.app',
       editorInstance: null,
+      isLoading: false,
+      errorMessage: null
     };
   },
   computed: {
@@ -87,71 +87,60 @@ export default {
     }
   },
   methods: {
-    runQuery() {
-      this.showClue = false; // Reset the clue display
-      let queryText = this.editorInstance.state.doc.toString(); // Get content from the editor
-      let encodedQueryStr = '';
+    async runQuery() {
+      this.showClue = false;
+      this.queryResult = null;
+      this.errorMessage = null;
+      this.isLoading = true;
+
       try {
-        if (queryText) {
-          if (typeof queryText !== 'string') {
-            this.queryResult = JSON.stringify({ msg: 'Query must be text.' }, null, 2);
-            return false;
-          }
+        const queryText = this.editorInstance.state.doc.toString();
 
-          const MAX_QUERY_LENGTH = 1024;
-          if (queryText.length > MAX_QUERY_LENGTH) {
-            this.queryResult = JSON.stringify({ msg: 'Query is too large.' }, null, 2);
-            return false;
-          }
-
-          const normalizedQueryText = queryText
-            .normalize('NFC')
-            .replace(/[\n\t]+/g, ' ')
-            .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
-            .trim(); // Remove leading/trailing spaces
-          encodedQueryStr = encodeURIComponent(normalizedQueryText);
-        } else {
-          this.queryResult = JSON.stringify({ msg: 'Query is empty or undefined.' }, null, 2);
-          return false;
+        if (!queryText || typeof queryText !== 'string') {
+          this.queryResult = JSON.stringify({ msg: 'Query must be text.' }, null, 2);
+          this.isLoading = false;
+          return;
         }
-      } catch (error) {
-        this.queryResult = JSON.stringify({ msg: error.message }, null, 2);
-        return false;
-      }
 
-      console.log(`Sending ${encodedQueryStr} for eval to ${this.apiUrl}`);
-
-      axios.get(`${this.apiUrl}/eval`, {
-        params: {
-          query: encodedQueryStr,
-          language: 'mongosh' // Add the language query param
-        },
-        headers: {
-          'Accept': 'application/json', // Request JSON response
-          'X-API-Key': "mmm-frontend-N0v3mb3R-2025" //import.meta.env.VITE_MMM_API_KEY
+        const MAX_QUERY_LENGTH = 1024;
+        if (queryText.length > MAX_QUERY_LENGTH) {
+          this.queryResult = JSON.stringify({ msg: 'Query is too large.' }, null, 2);
+          this.isLoading = false;
+          return;
         }
-      })
-        .then(response => {
-          if (typeof response === 'object' && response !== null && response?.data?.[0]?.isClue) {
-            delete response.data[0].isClue;
-            this.showClue = true;
-          }
-          this.queryResult = JSON.stringify(response.data, null, 2);
-          this.$nextTick(() => {
-            this.highlightCode();
-          });
-        })
-        .catch(error => {
-          if (error.response && error.response.data) {
-            this.queryResult = JSON.stringify(error.response.data, null, 2);
-          } else {
-            console.log(error);
-            this.queryResult = JSON.stringify({ error: 'Failed to fetch data' }, null, 2);
-          }
-          this.$nextTick(() => {
-            this.highlightCode();
-          });
+
+        const normalizedQueryText = queryText
+          .normalize('NFC')
+          .replace(/[\n\t]+/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        const encodedQueryStr = encodeURIComponent(normalizedQueryText);
+
+        // Use API service
+        const data = await apiService.executeQuery(encodedQueryStr);
+
+        // Check for clue
+        if (typeof data === 'object' && data !== null && data?.[0]?.isClue) {
+          delete data[0].isClue;
+          this.showClue = true;
+        }
+
+        this.queryResult = JSON.stringify(data, null, 2);
+        this.$nextTick(() => {
+          this.highlightCode();
         });
+      } catch (error) {
+        // Use user-friendly error message from API service
+        const errorMsg = error.userMessage || error.message || 'Failed to execute query';
+        this.queryResult = JSON.stringify({ error: errorMsg }, null, 2);
+        this.errorMessage = errorMsg;
+        this.$nextTick(() => {
+          this.highlightCode();
+        });
+      } finally {
+        this.isLoading = false;
+      }
     },
     resetQuery() {
       this.editorInstance.dispatch({
