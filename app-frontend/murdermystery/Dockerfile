@@ -7,10 +7,15 @@ RUN npm ci
 
 # Build static site
 COPY . .
-# ARG VITE_MMM_API_BASE_URL
-# ENV VITE_MMM_API_BASE_URL=$VITE_MMM_API_BASE_URL
-# ARG VITE_MMM_API_KEY
-# ENV VITE_MMM_API_KEY=$VITE_MMM_API_KEY
+
+# Accept build arguments for API configuration
+ARG VITE_MMM_API_BASE_URL
+ARG VITE_MMM_API_KEY
+
+# Set environment variables for Vite build
+ENV VITE_MMM_API_BASE_URL=$VITE_MMM_API_BASE_URL
+ENV VITE_MMM_API_KEY=$VITE_MMM_API_KEY
+
 RUN npm run build
 
 # Runtime: serve static assets with nginx (gzip + long cache for hashed assets)

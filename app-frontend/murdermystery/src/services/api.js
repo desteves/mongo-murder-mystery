@@ -6,7 +6,7 @@ import axios from 'axios';
  */
 
 // Get API configuration from environment variables
-const API_BASE_URL = import.meta.env.VITE_MMM_API_BASE_URL || 'https://mmm-be-1020079043644.us-central1.run.app';
+const API_BASE_URL = import.meta.env.VITE_MMM_API_BASE_URL || 'https://mmm-be-vud27cynqa-uc.a.run.app';
 const API_KEY = import.meta.env.VITE_MMM_API_KEY || 'mmm-frontend-M4rCHm4ddn3$$-2026';
 
 // Create axios instance with default configuration
