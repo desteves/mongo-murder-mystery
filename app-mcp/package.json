@@ -8,6 +8,6 @@
     "dev": "npm run start"
   },
   "dependencies": {
-    "mongodb-mcp-server": "^1.2.0"
+    "mongodb-mcp-server": "^1.10.0"
   }
 }
