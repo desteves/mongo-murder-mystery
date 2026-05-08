@@ -33,8 +33,7 @@
 
 <script>
 import apiService from '@/services/api';
-// Import JSON language support (Prism is already global from main.js)
-import 'prismjs/components/prism-json.min.js';
+// JSON language support loaded globally in main.js
 
 // Lazy load CodeMirror to reduce initial bundle size
 let codeMirrorModules = null;

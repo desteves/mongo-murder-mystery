@@ -4,6 +4,8 @@ import './assets/main.css'
 import Prism from 'prismjs'
 import 'prismjs/themes/prism.css'
 window.Prism = Prism
+// Load JSON language support after Prism is available
+import 'prismjs/components/prism-json.min.js'
 
 import { createApp } from 'vue'
 import App from './App.vue'
