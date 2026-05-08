@@ -25,6 +25,32 @@ Frontend (Vue/Vite) → Backend API → MongoDB Atlas (read-only)
 - **Rate limiting**: `/eval` allows 30 req/min, `/agent` allows 10 req/min (configurable via express-rate-limit)
 - **Request timeout**: 30s default (`REQUEST_TIMEOUT_MS` env var)
 
+## Recent Improvements (2026-05)
+
+### Security Hardening
+- ✅ Fixed timing attack vulnerability in API key comparison
+- ✅ Added Helmet.js for security headers (HSTS, X-Frame-Options, CSP, etc.)
+- ✅ Fixed CORS preflight handling by reordering middleware
+- ✅ Added support for both HTTP/HTTPS in CORS allowlist
+- ✅ Sanitized error messages to prevent information leakage
+- ✅ Replaced console.log with structured logging throughout
+
+### Dependency Updates
+- ✅ Aggressive update to latest versions (all major bumps)
+- ✅ OpenAI SDK: 4.104 → 6.37
+- ✅ Vite: 7.3 → 8.0 (with manualChunks fix)
+- ✅ Vue Router: 4.6 → 5.0
+- ✅ ESLint: 9.39 → 10.3 (with globals config)
+- ✅ MongoDB driver: 7.1 → 7.2
+- ✅ express-rate-limit: 7.5 → 8.5
+- ✅ All security vulnerabilities resolved
+
+### Infrastructure
+- ✅ Database reconnection with exponential backoff
+- ✅ Configurable max retries (default: 5)
+- ✅ Prevents connection stacking under load
+- ✅ Improved error messages and logging
+
 ## Development Commands
 
 ### Backend (`app-backend/`)
@@ -177,20 +203,108 @@ curl "http://localhost:3000/eval?query=db.person.find().limit(5)" \
 
 ## File Organization
 
-- `app-backend/config.js` - Environment variable validation and configuration object
-- `app-backend/database.js` - MongoDB connection singleton
-- `app-backend/helpers.js` - Query validation and execution logic
-- `app-backend/agent.js` - AI agent implementation with MCP integration
-- `app-backend/server.js` - Express app setup, middleware, endpoints
-- `app-backend/logger.js` - Pino logger configuration
-- `app-frontend/murdermystery/src/services/api.js` - API client wrapper
-- `app-frontend/murdermystery/src/router/index.js` - Vue Router configuration
+### Backend (`app-backend/`)
+- `config.js` - Environment variable validation and configuration object
+- `database.js` - MongoDB connection singleton with exponential backoff reconnection
+- `helpers.js` - Query validation and execution logic
+- `agent.js` - AI agent implementation with MCP integration
+- `server.js` - Express app setup, middleware, endpoints
+- `logger.js` - Pino structured logger configuration
+- `index.js` - Entry point with graceful shutdown
+- `Dockerfile` - Multi-stage Docker build with tests
 
-## Security Considerations
+### Frontend (`app-frontend/murdermystery/`)
+- `src/services/api.js` - Axios API client with interceptors
+- `src/router/index.js` - Vue Router configuration
+- `src/components/` - Vue 3 components
+- `src/views/` - Vue 3 page views
+- `vite.config.js` - Vite build configuration with code splitting
+- `eslint.config.js` - ESLint 10 flat config with globals
 
+### MCP Server (`app-mcp/`)
+- HTTP-based MongoDB MCP server for agent interactions
+- See MongoDB MCP server documentation for details
+
+## Dependencies
+
+### Backend (Current Versions)
+- **Runtime**: Node.js LTS (Alpine-based Docker image)
+- **Framework**: Express 5.1.0
+- **Database**: MongoDB driver 7.2.0
+- **AI**: OpenAI SDK 6.37.0 (OpenRouter compatible)
+- **Security**: Helmet 8.1.0, express-rate-limit 8.5.1
+- **Auth**: google-auth-library 10.6.2
+- **Logging**: Pino 10.3.1, pino-http 11.0.0
+- **Testing**: Jest 30.4.1, supertest 7.1.4
+
+### Frontend (Current Versions)
+- **Framework**: Vue 3.5.34
+- **Build**: Vite 8.0.11, esbuild 0.28.0
+- **Routing**: Vue Router 5.0.6
+- **HTTP**: Axios 1.16.0
+- **Editor**: CodeMirror 6.0.2 + extensions
+- **Linting**: ESLint 10.3.0, oxlint 1.63.0, Prettier 3.8.3
+- **Testing**: Playwright 1.59.1
+
+## Security Hardening
+
+### Authentication & Authorization
+- **Timing-safe API key comparison** (`crypto.timingSafeEqual()`) prevents timing attacks
 - All API endpoints require `x-api-key` header (except `/health`, `/readiness`)
-- CORS restricted to specific origins (configurable via `ALLOWED_ORIGIN`)
-- Rate limiting enforced per IP address (trust proxy enabled for Cloud Run/NGINX)
-- MongoDB queries are validated before execution to prevent injection
-- Agent prompts limited to 512 characters max
-- Connection strings should use read-only database users
+- API key validation in `server.js::requireApiKey()`
+
+### CORS Configuration
+- Explicit allowlist in `server.js::allowedOrigins`
+- Supports both HTTP and HTTPS for production domains:
+  - `https://mongomurdermystery.com`
+  - `https://mongodbmurdermystery.com`
+  - `http://mongomurdermystery.com`
+  - `http://mongodbmurdermystery.com`
+  - `process.env.ALLOWED_ORIGIN` (for additional domains)
+- CORS middleware positioned before API key check to allow preflight OPTIONS requests
+- Credentials enabled for cookie/session support
+
+### Security Headers (Helmet.js)
+- **HSTS**: `max-age=31536000; includeSubDomains`
+- **X-Frame-Options**: `SAMEORIGIN`
+- **X-Content-Type-Options**: `nosniff`
+- **Referrer-Policy**: `no-referrer`
+- **Cross-Origin-Opener-Policy**: `same-origin`
+- **Cross-Origin-Resource-Policy**: `same-origin`
+- CSP disabled (frontend may need custom policy)
+
+### Rate Limiting
+- `/eval` endpoint: 30 requests/min per IP
+- `/agent` endpoint: 10 requests/min per IP (more restrictive for AI queries)
+- Trust proxy enabled for accurate IP detection behind Cloud Run/NGINX
+- Configurable via express-rate-limit
+
+### Input Validation
+- **Query validation** (`helpers.js::validateQueryString()`):
+  - Max length: 1024 characters
+  - URI decoding with error handling
+  - Regex-based query pattern validation
+  - Collection name sanitization
+- **Agent prompt validation**:
+  - Max length: 512 characters
+  - Trim whitespace
+  - Non-empty string check
+- **MongoDB query parsing**: JSON validation before execution
+- **Sort/limit validation**: Type checking and range limits (1-30 for limit)
+
+### Error Handling
+- Global error handler sanitizes errors in production
+- Health check errors logged but not exposed to clients
+- Structured logging with pino (no sensitive data in logs)
+- All `console.log` replaced with structured `logger.error()`
+
+### Database Security
+- Read-only MongoDB user recommended for all connections
+- `solution` collection: update-only for mystery validation
+- Connection pooling prevents resource exhaustion
+- Exponential backoff reconnection prevents DoS during outages
+
+### Request Protection
+- Request body size limit: 64kb
+- Request/response timeouts: 30s (configurable via `REQUEST_TIMEOUT_MS`)
+- Graceful shutdown handlers (SIGTERM, SIGINT)
