@@ -33,6 +33,12 @@
 import apiService from '@/services/api';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism.css'; // Import Prism theme
+
+// Ensure Prism is available globally before loading components
+if (typeof window !== 'undefined') {
+  window.Prism = Prism;
+}
+
 import 'prismjs/components/prism-json.min.js'; // Import JSON language support for Prism
 
 import { basicSetup, EditorView } from "codemirror";
