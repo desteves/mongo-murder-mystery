@@ -10,12 +10,28 @@ const isProd = process.env.NODE_ENV === 'production';
 // https://vite.dev/config/
 export default defineConfig({
   server: {
-    port: 8080
+    port: 8080,
+    open: false, // Don't auto-open browser
+    cors: true
+  },
+  preview: {
+    port: 8080,
+    strictPort: true
   },
   plugins: [
-    vue(),
+    vue({
+      script: {
+        defineModel: true, // Enable defineModel macro
+        propsDestructure: true // Enable props destructuring
+      }
+    }),
     !isProd && vueDevTools(),
   ].filter(Boolean),
+  // Optimize dependency pre-bundling
+  optimizeDeps: {
+    include: ['vue', 'vue-router', 'axios', 'prismjs'],
+    exclude: ['@codemirror/autocomplete', '@codemirror/basic-setup', '@codemirror/lang-javascript', '@codemirror/language']
+  },
   // server: {
   //   proxy: {
   //     // This will proxy requests from `/eval` to the target server
@@ -37,6 +53,8 @@ export default defineConfig({
     minify: 'esbuild',
     cssCodeSplit: true,
     chunkSizeWarningLimit: 600,
+    assetsInlineLimit: 4096, // Inline assets < 4KB as base64
+    cssMinify: 'esbuild', // Use esbuild for CSS minification (faster)
     rollupOptions: {
       output: {
         // Better chunking strategy for optimal caching
