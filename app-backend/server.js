@@ -96,9 +96,7 @@ app.get('/readiness', async (req, res) => {
   });
 });
 
-app.use(requireApiKey);
-app.use(express.json({ limit: '64kb' }));
-app.use(compression());
+// CORS must come before requireApiKey so preflight OPTIONS requests work
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -108,7 +106,12 @@ app.use(cors({
     }
   },
   methods: ['GET', 'POST'], // Allow GET and POST
+  credentials: true
 }));
+
+app.use(express.json({ limit: '64kb' }));
+app.use(compression());
+app.use(requireApiKey);
 
 // Rate limiting for query endpoint
 const evalLimiter = rateLimit({
