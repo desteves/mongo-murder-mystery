@@ -9,8 +9,10 @@
     <div class="editor" ref="editor"></div>
 
     <div class="button-group">
-      <button @click="runQuery">RUN</button>
-      <button @click="resetQuery">RESET</button>
+      <button @click="runQuery" :disabled="isLoading">
+        {{ isLoading ? 'RUNNING...' : 'RUN' }}
+      </button>
+      <button @click="resetQuery" :disabled="isLoading">RESET</button>
     </div>
 
     <!-- Conditionally display this div when showClue is true -->
@@ -23,8 +25,8 @@
     </div>
 
     <div v-if="queryResult" class="query-result">
-      <!-- Use v-html to render the formatted JSON inside pre with syntax highlighting -->
-      <pre ref="codeBlock" class="language-json" v-html="queryResult"></pre>
+      <!-- Safe text rendering with Prism syntax highlighting applied via ref -->
+      <pre ref="codeBlock" class="language-json">{{ queryResult }}</pre>
     </div>
   </div>
 </template>
@@ -41,10 +43,25 @@ if (typeof window !== 'undefined') {
 
 import 'prismjs/components/prism-json.min.js'; // Import JSON language support for Prism
 
-import { basicSetup, EditorView } from "codemirror";
-import { autocompletion } from "@codemirror/autocomplete";
-import { javascript } from "@codemirror/lang-javascript";
-import { mongoCompletions } from "../utils/mongoUtils";
+// Lazy load CodeMirror to reduce initial bundle size
+let codeMirrorModules = null;
+const loadCodeMirror = async () => {
+  if (!codeMirrorModules) {
+    const [
+      { basicSetup, EditorView },
+      { autocompletion },
+      { javascript },
+      { mongoCompletions }
+    ] = await Promise.all([
+      import('codemirror'),
+      import('@codemirror/autocomplete'),
+      import('@codemirror/lang-javascript'),
+      import('../utils/mongoUtils')
+    ]);
+    codeMirrorModules = { basicSetup, EditorView, autocompletion, javascript, mongoCompletions };
+  }
+  return codeMirrorModules;
+};
 
 export default {
   name: 'MongoQueryPromptAuto',
@@ -68,7 +85,8 @@ export default {
       showClue: false,
       editorInstance: null,
       isLoading: false,
-      errorMessage: null
+      errorMessage: null,
+      queryCache: new Map() // Cache query results
     };
   },
   computed: {
@@ -77,8 +95,9 @@ export default {
     }
   },
   watch: {
-    preFilledText(newValue) {
+    async preFilledText(newValue) {
       if (this.editorInstance) {
+        const { EditorView } = await loadCodeMirror();
         this.editorInstance.setState(EditorView.state.of({ doc: newValue }));
       }
     }
@@ -123,8 +142,24 @@ export default {
 
         const encodedQueryStr = encodeURIComponent(normalizedQueryText);
 
+        // Check cache first
+        if (this.queryCache.has(encodedQueryStr)) {
+          const data = this.queryCache.get(encodedQueryStr);
+          this.queryResult = JSON.stringify(data, null, 2);
+          this.$nextTick(() => this.highlightCode());
+          this.isLoading = false;
+          return;
+        }
+
         // Use API service
         const data = await apiService.executeQuery(encodedQueryStr);
+
+        // Cache the result (limit cache size to 50 entries)
+        if (this.queryCache.size >= 50) {
+          const firstKey = this.queryCache.keys().next().value;
+          this.queryCache.delete(firstKey);
+        }
+        this.queryCache.set(encodedQueryStr, data);
 
         // Check for clue
         if (typeof data === 'object' && data !== null && data?.[0]?.isClue) {
@@ -158,11 +193,18 @@ export default {
     highlightCode() {
       // Apply syntax highlighting using Prism.js
       const codeBlock = this.$refs.codeBlock;
-      if (codeBlock) {
-        Prism.highlightElement(codeBlock);
+      if (codeBlock && codeBlock.textContent) {
+        // Only highlight if not already highlighted
+        if (!codeBlock.classList.contains('highlighted')) {
+          Prism.highlightElement(codeBlock);
+          codeBlock.classList.add('highlighted');
+        }
       }
     },
-    initCodeMirror() {
+    async initCodeMirror() {
+      // Lazy load CodeMirror modules
+      const { basicSetup, EditorView, autocompletion, javascript, mongoCompletions } = await loadCodeMirror();
+
       // Create the CodeMirror editor instance
       this.editorInstance = new EditorView({
         doc: this.preFilledText, // Initialize with preFilledText
