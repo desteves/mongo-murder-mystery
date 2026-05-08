@@ -33,15 +33,8 @@
 
 <script>
 import apiService from '@/services/api';
-import Prism from 'prismjs';
-import 'prismjs/themes/prism.css'; // Import Prism theme
-
-// Ensure Prism is available globally before loading components
-if (typeof window !== 'undefined') {
-  window.Prism = Prism;
-}
-
-import 'prismjs/components/prism-json.min.js'; // Import JSON language support for Prism
+// Import JSON language support (Prism is already global from main.js)
+import 'prismjs/components/prism-json.min.js';
 
 // Lazy load CodeMirror to reduce initial bundle size
 let codeMirrorModules = null;
@@ -191,12 +184,12 @@ export default {
       this.showClue = false; // Reset the clue display
     },
     highlightCode() {
-      // Apply syntax highlighting using Prism.js
+      // Apply syntax highlighting using Prism.js (global)
       const codeBlock = this.$refs.codeBlock;
-      if (codeBlock && codeBlock.textContent) {
+      if (codeBlock && codeBlock.textContent && window.Prism) {
         // Only highlight if not already highlighted
         if (!codeBlock.classList.contains('highlighted')) {
-          Prism.highlightElement(codeBlock);
+          window.Prism.highlightElement(codeBlock);
           codeBlock.classList.add('highlighted');
         }
       }
