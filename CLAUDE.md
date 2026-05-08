@@ -124,6 +124,9 @@ Connection pooling configured in `database.js`:
 - `serverSelectionTimeoutMS`: 5000 (configurable)
 - `socketTimeoutMS`: 20000 (configurable)
 - Single shared client instance across the application
+- Exponential backoff reconnection with max 5 retries (configurable via `MONGODB_MAX_RETRIES`)
+  - Retry delays: 100ms, 200ms, 400ms, 800ms, 1600ms
+  - Prevents connection attempt stacking under load
 
 ### Testing Strategy
 

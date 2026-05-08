@@ -49,6 +49,7 @@ These variables are optional but recommended for production:
 |----------|-------------|---------|
 | `MONGODB_MAX_POOL` | Maximum connection pool size | `20` |
 | `MONGODB_MIN_POOL` | Minimum connection pool size | `2` |
+| `MONGODB_MAX_RETRIES` | Max reconnection attempts with exponential backoff | `5` |
 | `MONGODB_SERVER_SELECTION_TIMEOUT_MS` | Server selection timeout | `5000` (5 seconds) |
 | `MONGODB_SOCKET_TIMEOUT_MS` | Socket timeout | `20000` (20 seconds) |
 
