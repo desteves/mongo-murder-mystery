@@ -1,6 +1,8 @@
 const express = require('express');
 const compression = require('compression');
 const cors = require('cors');
+const crypto = require('crypto');
+const helmet = require('helmet');
 const helpers = require('./helpers');
 const { runAgent } = require('./agent');
 const rateLimit = require('express-rate-limit');
@@ -8,6 +10,12 @@ const connectDB = require('./database');
 const logger = require('./logger');
 const pinoHttp = require('pino-http');
 const app = express();
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable for now as frontend may need adjustment
+  crossOriginEmbedderPolicy: false // Allow embedding if needed
+}));
 
 // Add request logging middleware (skip health checks)
 app.use(pinoHttp({
@@ -52,12 +60,18 @@ const allowedOrigins = [
 
 function requireApiKey(req, res, next) {
   const apiKey = req.headers["x-api-key"];
+  const expectedKey = process.env.INTERNAL_API_KEY;
 
   if (!apiKey) {
     return res.status(400).json({ error: "Missing API key" });
   }
 
-  if (apiKey !== process.env.INTERNAL_API_KEY) {
+  // Use timing-safe comparison to prevent timing attacks
+  const apiKeyBuffer = Buffer.from(apiKey);
+  const expectedKeyBuffer = Buffer.from(expectedKey);
+
+  if (apiKeyBuffer.length !== expectedKeyBuffer.length ||
+      !crypto.timingSafeEqual(apiKeyBuffer, expectedKeyBuffer)) {
     return res.status(401).json({ error: "Invalid API key" });
   }
 
@@ -75,9 +89,9 @@ app.get('/health', async (req, res) => {
       uptime: process.uptime()
     });
   } catch (error) {
+    logger.error({ error: error.message }, 'Health check failed');
     res.status(503).json({
       status: 'unhealthy',
-      error: error.message,
       timestamp: new Date().toISOString()
     });
   }
@@ -154,7 +168,7 @@ app.get('/eval', evalLimiter, async (req, res) => {
   }
 
   try {
-    [result, desc] = await helpers.processQuery(queryTerm);
+    const [result, desc] = await helpers.processQuery(queryTerm);
     req.log.info({ query: desc }, "Query executed successfully");
     return res.status(200).json(result);
   } catch (error) {

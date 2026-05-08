@@ -17,6 +17,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.5.1",
     "google-auth-library": "^10.6.2",
+    "helmet": "^8.1.0",
     "mongodb": "^7.2.0",
     "mongodb-query-parser": "^4.7.12",
     "node-fetch": "^3.3.2",

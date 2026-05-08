@@ -320,7 +320,7 @@ async function processQuery(Q) {
       }
       return [result, desc];
     } catch (error) {
-      console.log(error);
+      logger.error({ error: error.message }, 'Database operation error');
       throw new APIError("Cannot check suspect", 500);
     }
 
@@ -343,7 +343,7 @@ async function processQuery(Q) {
       result = await db.collection(coll).distinct(field);
       return [result, desc];
     } catch (error) {
-      console.log(error);
+      logger.error({ error: error.message }, 'Database operation error');
       throw new APIError("Cannot run distinct query", 500);
     }
   }
@@ -372,7 +372,7 @@ async function processQuery(Q) {
       return [result, desc];
     } catch (error) {
 
-      console.log(error);
+      logger.error({ error: error.message }, 'Database operation error');
       throw new APIError("Cannot run count query", 500);
     }
   }
@@ -385,7 +385,7 @@ async function processQuery(Q) {
 
     if (!isFindArgs(args)) { // okay to be missing / empty
 
-      console.log(error);
+      logger.error({ error: error.message }, 'Database operation error');
       throw new APIError("Invalid find arguments", 400);
     }
 
@@ -406,7 +406,7 @@ async function processQuery(Q) {
         return [result, desc];
       }
       catch (error) {
-        console.log(error);
+        logger.error({ error: error.message }, 'Database operation error');
         throw new APIError("Cannot run find-count query", 500);
       }
     } // end count
@@ -456,7 +456,7 @@ async function processQuery(Q) {
       }
       return [result, desc];
     } catch (error) {
-      console.log(error);
+      logger.error({ error: error.message }, 'Database operation error');
       throw new APIError("Cannot run find query", 500);
     }
   }
