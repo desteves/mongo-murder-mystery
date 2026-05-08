@@ -45,8 +45,10 @@ app.set('trust proxy', 1);
 const allowedOrigins = [
   process.env.ALLOWED_ORIGIN,
   'https://mongomurdermystery.com',
-  'https://mongodbmurdermystery.com'
-];
+  'https://mongodbmurdermystery.com',
+  'http://mongomurdermystery.com',
+  'http://mongodbmurdermystery.com'
+].filter(Boolean); // Remove undefined ALLOWED_ORIGIN if not set
 
 function requireApiKey(req, res, next) {
   const apiKey = req.headers["x-api-key"];
