@@ -40,10 +40,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Better chunking strategy for optimal caching
-        manualChunks: {
-          'vendor-vue': ['vue', 'vue-router'],
-          'vendor-editor': ['codemirror', '@codemirror/autocomplete', '@codemirror/lang-javascript', '@codemirror/language', '@codemirror/basic-setup'],
-          'vendor-utils': ['axios', 'prismjs']
+        manualChunks(id) {
+          if (id.includes('node_modules/vue') || id.includes('node_modules/vue-router')) {
+            return 'vendor-vue';
+          }
+          if (id.includes('node_modules/codemirror') || id.includes('node_modules/@codemirror')) {
+            return 'vendor-editor';
+          }
+          if (id.includes('node_modules/axios') || id.includes('node_modules/prismjs')) {
+            return 'vendor-utils';
+          }
         },
         // Better file naming for cache busting
         chunkFileNames: 'assets/[name]-[hash].js',

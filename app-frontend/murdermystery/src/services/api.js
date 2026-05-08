@@ -97,14 +97,10 @@ export const apiService = {
    * @returns {Promise<any>} Query results
    */
   async executeQuery(query, language = 'mongosh') {
-    try {
-      const response = await apiClient.get('/eval', {
-        params: { query, language }
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await apiClient.get('/eval', {
+      params: { query, language }
+    });
+    return response.data;
   },
 
   /**
@@ -122,12 +118,8 @@ export const apiService = {
       throw new Error(`Prompt is too long (max ${MAX_PROMPT_LENGTH} characters)`);
     }
 
-    try {
-      const response = await apiClient.post('/agent', { prompt: prompt.trim() });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await apiClient.post('/agent', { prompt: prompt.trim() });
+    return response.data;
   },
 
   /**
@@ -135,15 +127,11 @@ export const apiService = {
    * @returns {Promise<{status: string, timestamp: string}>}
    */
   async checkHealth() {
-    try {
-      // Health endpoint doesn't require API key
-      const response = await axios.get(`${API_BASE_URL}/health`, {
-        timeout: 5000
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    // Health endpoint doesn't require API key
+    const response = await axios.get(`${API_BASE_URL}/health`, {
+      timeout: 5000
+    });
+    return response.data;
   }
 };
 
