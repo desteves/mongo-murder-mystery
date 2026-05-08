@@ -65,7 +65,8 @@ export default defineConfig({
           if (id.includes('node_modules/codemirror') || id.includes('node_modules/@codemirror')) {
             return 'vendor-editor';
           }
-          if (id.includes('node_modules/axios') || id.includes('node_modules/prismjs')) {
+          // Keep prismjs in main bundle to ensure proper initialization order
+          if (id.includes('node_modules/axios')) {
             return 'vendor-utils';
           }
         },
