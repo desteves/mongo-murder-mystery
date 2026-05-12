@@ -1,86 +1,154 @@
 <template>
-  <div>
-    <SelfTimer />
-  </div>
-
-
   <WelcomeItem>
-
     <template #heading>
-      <div id="plot">
-        <a href="#plot"> 🍿 The Plot</a>
+      <div id="ai-intro">
+        <a href="#ai-intro">✨ AI Track: Solve with Your Agent Sidekick</a>
       </div>
     </template>
 
-
-    <div> Uh Oh! There's been a murder in MongoDB City, and the detective needs your help. The detective gave you the
-      crime scene report, but
-      you
-      somehow lost it. Tsk tsk! You vaguely remember that the crime was a 💀​murder💀​ that occurred sometime on 🗓️
-      ​January
-      15th,
-      2018,​🗓️
-      and
-      that it took place in 📍 ​MongoDB City📍​. Start by retrieving the corresponding crime scene report from the
-      police
-      department’s
-      database. <br /> <br />
-      This website is designed as a fun game with self-directed
-      lessons
-      to
-      learn
-      MongoDB concepts and commands.
+    <div>
+      Welcome to the AI Track! Instead of writing MongoDB queries yourself, you'll solve the murder mystery by asking your AI Agent sidekick to investigate for you. Your agent can query the database via an MCP server and report back what it finds.
     </div>
     <br />
-
+    <div>
+      <strong>The Plot:</strong> There's been a murder in MongoDB City, and the detective needs your help. The crime was a 💀 murder 💀 that occurred on 🗓️ January 15th, 2018 🗓️ in 📍 MongoDB City 📍. Start by asking your agent to explore the database and find clues!
+    </div>
   </WelcomeItem>
 
-  <section>
-    <h1>Use AI</h1>
-    <p>
-      Ask questions about the MongoDB Murder Mystery data. Your prompt will be sent to your intern helper, an AI Agent,
-      which can only query the Atlas-backed database via the configured MCP server.
-    </p>
-    <AgentPrompt  />
-  </section>
+  <WelcomeItem>
+    <template #heading>
+      <div id="step1">
+        <a href="#step1">📋 Step 1: Discover the Collections</a>
+      </div>
+    </template>
 
-  <section>
-    <h2>How to use the Agent</h2>
-    <p>
-      The Agent is locked to the Murder Mystery Atlas database. It can list collections, find documents, count, or run
-      aggregations. It cannot touch any other database or service.
-    </p>
-    <ul>
-      <li>Keep prompts short (&lt;512 chars).</li>
-      <li>Mention the collection you want (crime, person, event, or suspect).</li>
-      <li>Specify simple filters like dates, names, or IDs.</li>
-    </ul>
+    <div>
+      First, let's find out what data we have access to. Ask your agent to list the collections in the murder mystery database.
+    </div>
+    <br />
+    <div>
+      <strong>Try asking:</strong> "List the collections in the murder mystery database"
+    </div>
+    <AgentPrompt />
 
-    <h3>Sample prompts</h3>
-    <ul>
-      <li>"List the collections in the murder mystery database."</li>
-      <li>"Find the crime on January 15 2018 in MongoDB City."</li>
-      <li>"Count crimes by location to see the top hotspots."</li>
-      <li>"Show people connected to the main suspect."</li>
-    </ul>
+    <div style="margin-top: 1rem;">
+      <strong>💡 What you should see:</strong> The agent will discover collections like <code>crime</code>, <code>person</code>, <code>event</code>, and <code>suspect</code>. These are the places where evidence is stored!
+    </div>
+  </WelcomeItem>
 
-    <h3>Secure MCP setup</h3>
-    <p>
-      The Agent talks to an MCP server that you configure. Set <code>MCP_SERVER_URL</code> to the HTTP MCP endpoint
-      (e.g., your Cloud Run URL) and <code>MDB_MCP_CONNECTION_STRING</code> to a read-only Atlas connection string.
-      The Agent will initialize a session, connect with that string, and refuse to call any tool outside the approved
-      list (list-databases, list-collections, find, aggregate, count).
-    </p>
+  <WelcomeItem>
+    <template #heading>
+      <div id="step2">
+        <a href="#step2">🔍 Step 2: Learn the Schema</a>
+      </div>
+    </template>
 
-    <h3>Troubleshooting</h3>
-    <ul>
-      <li>If the Agent says it cannot connect, check that <code>MDB_MCP_CONNECTION_STRING</code> is set and reachable.</li>
-      <li>If prompts are rejected, ensure they are under 512 characters and mention the murder mystery data.</li>
-      <li>Only HTTP MCP requests to your configured server are allowed; other services are blocked.</li>
-    </ul>
-  </section>
+    <div>
+      Now that you know which collections exist, let's see what kind of information each one contains. Ask your agent to show you sample documents from each collection.
+    </div>
+    <br />
+    <div>
+      <strong>Try asking:</strong>
+      <ul>
+        <li>"Show me an example document from the crime collection"</li>
+        <li>"What fields are in the person collection?"</li>
+        <li>"Show me the structure of the event collection"</li>
+      </ul>
+    </div>
+    <AgentPrompt />
+
+    <div style="margin-top: 1rem;">
+      <strong>💡 Understanding the schema:</strong> Pay attention to fields like dates, locations, names, and IDs. These will help you connect the dots and find relationships between suspects, crimes, and witnesses.
+    </div>
+  </WelcomeItem>
+
+  <WelcomeItem>
+    <template #heading>
+      <div id="step3">
+        <a href="#step3">🕵️ Step 3: Start Your Investigation</a>
+      </div>
+    </template>
+
+    <div>
+      Now you're ready to investigate! Ask your agent to find the crime scene report for the murder on January 15, 2018 in MongoDB City.
+    </div>
+    <br />
+    <div>
+      <strong>Try asking:</strong> "Find the crime that happened on January 15, 2018 in MongoDB City"
+    </div>
+    <AgentPrompt />
+
+    <div style="margin-top: 1rem;">
+      <strong>💡 Follow the clues:</strong> The crime report will contain witness information and other details. Use those to ask your agent more specific questions about suspects, witnesses, and events!
+    </div>
+  </WelcomeItem>
+
+  <WelcomeItem>
+    <template #heading>
+      <div id="tips">
+        <a href="#tips">💬 Tips for Working with Your Agent</a>
+      </div>
+    </template>
+
+    <div>
+      <strong>How the agent works:</strong> Your prompts are sent to an AI that can only access the murder mystery database through an MCP server. It can list collections, find documents, count records, and run aggregations.
+    </div>
+    <br />
+    <div>
+      <strong>Best practices:</strong>
+      <ul>
+        <li>Keep prompts under 512 characters</li>
+        <li>Mention the specific collection you want to search</li>
+        <li>Be specific about dates, names, or IDs when filtering</li>
+        <li>Ask follow-up questions based on what you discover</li>
+      </ul>
+    </div>
+    <br />
+    <div>
+      <strong>Example prompts:</strong>
+      <ul>
+        <li>"Count how many crimes happened in MongoDB City"</li>
+        <li>"Show me all people who live on Franklin Ave"</li>
+        <li>"Find events attended by suspect ID 12345"</li>
+        <li>"Who were the witnesses mentioned in the crime report?"</li>
+      </ul>
+    </div>
+  </WelcomeItem>
+
+  <WelcomeItem>
+    <template #heading>
+      <div id="solution">
+        <a href="#solution">🎯 Ready to Solve It?</a>
+      </div>
+    </template>
+
+    <div>
+      Once you think you've identified the killer, you still need to submit your answer. Unfortunately, your agent can't access the solution collection (it's restricted!). Head back to the <router-link class="boldlink" to="/#solution">main page</router-link> to check your solution using a direct MongoDB query.
+    </div>
+    <br />
+    <div>
+      Don't forget to <a class="boldlink" href="/about#social">brag</a> once you've cracked the case! 🎉
+    </div>
+  </WelcomeItem>
 </template>
 
 <script setup>
+import WelcomeItem from './WelcomeItem.vue';
 import AgentPrompt from './AgentPrompt.vue';
 </script>
+
+<style scoped>
+.boldlink {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+a {
+  text-decoration: none;
+  font-weight: normal;
+}
+
+ul {
+  margin-top: 0.5rem;
+}
+</style>

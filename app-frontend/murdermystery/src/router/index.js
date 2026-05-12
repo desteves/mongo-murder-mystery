@@ -22,11 +22,11 @@ const router = createRouter({
       name: 'About',
       component: () => import('../views/AboutView.vue'),
     },
-    // {
-    //   path: '/ai',
-    //   name: '🤖 Use AI',
-    //   component: () => import('../views/AiView.vue'),
-    // },
+    {
+      path: '/ai',
+      name: 'AI Track',
+      component: () => import('../views/AiView.vue'),
+    },
   ],
   scrollBehavior(to) {
     if (to.hash) {

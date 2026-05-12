@@ -46,9 +46,10 @@
     <div>
       This exercise is a way to practice MongoDB skills (rather than a full tutorial). If you've never tried MongoDB,
       check out the
-      <router-link class="boldlink" to="/walkthrough#start">walkthrough</router-link>. If you want to learn a lot
-      about
-      MongoDB, you may prefer
+      <router-link class="boldlink" to="/walkthrough#start">walkthrough</router-link>.
+      Prefer to solve it by asking questions in plain English? Try the
+      <router-link class="boldlink" to="/ai#ai-intro">AI Track</router-link> where your AI agent sidekick investigates for you!
+      If you want to learn a lot about MongoDB, you may prefer
       a
       complete (free) course like
       <a class="boldlink"
@@ -117,19 +118,6 @@
 
   <WelcomeItem>
     <template #heading>
-      <div id="ai-helper">
-        <a href="#ai-helper">🆕 Ask your AI Agent sidekick ✨</a>
-      </div>
-    </template>
-    <div>
-      Prefer to ask questions in plain English? Describe what you're hunting for and your AI Agent sidekick will search the
-      murder mystery data for you. Try different prompts to explore the data.
-    </div>
-    <AgentPrompt/>
-  </WelcomeItem>
-
-  <WelcomeItem>
-    <template #heading>
       <div id="solution">
         <a href="#solution">🎯 Check your solution</a>
       </div>
@@ -147,7 +135,6 @@ import { ref } from 'vue';
 import WelcomeItem from './WelcomeItem.vue';
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from "./SelfTimer.vue";
-import AgentPrompt from './AgentPrompt.vue';
 import IncidentNotes from './IncidentNotes.vue';
 
 // Import the image file
