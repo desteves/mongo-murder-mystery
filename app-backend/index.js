@@ -1,3 +1,6 @@
+// Load environment variables from .env file
+require('dotenv').config();
+
 const { app } = require('./server');
 const connectDB = require('./database');
 const logger = require('./logger');
