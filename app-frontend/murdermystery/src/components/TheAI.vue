@@ -7,7 +7,7 @@
     </template>
 
     <div>
-      Welcome to the AI Track! Instead of writing MongoDB queries yourself, you'll solve the murder mystery by prompting your AI Agent to investigate for you. Your agent can query the database via an MCP server and report back what it finds.
+      Welcome to the AI Track! Get help from an AI assistant that understands MongoDB investigation techniques and can guide you through solving the mystery. Note: The agent provides guidance and query suggestions but doesn't access the game data directly - you'll still need to run queries on the main page.
     </div>
     <br />
     <div>
@@ -51,7 +51,7 @@
     </template>
 
     <div>
-      <strong>How the agent works:</strong> Your prompts are sent to an AI that can only access the murder mystery database through an MCP server. It can list collections, find documents, count records, run aggregations, and dynamically generate Vector Search queries to find semantically similar documents.
+      <strong>How the agent works:</strong> Your prompts are sent to an AI that helps with investigation techniques and can perform vector search on AI-enhanced data. The agent does NOT have direct access to the game database (crime, person, event, suspect data) - it works with the mmm_AI database for semantic search and conversation history only.
     </div>
     <br />
     <div>
@@ -67,11 +67,12 @@
     <div>
       <strong>Example prompts:</strong>
       <ul>
-        <li>"Count how many crimes happened in MongoDB City"</li>
-        <li>"Show me all people who live on Franklin Ave"</li>
-        <li>"Find events attended by suspect ID 12345"</li>
-        <li>"Who were the witnesses mentioned in the crime report?"</li>
+        <li>"What MongoDB query would find crimes in a specific city?"</li>
+        <li>"How do I search for people by address in MongoDB?"</li>
+        <li>"Explain how to use aggregation to connect suspects and events"</li>
+        <li>"What's the best way to find witnesses for a crime?"</li>
       </ul>
+      <em>Note: The agent provides guidance but doesn't access game data directly. Use the main page query editor to run actual database queries.</em>
     </div>
   </WelcomeItem>
 

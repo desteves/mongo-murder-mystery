@@ -38,13 +38,25 @@ The AI agent now maintains conversation history across interactions using MongoD
 }
 ```
 
-## Database Separation
+## Database Separation (Security Boundary)
 
 **Architecture:**
-- `mmm` database: Mystery game data (read-only for players)
-- `mmm_AI` database: AI-related data (agent memory, vector embeddings, MCP data)
+- `mmm` database: Mystery game data
+  - Collections: crime, person, event, suspect, solution
+  - Access: `/eval` endpoint ONLY (direct MongoDB queries)
+  - Agent/MCP: **NO ACCESS** (security isolation)
 
-All AI/MCP features use the separate `mmm_AI` database to isolate operational data from game content.
+- `mmm_AI` database: AI operational data
+  - Collections: agent_memory, vector embeddings (future)
+  - Access: `/agent` endpoint via MCP tools ONLY
+  - Agent/MCP: **FULL ACCESS** (read/write)
+  - Purpose: Conversation history, vector search, semantic queries
+
+**Why this separation?**
+- Prevents AI from accessing game solutions directly
+- Isolates game data from AI experiments
+- Enables vector search without exposing raw game data
+- Clear security boundary between user queries and AI operations
 
 ## Indexes
 

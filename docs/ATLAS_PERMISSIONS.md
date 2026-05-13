@@ -93,8 +93,8 @@ Required permissions for each database user in the Murder Mystery application.
 ### 3. mmmMCP_AI (MCP Server User)
 
 **Connection:** `MDB_MCP_CONNECTION_STRING`  
-**Database:** mmm_AI  
-**Purpose:** MCP server connection for agent tools
+**Database:** mmm_AI ONLY  
+**Purpose:** MCP server for AI operations (vector search, semantic queries)
 
 **Required Permissions:**
 ```json
@@ -102,7 +102,7 @@ Required permissions for each database user in the Murder Mystery application.
   "database": "mmm_AI",
   "roles": [
     {
-      "role": "read",
+      "role": "readWrite",
       "db": "mmm_AI"
     }
   ]
@@ -110,26 +110,22 @@ Required permissions for each database user in the Murder Mystery application.
 ```
 
 **MCP Tools Used:**
-- `list-databases` - List available databases
 - `list-collections` - List collections in mmm_AI
-- `find` - Query documents
-- `aggregate` - Run aggregation pipelines
+- `find` - Query vector embeddings, agent_memory
+- `aggregate` - Run aggregation pipelines (including vector search)
 - `count` - Count documents
 
 **Atlas UI Setup:**
 1. Database Access → Add New Database User
 2. Authentication Method: Password
 3. Database User Privileges:
-   - Database: mmm_AI, Role: **read**
+   - Database: mmm_AI, Role: **readWrite**
    - Database: admin, Role: **read** (for listDatabases command)
 
-**⚠️ Current Issue:**
-MCP user is configured for mmm_AI but the agent needs access to mmm database for crime data.
-
-**Recommendation:**
-Either:
-- Grant mmmMCP_AI read access to mmm database as well
-- OR use a different connection string that has access to mmm
+**🔒 Security Constraints:**
+- ❌ **NO ACCESS to mmm database** (game data isolation)
+- ❌ **NO ACCESS to solution collection** (prevent cheating)
+- ✅ **ONLY ACCESS to mmm_AI** (AI operational data)
 
 ---
 

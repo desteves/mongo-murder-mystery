@@ -20,12 +20,19 @@ Frontend (Vue/Vite) → Backend API → MongoDB Atlas (read-only)
 
 ### Critical Architectural Constraints
 
-- **Database Separation**:
-  - `mmm` database: Game content (crime, person, event, suspect collections) - read-only
-  - `mmm_AI` database: AI operational data (agent_memory, vector embeddings, MCP data) - read/write
+- **Database Separation (Security Boundary)**:
+  - `mmm` database: Game content (crime, person, event, suspect, solution collections)
+    - Access: Direct queries via `/eval` endpoint ONLY
+    - Agent/MCP: **NO ACCESS** (prevents AI from seeing solutions or game data directly)
+  - `mmm_AI` database: AI operational data (agent_memory, vector embeddings)
+    - Access: Agent/MCP via `/agent` endpoint ONLY
+    - Used for: Vector search, semantic queries, conversation history
+    - **Cannot access game data or solutions**
   - Two separate MongoDB connections: `MONGODB_URI` and `MONGODB_URI_AI`
 - **MongoDB is read-only** except for the `solution` collection (update-only for mystery validation)
-- **Two separate authentication paths**: `/eval` uses direct driver connection, `/agent` uses MCP tools
+- **Two separate authentication paths**: 
+  - `/eval` uses direct driver connection to mmm
+  - `/agent` uses MCP tools on mmm_AI only
 - **Rate limiting**: `/eval` allows 30 req/min, `/agent` allows 10 req/min (configurable via express-rate-limit)
 - **Request timeout**: 30s default (`REQUEST_TIMEOUT_MS` env var)
 
