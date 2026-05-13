@@ -19,7 +19,8 @@ const recommendedEnvVars = [
 const agentEnvVars = [
   'OPENAI_API_KEY',
   'MDB_MCP_CONNECTION_STRING',
-  'MCP_SERVER_URL'
+  'MCP_SERVER_URL',
+  'MONGODB_URI_AI'
 ];
 
 /**
@@ -84,7 +85,9 @@ function getConfig() {
       openaiApiKey: process.env.OPENAI_API_KEY,
       mcpConnectionString: process.env.MDB_MCP_CONNECTION_STRING,
       mcpServerUrl: process.env.MCP_SERVER_URL,
-      openaiModel: process.env.OPENAI_MODEL || 'tngtech/deepseek-r1t2-chimera:free'
+      openaiModel: process.env.OPENAI_MODEL || 'tngtech/deepseek-r1t2-chimera:free',
+      mongodbUriAI: process.env.MONGODB_URI_AI,
+      dbNameAI: process.env.MONGODB_DBNAME_AI || 'mmm_AI'
     },
     logging: {
       level: process.env.LOG_LEVEL || 'info'

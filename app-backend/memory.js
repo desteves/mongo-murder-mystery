@@ -1,4 +1,4 @@
-const connectDB = require('./database');
+const connectAIDB = require('./database-ai');
 const logger = require('./logger');
 
 /**
@@ -10,7 +10,7 @@ const logger = require('./logger');
  */
 async function storeConversation(sessionId, userPrompt, agentResponse, metadata = {}) {
   try {
-    const { db } = await connectDB();
+    const { db } = await connectAIDB();
 
     await db.collection('agent_memory').insertOne({
       session_id: sessionId,
@@ -39,7 +39,7 @@ async function storeConversation(sessionId, userPrompt, agentResponse, metadata 
  */
 async function getRecentContext(sessionId, limit = 5) {
   try {
-    const { db } = await connectDB();
+    const { db } = await connectAIDB();
 
     const history = await db.collection('agent_memory')
       .find({ session_id: sessionId })
@@ -61,7 +61,7 @@ async function getRecentContext(sessionId, limit = 5) {
  */
 async function clearSessionHistory(sessionId) {
   try {
-    const { db } = await connectDB();
+    const { db } = await connectAIDB();
 
     const result = await db.collection('agent_memory').deleteMany({
       session_id: sessionId
@@ -81,7 +81,7 @@ async function clearSessionHistory(sessionId) {
  */
 async function getSessionStats(sessionId) {
   try {
-    const { db } = await connectDB();
+    const { db } = await connectAIDB();
 
     const stats = await db.collection('agent_memory').aggregate([
       { $match: { session_id: sessionId } },

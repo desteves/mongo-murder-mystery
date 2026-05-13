@@ -10,7 +10,8 @@ The AI agent now maintains conversation history across interactions using MongoD
 - Each user gets their own isolated conversation history
 
 **Memory Storage:**
-- Conversations stored in MongoDB `agent_memory` collection
+- Conversations stored in MongoDB `agent_memory` collection in **mmm_AI database**
+- Separate database connection (`MONGODB_URI_AI`) using `mmmUser_AI` credentials
 - Each turn includes: user prompt, agent response, timestamp, metadata
 - Last 5 conversation turns are retrieved and included in context
 - Automatic cleanup after 30 days via TTL index
@@ -37,9 +38,19 @@ The AI agent now maintains conversation history across interactions using MongoD
 }
 ```
 
+## Database Separation
+
+**Architecture:**
+- `mmm` database: Mystery game data (read-only for players)
+- `mmm_AI` database: AI-related data (agent memory, vector embeddings, MCP data)
+
+All AI/MCP features use the separate `mmm_AI` database to isolate operational data from game content.
+
 ## Indexes
 
-Run `node scripts/create-memory-indexes.js` to create:
+**Important:** MCP tools don't support index creation. Indexes must be created manually.
+
+Run `node scripts/create-memory-indexes-mcp.js` for instructions, then create via Atlas UI or mongosh:
 
 1. **session_history_idx** - `{ session_id: 1, timestamp: -1 }`
    - Efficiently retrieves recent history for a session
@@ -52,11 +63,20 @@ Run `node scripts/create-memory-indexes.js` to create:
 
 **Backend (`app-backend/.env`):**
 ```bash
-# Standard MongoDB connection (already configured)
-MONGODB_URI=mongodb+srv://...
+# Game database (mmm)
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/mmm
+
+# AI database (mmm_AI) - separate connection for agent memory
+MONGODB_URI_AI=mongodb+srv://mmmUser_AI:pass@cluster.mongodb.net/mmm_AI
+MONGODB_DBNAME_AI=mmm_AI
+
+# Agent configuration
+MDB_MCP_CONNECTION_STRING=mongodb+srv://mmmMCP_AI:pass@cluster.mongodb.net/mmm_AI
 ```
 
-No additional configuration needed - memory uses the same database connection.
+**Two separate connections:**
+- `MONGODB_URI` → mmm database (game data)
+- `MONGODB_URI_AI` → mmm_AI database (agent memory, vector search)
 
 **Frontend (`app-frontend/murdermystery/.env`):**
 ```bash
