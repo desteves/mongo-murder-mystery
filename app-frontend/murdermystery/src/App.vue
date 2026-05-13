@@ -9,7 +9,7 @@ import HelloWorld from './components/HelloWorld.vue'
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/walkthrough#plot"> Walkthrough</RouterLink>
-        <!-- <RouterLink to="/ai">🤖 Use AI</RouterLink> -->
+        <RouterLink to="/ai#ai-intro">✨ AI Track</RouterLink>
         <RouterLink to="/about#motivation"> About</RouterLink>
       </nav>
       <HelloWorld />
