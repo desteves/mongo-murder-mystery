@@ -51,7 +51,7 @@
     </template>
 
     <div>
-      <strong>How the agent works:</strong> Your prompts are sent to an AI that can only access the murder mystery database through an MCP server. It can list collections, find documents, count records, and run aggregations.
+      <strong>How the agent works:</strong> Your prompts are sent to an AI that can only access the murder mystery database through an MCP server. It can list collections, find documents, count records, run aggregations, and dynamically generate Vector Search queries to find semantically similar documents.
     </div>
     <br />
     <div>
@@ -78,13 +78,17 @@
   <WelcomeItem>
     <template #heading>
       <div id="solution">
-        <a href="#solution">🎯 Ready to Solve It?</a>
+        <a href="#solution">🎯 Check Your Solution</a>
       </div>
     </template>
 
     <div>
-      Once you think you've identified the killer, you still need to submit your answer. Unfortunately, your agent can't access the solution collection (it's restricted!). Head back to the <router-link class="boldlink" to="/#solution">main page</router-link> to check your solution using a direct MongoDB query.
+      Once you think you've identified the killer, check your answer here. Note: Your agent can't access the solution collection (it's restricted!), so you'll need to use this direct MongoDB query to verify.
     </div>
+    <br />
+    <MongoQueryPromptAuto title="Whodunnit?"
+      subtitle="Update &quot;Jack&quot; to check if you guessed correctly. If the answer is correct, you'll see a congratulatory message. 🔐 This is a highly restricted collection that will only permit you to check the name of your suspect.🔐 "
+      preFilledText='db.solution.find({ "name": "Jack" })' />
     <br />
     <div>
       Don't forget to <a class="boldlink" href="/about#social">brag</a> once you've cracked the case! 🎉
@@ -95,6 +99,7 @@
 <script setup>
 import WelcomeItem from './WelcomeItem.vue';
 import AgentPrompt from './AgentPrompt.vue';
+import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 </script>
 
 <style scoped>
