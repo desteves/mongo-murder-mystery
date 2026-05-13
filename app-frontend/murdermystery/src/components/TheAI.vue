@@ -7,11 +7,11 @@
     </template>
 
     <div>
-      Welcome to the AI Track! Instead of writing MongoDB queries yourself, you'll solve the murder mystery by asking your AI Agent sidekick to investigate for you. Your agent can query the database via an MCP server and report back what it finds.
+      Welcome to the AI Track! Instead of writing MongoDB queries yourself, you'll solve the murder mystery by prompting your AI Agent to investigate for you. Your agent can query the database via an MCP server and report back what it finds.
     </div>
     <br />
     <div>
-      <strong>The Plot:</strong> There's been a murder in MongoDB City, and the detective needs your help. The crime was a 💀 murder 💀 that occurred on 🗓️ January 15th, 2018 🗓️ in 📍 MongoDB City 📍. Start by asking your agent to explore the database and find clues!
+      <strong>The Plot:</strong> There's been a murder in MongoDB City, and the detective needs your help. The crime was a 💀 murder 💀 that occurred on 🗓️ January 15th, 2018 🗓️ in 📍 MongoDB City 📍. Start by prompting your agent to explore the database and find clues!
     </div>
   </WelcomeItem>
 
@@ -23,7 +23,7 @@
     </template>
 
     <div>
-      Ask your agent to help you solve the murder mystery! Start by finding the crime scene report for the murder on January 15, 2018 in MongoDB City, then follow the clues to track down suspects and witnesses.
+      Prompt your agent to help you solve the murder mystery! Start by finding the crime scene report for the murder on January 15, 2018 in MongoDB City, then follow the clues to track down suspects and witnesses.
     </div>
     <br />
     <div>
@@ -39,7 +39,7 @@
     <AgentPrompt />
 
     <div style="margin-top: 1rem;">
-      <strong>💡 Follow the clues:</strong> The crime report will contain witness information and other details. Keep asking your agent specific questions about suspects, witnesses, and events to piece together what happened!
+      <strong>💡 Follow the clues:</strong> The crime report will contain witness information and other details. Keep prompting your agent with specific questions about suspects, witnesses, and events to piece together what happened!
     </div>
   </WelcomeItem>
 
