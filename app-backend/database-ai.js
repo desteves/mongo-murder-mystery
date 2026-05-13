@@ -29,6 +29,7 @@ async function connectAIDB() {
       logger.info({ attempt: retryCount + 1, maxRetries: MAX_RETRIES, database: dbName }, 'Connecting to MongoDB AI database...');
 
       client = new MongoClient(uri, {
+        appName: 'devrel-github-mmm',
         maxPoolSize: 10,
         minPoolSize: 2,
         serverSelectionTimeoutMS: 5000,

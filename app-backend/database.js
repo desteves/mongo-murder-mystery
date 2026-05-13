@@ -45,6 +45,7 @@ async function attemptConnection(retryCount = 0) {
   try {
     logger.info({ attempt: retryCount + 1, maxRetries: MAX_RETRIES }, 'Connecting to MongoDB...');
     const mongoClient = new MongoClient(dbURI, {
+      appName: 'devrel-github-mmm',
       maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL || '20', 10),
       minPoolSize: parseInt(process.env.MONGODB_MIN_POOL || '2', 10),
       serverSelectionTimeoutMS: parseInt(process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || '5000', 10),
