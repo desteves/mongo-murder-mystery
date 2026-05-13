@@ -17,69 +17,29 @@
 
   <WelcomeItem>
     <template #heading>
-      <div id="step1">
-        <a href="#step1">📋 Step 1: Discover the Collections</a>
+      <div id="investigate">
+        <a href="#investigate">🕵️ Start Your Investigation</a>
       </div>
     </template>
 
     <div>
-      First, let's find out what data we have access to. Ask your agent to list the collections in the murder mystery database.
+      Ask your agent to help you solve the murder mystery! Start by finding the crime scene report for the murder on January 15, 2018 in MongoDB City, then follow the clues to track down suspects and witnesses.
     </div>
     <br />
     <div>
-      <strong>Try asking:</strong> "List the collections in the murder mystery database"
-    </div>
-    <AgentPrompt />
-
-    <div style="margin-top: 1rem;">
-      <strong>💡 What you should see:</strong> The agent will discover collections like <code>crime</code>, <code>person</code>, <code>event</code>, and <code>suspect</code>. These are the places where evidence is stored!
-    </div>
-  </WelcomeItem>
-
-  <WelcomeItem>
-    <template #heading>
-      <div id="step2">
-        <a href="#step2">🔍 Step 2: Learn the Schema</a>
-      </div>
-    </template>
-
-    <div>
-      Now that you know which collections exist, let's see what kind of information each one contains. Ask your agent to show you sample documents from each collection.
-    </div>
-    <br />
-    <div>
-      <strong>Try asking:</strong>
+      <strong>Example questions to get started:</strong>
       <ul>
-        <li>"Show me an example document from the crime collection"</li>
-        <li>"What fields are in the person collection?"</li>
-        <li>"Show me the structure of the event collection"</li>
+        <li>"Find the crime that happened on January 15, 2018 in MongoDB City"</li>
+        <li>"Show me the witnesses for this crime"</li>
+        <li>"List all suspects in the database"</li>
+        <li>"What events did [suspect name] attend?"</li>
       </ul>
     </div>
-    <AgentPrompt />
-
-    <div style="margin-top: 1rem;">
-      <strong>💡 Understanding the schema:</strong> Pay attention to fields like dates, locations, names, and IDs. These will help you connect the dots and find relationships between suspects, crimes, and witnesses.
-    </div>
-  </WelcomeItem>
-
-  <WelcomeItem>
-    <template #heading>
-      <div id="step3">
-        <a href="#step3">🕵️ Step 3: Start Your Investigation</a>
-      </div>
-    </template>
-
-    <div>
-      Now you're ready to investigate! Ask your agent to find the crime scene report for the murder on January 15, 2018 in MongoDB City.
-    </div>
     <br />
-    <div>
-      <strong>Try asking:</strong> "Find the crime that happened on January 15, 2018 in MongoDB City"
-    </div>
     <AgentPrompt />
 
     <div style="margin-top: 1rem;">
-      <strong>💡 Follow the clues:</strong> The crime report will contain witness information and other details. Use those to ask your agent more specific questions about suspects, witnesses, and events!
+      <strong>💡 Follow the clues:</strong> The crime report will contain witness information and other details. Keep asking your agent specific questions about suspects, witnesses, and events to piece together what happened!
     </div>
   </WelcomeItem>
 
