@@ -217,4 +217,16 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.editor {
+  min-height: 80px;
+  margin: 1rem 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Ensure CodeMirror content is visible */
+.editor :deep(.cm-editor) {
+  min-height: 60px;
+}
+</style>
