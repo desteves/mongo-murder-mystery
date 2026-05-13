@@ -4,6 +4,7 @@ const { GoogleAuth } = require('google-auth-library');
 const http = require('http');
 const https = require('https');
 const logger = require('./logger');
+const { storeConversation, getRecentContext } = require('./memory');
 
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp';
 const MCP_ID_TOKEN_AUDIENCE = process.env.MCP_ID_TOKEN_AUDIENCE || MCP_SERVER_URL;
@@ -210,14 +211,29 @@ function buildToolSchema() {
   ];
 }
 
-async function runAgent(prompt) {
+async function runAgent(prompt, userSessionId = null) {
   if (!openaiClient) {
     throw new Error('Agent unavailable: OPENAI_API_KEY is not configured.');
   }
 
-  logger.info({ prompt }, 'Starting agent with prompt');
-  const sessionId = await initSession();
-  await ensureConnect(sessionId);
+  logger.info({ prompt, userSessionId }, 'Starting agent with prompt');
+  const mcpSessionId = await initSession();
+  await ensureConnect(mcpSessionId);
+
+  // Retrieve conversation history if session ID provided
+  let conversationHistory = [];
+  if (userSessionId) {
+    conversationHistory = await getRecentContext(userSessionId, 5);
+    logger.info({ userSessionId, historyLength: conversationHistory.length }, 'Retrieved conversation history');
+  }
+
+  // Build context summary from conversation history
+  let contextSummary = '';
+  if (conversationHistory.length > 0) {
+    contextSummary = '\n\nRecent conversation context:\n' + conversationHistory.map(turn =>
+      `User: ${turn.user_prompt}\nAssistant: ${turn.agent_response}`
+    ).join('\n\n');
+  }
 
   const messages = [
     {
@@ -241,8 +257,11 @@ async function runAgent(prompt) {
 
               // Scope limitation
               "Decline any request unrelated to the murder mystery or its Atlas collections.",
-              "If the user asks for anything outside this scope, respond: 'I can only assist with the Mongo Murder Mystery Atlas database.'"
-            ].join(" ")
+              "If the user asks for anything outside this scope, respond: 'I can only assist with the Mongo Murder Mystery Atlas database.'",
+
+              // Context awareness
+              contextSummary ? "Use the conversation history below to maintain context and avoid asking the user to repeat information." : ""
+            ].filter(Boolean).join(" ") + contextSummary
         }
       ]
     },
@@ -250,6 +269,7 @@ async function runAgent(prompt) {
   ];
 
   const toolDefs = buildToolSchema();
+  const toolsUsed = []; // Track which MCP tools were called
 
   for (let step = 0; step < 10; step++) {
     // console.log(`[agent] model turn ${step + 1}, messages so far:`, JSON.stringify(messages, null, 2).slice(0, 1000));
@@ -305,6 +325,11 @@ async function runAgent(prompt) {
           continue;
         }
 
+        // Track tool usage for memory
+        if (!toolsUsed.includes(tool)) {
+          toolsUsed.push(tool);
+        }
+
         try {
           let mcpResult;
           if (tool === 'aggregate') {
@@ -350,14 +375,33 @@ async function runAgent(prompt) {
       replyText = message.content;
     }
 
+    // Store conversation in memory if session ID provided
+    if (userSessionId) {
+      await storeConversation(userSessionId, prompt, replyText, {
+        toolsUsed,
+        turnCount: step + 1
+      });
+    }
+
     return {
       reply: replyText,
-      sessionId
+      sessionId: userSessionId
     };
   }
 
   // console.log('[agent] reached step limit without final answer');
-  return { reply: 'Agent reached step limit without a final answer.', sessionId: null };
+  const fallbackReply = 'Agent reached step limit without a final answer.';
+
+  // Store even if we hit the limit
+  if (userSessionId) {
+    await storeConversation(userSessionId, prompt, fallbackReply, {
+      toolsUsed,
+      turnCount: 10,
+      reachedLimit: true
+    });
+  }
+
+  return { reply: fallbackReply, sessionId: userSessionId };
 }
 
 module.exports = {

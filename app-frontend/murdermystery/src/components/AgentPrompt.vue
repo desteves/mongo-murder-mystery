@@ -29,7 +29,12 @@ export default {
       userPrompt: '',
       resultsText: null,
       loading: false,
+      sessionId: null,
     };
+  },
+  mounted() {
+    // Generate or retrieve session ID from localStorage
+    this.sessionId = this.getOrCreateSessionId();
   },
   computed: {
     placeholder() {
@@ -37,15 +42,53 @@ export default {
     }
   },
   methods: {
+    /**
+     * Generate or retrieve session ID for conversation memory
+     */
+    getOrCreateSessionId() {
+      const STORAGE_KEY = 'mmm_agent_session_id';
+      let sessionId = localStorage.getItem(STORAGE_KEY);
+
+      if (!sessionId) {
+        // Generate new session ID using crypto.randomUUID or fallback
+        sessionId = this.generateSessionId();
+        localStorage.setItem(STORAGE_KEY, sessionId);
+      }
+
+      return sessionId;
+    },
+
+    /**
+     * Generate a unique session ID
+     */
+    generateSessionId() {
+      // Use crypto.randomUUID if available (modern browsers)
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+
+      // Fallback for older browsers
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    },
+
     async runPrompt() {
       this.resultsText = null;
       this.loading = true;
 
       try {
-        // Use API service which handles validation
-        const data = await apiService.sendAgentPrompt(this.userPrompt);
+        // Use API service with session ID for conversation memory
+        const data = await apiService.sendAgentPrompt(this.userPrompt, this.sessionId);
         const reply = typeof data?.reply === 'string' ? data.reply : JSON.stringify(data);
         this.resultsText = reply;
+
+        // Update session ID if backend returned one
+        if (data?.sessionId) {
+          this.sessionId = data.sessionId;
+        }
       } catch (error) {
         // Use user-friendly error message from API service
         this.resultsText = error.userMessage || error.message || 'Failed to get response from agent';

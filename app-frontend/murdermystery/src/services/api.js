@@ -106,9 +106,10 @@ export const apiService = {
   /**
    * Send a prompt to the AI agent
    * @param {string} prompt - The user's prompt
-   * @returns {Promise<{reply: string}>} Agent's reply
+   * @param {string} sessionId - Optional session ID for conversation memory
+   * @returns {Promise<{reply: string, sessionId: string}>} Agent's reply and session ID
    */
-  async sendAgentPrompt(prompt) {
+  async sendAgentPrompt(prompt, sessionId = null) {
     if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
       throw new Error('Prompt cannot be empty');
     }
@@ -118,7 +119,12 @@ export const apiService = {
       throw new Error(`Prompt is too long (max ${MAX_PROMPT_LENGTH} characters)`);
     }
 
-    const response = await apiClient.post('/agent', { prompt: prompt.trim() });
+    const payload = { prompt: prompt.trim() };
+    if (sessionId) {
+      payload.sessionId = sessionId;
+    }
+
+    const response = await apiClient.post('/agent', payload);
     return response.data;
   },
 

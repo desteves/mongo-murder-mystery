@@ -184,11 +184,18 @@ const MAX_PROMPT_LENGTH = 512;
 app.post('/agent', agentLimiter, async (req, res) => {
   try {
     const prompt = req.body?.prompt;
+    const sessionId = req.body?.sessionId;
+
     if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
       return res.status(400).json({ err: 'Missing prompt' });
     }
     if (prompt.length > MAX_PROMPT_LENGTH) {
       return res.status(400).json({ err: `Prompt too long (max ${MAX_PROMPT_LENGTH} characters).` });
+    }
+
+    // Session ID is optional but recommended
+    if (sessionId && typeof sessionId !== 'string') {
+      return res.status(400).json({ err: 'Invalid sessionId format' });
     }
 
     const missing = getMissingAgentEnvs();
@@ -197,9 +204,9 @@ app.post('/agent', agentLimiter, async (req, res) => {
       return res.status(503).json({ err: `Agent unavailable. Missing envs: ${missing.join(', ')}` });
     }
 
-    const { reply } = await runAgent(prompt.trim());
-    req.log.info({ promptLength: prompt.length }, 'Agent request completed');
-    return res.status(200).json({ reply });
+    const { reply, sessionId: returnedSessionId } = await runAgent(prompt.trim(), sessionId);
+    req.log.info({ promptLength: prompt.length, sessionId: returnedSessionId }, 'Agent request completed');
+    return res.status(200).json({ reply, sessionId: returnedSessionId });
   } catch (error) {
     req.log.error({ error: error.message }, 'Agent error');
     return res.status(500).json({ err: error.message || 'Agent failed' });
