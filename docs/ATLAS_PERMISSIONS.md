@@ -94,7 +94,7 @@ Required permissions for each database user in the Murder Mystery application.
 
 **Connection:** `MDB_MCP_CONNECTION_STRING`  
 **Database:** mmm_AI ONLY  
-**Purpose:** MCP server for AI operations (vector search, semantic queries)
+**Purpose:** MCP server for AI queries and vector search
 
 **Required Permissions:**
 ```json
@@ -102,30 +102,45 @@ Required permissions for each database user in the Murder Mystery application.
   "database": "mmm_AI",
   "roles": [
     {
-      "role": "readWrite",
+      "role": "read",
       "db": "mmm_AI"
+    }
+  ],
+  "privileges": [
+    {
+      "resource": { "db": "mmm_AI", "collection": "agent_memory" },
+      "actions": ["find", "insert", "update", "remove"]
     }
   ]
 }
 ```
 
+**Collections in mmm_AI:**
+- ✅ `crime`, `person`, `event`, `suspect` - **READ** (game data for AI queries)
+- ✅ `agent_memory` - **READ/WRITE** (conversation history)
+- ✅ Vector embeddings collections - **READ/WRITE** (vector search)
+
 **MCP Tools Used:**
 - `list-collections` - List collections in mmm_AI
-- `find` - Query vector embeddings, agent_memory
-- `aggregate` - Run aggregation pipelines (including vector search)
+- `find` - Query crime, person, event, suspect, agent_memory
+- `aggregate` - Run aggregation pipelines including $vectorSearch
 - `count` - Count documents
 
 **Atlas UI Setup:**
 1. Database Access → Add New Database User
 2. Authentication Method: Password
 3. Database User Privileges:
-   - Database: mmm_AI, Role: **readWrite**
-   - Database: admin, Role: **read** (for listDatabases command)
+   - Database: mmm_AI, Role: **read**
+   - Database: admin, Role: **read** (for listDatabases)
+4. Specific Privileges → Add Privilege:
+   - Resource: mmm_AI.agent_memory
+   - Actions: find, insert, update, remove
 
 **🔒 Security Constraints:**
-- ❌ **NO ACCESS to mmm database** (game data isolation)
-- ❌ **NO ACCESS to solution collection** (prevent cheating)
-- ✅ **ONLY ACCESS to mmm_AI** (AI operational data)
+- ✅ **READ ACCESS** to crime, person, event, suspect in mmm_AI
+- ✅ **READ/WRITE** to agent_memory in mmm_AI
+- ❌ **NO ACCESS to solution collection** (isolated in mmm database)
+- ✅ Can run vector search queries on mmm_AI collections
 
 ---
 
