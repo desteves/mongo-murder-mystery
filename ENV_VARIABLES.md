@@ -73,7 +73,7 @@ These variables are **only required** if you want to use the `/agent` endpoint (
 | `MCP_DATABASE` | MCP database name | `mmm` |
 | `MCP_CONNECTION_STRING` | Alternative to `MDB_MCP_CONNECTION_STRING` | `mongodb://localhost:27017/mmm` |
 | `MCP_ID_TOKEN_AUDIENCE` | ID token audience for Google Cloud auth | `http://localhost:3001/mcp` |
-| `OPENAI_MODEL` | OpenAI model to use | `tngtech/deepseek-r1t2-chimera:free` |
+| `OPENAI_MODEL` | OpenAI model to use | `openai/gpt-oss-120b:free` |
 
 ---
 
