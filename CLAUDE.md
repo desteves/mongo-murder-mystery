@@ -25,7 +25,7 @@ Frontend (Vue/Vite) → Backend API → MongoDB Atlas (read-only)
     - `solution` collection: **NO ACCESS** for agent/MCP (prevents cheating)
     - Access: `/eval` endpoint for solution verification only
   - `mmm_AI` database: Game data + AI operational data
-    - `crime`, `person`, `event`, `suspect` collections: **READ** for agent/MCP
+    - `crime`, `person`, `gymCheckin`, `socialEventCheckin` collections: **READ** for agent/MCP
     - `agent_memory` collection: **READ/WRITE** for agent/MCP
     - Vector embeddings collections: **READ/WRITE** for vector search
     - Access: Agent/MCP via `/agent` endpoint

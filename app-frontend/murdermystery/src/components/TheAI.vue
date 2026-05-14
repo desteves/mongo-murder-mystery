@@ -7,11 +7,15 @@
     </template>
 
     <div>
-      Welcome to the AI Track! Solve the murder mystery by prompting your AI Agent to investigate for you. Your agent can query the database (crime, person, event, suspect collections) and use vector search to find connections between clues.
+      Welcome to the AI Track! Solve the murder mystery by prompting your AI Agent to investigate for you. Your agent can query the database (crime, person, gymCheckin, socialEventCheckin collections) and use vector search to find connections between clues.
     </div>
     <br />
     <div>
       <strong>The Plot:</strong> There's been a murder in MongoDB City, and the detective needs your help. The crime was a 💀 murder 💀 that occurred on 🗓️ January 15th, 2018 🗓️ in 📍 MongoDB City 📍. Start by prompting your agent to explore the database and find clues!
+    </div>
+    <br />
+    <div>
+      <SelfTimer />
     </div>
   </WelcomeItem>
 
@@ -23,7 +27,7 @@
     </template>
 
     <div>
-      Ask your agent to investigate the murder mystery! The agent can query the database directly and use vector search to find connections. Start by finding the crime scene report for the murder on January 15, 2018 in MongoDB City, then follow the clues to track down suspects and witnesses.
+      Prompt your agent to investigate the murder mystery! The agent can query the database directly and use vector search to find connections. Start by finding the crime scene report for the murder on January 15, 2018 in MongoDB City, then follow the clues to track down suspects and witnesses.
     </div>
     <br />
     <div>
@@ -52,7 +56,7 @@
     </template>
 
     <div>
-      <strong>How the agent works:</strong> Your prompts are sent to an AI that can query the murder mystery database and perform vector search. The agent has access to crime, person, event, and suspect data through MCP tools, and can run semantic queries to find connections and patterns.
+      <strong>How the agent works:</strong> Your prompts are sent to an AI that can query the murder mystery database and perform vector search. The agent has access to crime, person, gymCheckin, and socialEventCheckin data through MCP tools, and can run semantic queries to find connections and patterns.
     </div>
     <br />
     <div>
@@ -101,6 +105,7 @@
 import WelcomeItem from './WelcomeItem.vue';
 import AgentPrompt from './AgentPrompt.vue';
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
+import SelfTimer from './SelfTimer.vue';
 </script>
 
 <style scoped>

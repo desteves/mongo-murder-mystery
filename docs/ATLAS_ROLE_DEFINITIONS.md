@@ -35,7 +35,7 @@ Custom roles for the Murder Mystery application with granular permissions.
 {
   "resource": {
     "db": "mmm_AI",
-    "collection": "event"
+    "collection": "gymCheckin"
   },
   "actions": ["find", "listIndexes"]
 }
@@ -45,7 +45,7 @@ Custom roles for the Murder Mystery application with granular permissions.
 {
   "resource": {
     "db": "mmm_AI",
-    "collection": "suspect"
+    "collection": "socialEventCheckin"
   },
   "actions": ["find", "listIndexes"]
 }
@@ -126,14 +126,14 @@ For Atlas API or CLI:
     {
       "resource": {
         "db": "mmm_AI",
-        "collection": "event"
+        "collection": "gymCheckin"
       },
       "actions": ["find", "listIndexes"]
     },
     {
       "resource": {
         "db": "mmm_AI",
-        "collection": "suspect"
+        "collection": "socialEventCheckin"
       },
       "actions": ["find", "listIndexes"]
     },
@@ -194,17 +194,17 @@ For Atlas API or CLI:
    - Actions: find, listIndexes
    - Click "Add"
 
-   **For event collection:**
+   **For gymCheckin collection:**
    - Click "Add Privilege"
    - Database: mmm_AI
-   - Collection: event
+   - Collection: gymCheckin
    - Actions: find, listIndexes
    - Click "Add"
 
-   **For suspect collection:**
+   **For socialEventCheckin collection:**
    - Click "Add Privilege"
    - Database: mmm_AI
-   - Collection: suspect
+   - Collection: socialEventCheckin
    - Actions: find, listIndexes
    - Click "Add"
 
@@ -256,8 +256,8 @@ For Atlas API or CLI:
 atlas customDbRoles create findMongoMurderMysteryRole_AI \
   --privilege resource=mmm_AI.crime,actions=find,listIndexes \
   --privilege resource=mmm_AI.person,actions=find,listIndexes \
-  --privilege resource=mmm_AI.event,actions=find,listIndexes \
-  --privilege resource=mmm_AI.suspect,actions=find,listIndexes \
+  --privilege resource=mmm_AI.gymCheckin,actions=find,listIndexes \
+  --privilege resource=mmm_AI.socialEventCheckin,actions=find,listIndexes \
   --privilege resource=mmm_AI.agent_memory,actions=find,insert,update,remove,listIndexes,createIndex,dropIndex \
   --privilege resource=mmm_AI.,actions=listCollections,dbStats \
   --projectId <YOUR_PROJECT_ID>
@@ -269,8 +269,8 @@ atlas customDbRoles create findMongoMurderMysteryRole_AI \
 atlas customDbRoles update findMongoMurderMysteryRole_AI \
   --privilege resource=mmm_AI.crime,actions=find,listIndexes \
   --privilege resource=mmm_AI.person,actions=find,listIndexes \
-  --privilege resource=mmm_AI.event,actions=find,listIndexes \
-  --privilege resource=mmm_AI.suspect,actions=find,listIndexes \
+  --privilege resource=mmm_AI.gymCheckin,actions=find,listIndexes \
+  --privilege resource=mmm_AI.socialEventCheckin,actions=find,listIndexes \
   --privilege resource=mmm_AI.agent_memory,actions=find,insert,update,remove,listIndexes,createIndex,dropIndex \
   --privilege resource=mmm_AI.,actions=listCollections,dbStats \
   --projectId <YOUR_PROJECT_ID>
@@ -295,8 +295,8 @@ use mmm_AI
 // Should succeed (read access)
 db.crime.findOne()
 db.person.findOne()
-db.event.findOne()
-db.suspect.findOne()
+db.gymCheckin.findOne()
+db.socialEventCheckin.findOne()
 
 // Should fail (no write access)
 db.crime.insertOne({ test: 1 })
@@ -338,7 +338,7 @@ db.crime.createIndex({ date: 1 })
 **Why This Role Structure?**
 
 1. **Read-Only Game Data:**
-   - Prevents accidental modification of crime, person, event, suspect
+   - Prevents accidental modification of crime, person, gymCheckin, socialEventCheckin
    - Agent can query but not corrupt game data
 
 2. **Read/Write AI Operations:**

@@ -101,12 +101,24 @@
     </div>
     <div>
       <b>Documents</b> are JSON-like objects, or digital cards with facts written on them. For instance, a "person"
-      document might be for "Jack
-      the Ripper" which has a bunch of details about Jack. Each detail is represented as a field name and value. Jack's
-      document may have a field for "active_year"
-      with the value of 1888. The values can be simple or more complex, like a map of with coordinates to all the
-      horrendous murders Jack has commited.
-    </div> <br />
+      document might be for "Jack the Ripper" which has a bunch of details about Jack. Each detail is represented as a field name and value. Jack's
+      document may have a field for "active_year" with the value of 1888. The values can be simple or more complex, like a map with coordinates to all the
+      horrendous murders Jack has committed.
+    </div>
+    <br />
+    <div style="background-color: #f5f5f5; padding: 1rem; border-radius: 4px; border: 1px solid #ddd; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+      <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">{
+  "name": "Jack the Ripper",
+  "active_year": 1888,
+  "location": "Whitechapel, London",
+  "murders": [
+    { "victim": "Mary Ann Nichols", "date": 18880831, "map": [51.5194, -0.0604] },
+    { "victim": "Annie Chapman", "date": 18880908, "map": [51.5201, -0.0721] },
+    { "victim": "Elizabeth Stride", "date": 18880930, "map": [51.5133, -0.0636] }
+  ]
+}</pre>
+    </div>
+    <br />
     <div id="nosql">
       <a href="#nosql">🕺🏻What is NoSQL?</a>
     </div>

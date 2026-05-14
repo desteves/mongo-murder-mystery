@@ -35,7 +35,7 @@ Required permissions for each database user in the Murder Mystery application.
 ```
 
 **Collections:**
-- ✅ `crime`, `person`, `event`, `suspect` - **read** (game data)
+- ✅ `crime`, `person`, `gymCheckin`, `socialEventCheckin` - **read** (game data)
 - ✅ `solution` - **readWrite** (answer validation)
 
 **Atlas UI Setup:**
@@ -116,13 +116,13 @@ Required permissions for each database user in the Murder Mystery application.
 ```
 
 **Collections in mmm_AI:**
-- ✅ `crime`, `person`, `event`, `suspect` - **READ** (game data for AI queries)
+- ✅ `crime`, `person`, `gymCheckin`, `socialEventCheckin` - **READ** (game data for AI queries)
 - ✅ `agent_memory` - **READ/WRITE** (conversation history)
 - ✅ Vector embeddings collections - **READ/WRITE** (vector search)
 
 **MCP Tools Used:**
 - `list-collections` - List collections in mmm_AI
-- `find` - Query crime, person, event, suspect, agent_memory
+- `find` - Query crime, person, gymCheckin, socialEventCheckin, agent_memory
 - `aggregate` - Run aggregation pipelines including $vectorSearch
 - `count` - Count documents
 
@@ -137,7 +137,7 @@ Required permissions for each database user in the Murder Mystery application.
    - Actions: find, insert, update, remove
 
 **🔒 Security Constraints:**
-- ✅ **READ ACCESS** to crime, person, event, suspect in mmm_AI
+- ✅ **READ ACCESS** to crime, person, gymCheckin, socialEventCheckin in mmm_AI
 - ✅ **READ/WRITE** to agent_memory in mmm_AI
 - ❌ **NO ACCESS to solution collection** (isolated in mmm database)
 - ✅ Can run vector search queries on mmm_AI collections

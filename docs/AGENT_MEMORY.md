@@ -48,7 +48,7 @@ The AI agent now maintains conversation history across interactions using MongoD
 
 - `mmm_AI` database: Game data + AI operations
   - Collections:
-    - `crime`, `person`, `event`, `suspect` - **READ** (agent can query)
+    - `crime`, `person`, `gymCheckin`, `socialEventCheckin` - **READ** (agent can query)
     - `agent_memory` - **READ/WRITE** (conversation history)
     - Vector embeddings - **READ/WRITE** (semantic search)
   - Access: `/agent` endpoint via MCP tools

@@ -33,27 +33,15 @@
 
 <script>
 import apiService from '@/services/api';
+import { EditorView, lineNumbers, highlightActiveLineGutter, highlightSpecialChars,
+         drawSelection, highlightActiveLine, keymap } from '@codemirror/view';
+import { EditorState } from '@codemirror/state';
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
+import { bracketMatching, foldGutter, indentOnInput } from '@codemirror/language';
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
+import { javascript } from '@codemirror/lang-javascript';
+import { mongoCompletions } from '../utils/mongoUtils';
 // JSON language support loaded globally in main.js
-
-// Lazy load CodeMirror to reduce initial bundle size
-let codeMirrorModules = null;
-const loadCodeMirror = async () => {
-  if (!codeMirrorModules) {
-    const [
-      { basicSetup, EditorView },
-      { autocompletion },
-      { javascript },
-      { mongoCompletions }
-    ] = await Promise.all([
-      import('codemirror'),
-      import('@codemirror/autocomplete'),
-      import('@codemirror/lang-javascript'),
-      import('../utils/mongoUtils')
-    ]);
-    codeMirrorModules = { basicSetup, EditorView, autocompletion, javascript, mongoCompletions };
-  }
-  return codeMirrorModules;
-};
 
 export default {
   name: 'MongoQueryPromptAuto',
@@ -87,9 +75,8 @@ export default {
     }
   },
   watch: {
-    async preFilledText(newValue) {
+    preFilledText(newValue) {
       if (this.editorInstance) {
-        const { EditorView } = await loadCodeMirror();
         this.editorInstance.setState(EditorView.state.of({ doc: newValue }));
       }
     }
@@ -193,25 +180,47 @@ export default {
         }
       }
     },
-    async initCodeMirror() {
-      // Lazy load CodeMirror modules
-      const { basicSetup, EditorView, autocompletion, javascript, mongoCompletions } = await loadCodeMirror();
-
-      // Create the CodeMirror editor instance
+    initCodeMirror() {
+      // Create the CodeMirror editor instance with minimal setup
       this.editorInstance = new EditorView({
-        doc: this.preFilledText, // Initialize with preFilledText
+        doc: this.preFilledText,
         extensions: [
-          basicSetup,
+          lineNumbers(),
+          highlightActiveLineGutter(),
+          highlightSpecialChars(),
+          history(),
+          foldGutter(),
+          drawSelection(),
+          EditorState.allowMultipleSelections.of(true),
+          indentOnInput(),
+          bracketMatching(),
+          closeBrackets(),
+          highlightActiveLine(),
+          keymap.of([
+            ...closeBracketsKeymap,
+            ...defaultKeymap,
+            ...historyKeymap,
+            ...completionKeymap
+          ]),
+          javascript(),
+          // Custom MongoDB autocompletion
           autocompletion({
             override: [mongoCompletions],
-            activateOnTyping: true,
-            activateOnCompletion: () => true,
-            autoTrigger: "always"
+            activateOnTyping: true
           }),
-          javascript()
+          // Light green selection highlighting
+          EditorView.theme({
+            "&.cm-focused .cm-selectionBackground, ::selection": {
+              backgroundColor: "#d8f0cf !important"
+            },
+            ".cm-selectionBackground": {
+              backgroundColor: "#d8f0cf !important"
+            }
+          })
         ],
-        parent: this.$refs.editor, // Attach only to the editor container
+        parent: this.$refs.editor,
       });
+      console.log('CodeMirror editor initialized with MongoDB autocompletion');
     },
   },
 };

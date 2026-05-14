@@ -55,7 +55,13 @@ const allowedOrigins = [
   'https://mongomurdermystery.com',
   'https://mongodbmurdermystery.com',
   'http://mongomurdermystery.com',
-  'http://mongodbmurdermystery.com'
+  'http://mongodbmurdermystery.com',
+  'http://localhost:8080',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:8080',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000'
 ].filter(Boolean); // Remove undefined ALLOWED_ORIGIN if not set
 
 function requireApiKey(req, res, next) {

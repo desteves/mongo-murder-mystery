@@ -9,7 +9,7 @@ const { storeConversation, getRecentContext } = require('./memory');
 const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp';
 const MCP_ID_TOKEN_AUDIENCE = process.env.MCP_ID_TOKEN_AUDIENCE || MCP_SERVER_URL;
 const MCP_CONNECTION_STRING = process.env.MDB_MCP_CONNECTION_STRING || process.env.MCP_CONNECTION_STRING;
-const MCP_DATABASE = process.env.MCP_DATABASE || 'mmm';
+const MCP_DATABASE = process.env.MCP_DATABASE || 'mmm_AI';
 const OPENAI_MODEL = process.env.OPENAI_MODEL || 'tngtech/deepseek-r1t2-chimera:free';
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
@@ -243,12 +243,12 @@ async function runAgent(prompt, userSessionId = null) {
           type: 'text',
           text: [
               "You are an AI assistant for the MongoDB Murder Mystery game.",
-              "You have access to the mmm_AI database which contains crime, person, event, and suspect collections.",
+              "You have access to the mmm_AI database which contains crime, person, gymCheckin, and socialEventCheckin collections.",
               "You can help users investigate the murder mystery using MongoDB queries and vector search.",
 
               // What you CAN do
               "You can:",
-              "- Query crime, person, event, and suspect collections in mmm_AI",
+              "- Query crime, person, gymCheckin, and socialEventCheckin collections in mmm_AI",
               "- Run aggregation pipelines including vector search queries",
               "- Maintain conversation history in agent_memory collection",
               "- Help users find connections between suspects, witnesses, and events",
@@ -267,7 +267,7 @@ async function runAgent(prompt, userSessionId = null) {
               // Tool-use rules
               "Use only the `mcp_call` function wired to the mmm_AI database.",
               "Available MCP tools: list-collections, find, aggregate, count.",
-              "The database contains: crime, person, event, suspect, agent_memory collections.",
+              "The database contains: crime, person, gymCheckin, socialEventCheckin, agent_memory collections.",
               "Never invent tools, connection strings, query shapes, or data sources.",
               "If any MCP tool call returns an error or unexpected response, stop immediately and inform the user.",
 

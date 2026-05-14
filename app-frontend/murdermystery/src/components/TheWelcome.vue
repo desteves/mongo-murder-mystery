@@ -86,7 +86,7 @@
       Next, let's see what each collection contains.
     </div>
     <MongoQueryPromptAuto title="See the details of the crime collection"
-      subtitle="Change &quot;crime&quot; to see other collections. You'll need to keep those quotes around the collection name so MongoDB can recognize them properly. Click 'RESET' if you get stuck."
+      subtitle="Change &quot;crime&quot; to see other collections. Click 'RESET' if you get stuck."
       preFilledText='db.crime.find().limit(1)' />
   </WelcomeItem>
   <WelcomeItem>
