@@ -1,6 +1,22 @@
 <template>
   <WelcomeItem>
     <template #heading>
+      <div id="construction">
+        <a href="#construction">🚧 Under Construction 🚧</a>
+      </div>
+    </template>
+
+    <div style="text-align: center; padding: 1rem; background-color: #fff3cd; border-radius: 8px; margin-bottom: 1rem;">
+      <strong>⚠️ This AI Track is currently under active development! ⚠️</strong>
+      <br />
+      <span style="font-size: 2rem;">🏗️ 👷 🔧</span>
+      <br />
+      <span style="font-size: 0.9rem;">You may encounter bugs or incomplete features. Thank you for your patience!</span>
+    </div>
+  </WelcomeItem>
+
+  <WelcomeItem>
+    <template #heading>
       <div id="ai-intro">
         <a href="#ai-intro">✨ AI Track: Solve with Your Agent Sidekick</a>
       </div>
@@ -8,6 +24,10 @@
 
     <div>
       Welcome to the AI Track! Solve the murder mystery by prompting your AI Agent to investigate for you. Your agent can query the database (crime, person, gymCheckin, socialEventCheckin collections) and use vector search to find connections between clues.
+    </div>
+    <br />
+    <div>
+      <strong>What is vector search?</strong> Vector search finds similar documents based on meaning rather than exact text matches. For example, it can find people with similar backgrounds, related events, or suspicious patterns even when the descriptions use different words.
     </div>
     <br />
     <div>
@@ -66,16 +86,7 @@
         <li>Mention the specific collection you want to search</li>
         <li>Be specific about dates, names, or IDs when filtering</li>
         <li>Ask follow-up questions based on what you discover</li>
-      </ul>
-    </div>
-    <br />
-    <div>
-      <strong>Example prompts:</strong>
-      <ul>
-        <li>"Find the crime that happened on January 15, 2018 in MongoDB City"</li>
-        <li>"Show me all people who live on Franklin Ave"</li>
-        <li>"What events did the main suspect attend?"</li>
-        <li>"Use vector search to find similar crime patterns"</li>
+        <li>Try using vector search to find similar patterns or related people</li>
       </ul>
     </div>
   </WelcomeItem>
