@@ -1,8 +1,5 @@
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const OpenAI = require('openai');
 const { GoogleAuth } = require('google-auth-library');
-const http = require('http');
-const https = require('https');
 const logger = require('./logger');
 const { storeConversation, getRecentContext } = require('./memory');
 
@@ -33,8 +30,6 @@ const baseMcpHeaders = {
 
 const auth = new GoogleAuth();
 let mcpAuthClientPromise = null;
-const keepAliveHttpAgent = new http.Agent({ keepAlive: true });
-const keepAliveHttpsAgent = new https.Agent({ keepAlive: true });
 
 const shouldUseIdToken = () => {
   if (!MCP_ID_TOKEN_AUDIENCE) return false;
@@ -59,7 +54,6 @@ async function initSession() {
   logger.info({ url: MCP_SERVER_URL }, 'Initializing MCP session');
   const res = await fetch(MCP_SERVER_URL, {
     method: 'POST',
-    agent: (url) => url.protocol === 'http:' ? keepAliveHttpAgent : keepAliveHttpsAgent,
     headers: {
       ...baseMcpHeaders,
       ...authHeaders
@@ -93,7 +87,6 @@ async function callMcp(sessionId, toolName, args) {
   const authHeaders = await getMcpAuthHeaders();
   const res = await fetch(MCP_SERVER_URL, {
     method: 'POST',
-    agent: (url) => url.protocol === 'http:' ? keepAliveHttpAgent : keepAliveHttpsAgent,
     headers: {
       ...baseMcpHeaders,
       ...authHeaders,
@@ -350,13 +343,13 @@ async function runAgent(prompt, userSessionId = null) {
         try {
           let mcpResult;
           if (tool === 'aggregate') {
-            mcpResult = await callMcp(sessionId, tool, { database: args.database || MCP_DATABASE, collection, pipeline: pipeline || [] });
+            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, pipeline: pipeline || [] });
           } else if (tool === 'find') {
-            mcpResult = await callMcp(sessionId, tool, { database: args.database || MCP_DATABASE, collection, filter: filter || {}, projection: projection || {}, limit });
+            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, filter: filter || {}, projection: projection || {}, limit });
           } else if (tool === 'count') {
-            mcpResult = await callMcp(sessionId, tool, { database: args.database || MCP_DATABASE, collection, filter: filter || {}, limit });
+            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, filter: filter || {}, limit });
           } else if (tool === 'list-collections' || tool === 'list-databases') {
-            mcpResult = await callMcp(sessionId, tool, { database: args.database || MCP_DATABASE });
+            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE });
           } else {
             mcpResult = { content: [{ type: 'text', text: `Unsupported tool ${tool}` }], isError: true };
           }

@@ -19,7 +19,7 @@ These variables **must** be set for the application to start:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/mmm` or `mongodb+srv://user:pass@cluster.mongodb.net/mmm` |
-| `INTERNAL_API_KEY` | API key for securing `/eval` and `/agent` endpoints | `mmm-frontend-M4rCHm4ddn3$$-2026` |
+| `INTERNAL_API_KEY` | API key for securing `/eval` and `/agent` endpoints | `your-api-key-here` |
 | `SALT` | Salt for hashing (used for mystery solution validation) | `your-random-salt-string-here` |
 | `CLUE_CRIME` | MongoDB ObjectId for the crime scene clue | `5f9f1b9f1b9f1b9f1b9f1b9f` |
 
@@ -86,7 +86,7 @@ All frontend environment variables must be prefixed with `VITE_` to be exposed t
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `VITE_MMM_API_BASE_URL` | Backend API base URL | `https://mmm-be-1020079043644.us-central1.run.app` |
-| `VITE_MMM_API_KEY` | API key for backend authentication (matches `INTERNAL_API_KEY`) | `mmm-frontend-M4rCHm4ddn3$$-2026` |
+| `VITE_MMM_API_KEY` | API key for backend authentication (matches `INTERNAL_API_KEY`) | `your-api-key-here` |
 
 ### 🔧 Development Variables
 
@@ -112,7 +112,7 @@ VITE_MMM_API_KEY=your-local-api-key
 2. Edit `.env` and fill in the required values:
    ```bash
    MONGODB_URI=mongodb://localhost:27017/mmm
-   INTERNAL_API_KEY=mmm-frontend-M4rCHm4ddn3$$-2026
+   INTERNAL_API_KEY=your-api-key-here
    SALT=your-random-salt-here
    CLUE_CRIME=5f9f1b9f1b9f1b9f1b9f1b9f
    ```
@@ -135,7 +135,7 @@ VITE_MMM_API_KEY=your-local-api-key
 2. Edit `.env` and fill in the values:
    ```bash
    VITE_MMM_API_BASE_URL=http://localhost:8080
-   VITE_MMM_API_KEY=mmm-frontend-M4rCHm4ddn3$$-2026
+   VITE_MMM_API_KEY=your-api-key-here
    ```
 
 ---

@@ -5,9 +5,16 @@ import axios from 'axios';
  * Centralizes all API calls and configuration
  */
 
-// Get API configuration from environment variables
-const API_BASE_URL = import.meta.env.VITE_MMM_API_BASE_URL || 'https://mmm-be-1020079043644.us-central1.run.app';
-const API_KEY = import.meta.env.VITE_MMM_API_KEY || 'mmm-frontend-M4rCHm4ddn3$$-2026';
+// Get API configuration from environment variables (build-time, no fallbacks:
+// a missing value must fail loudly instead of shipping a stale URL or key)
+const API_BASE_URL = import.meta.env.VITE_MMM_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_MMM_API_KEY;
+
+if (!API_BASE_URL || !API_KEY) {
+  console.error(
+    '[API] VITE_MMM_API_BASE_URL and VITE_MMM_API_KEY must be set at build time. See .env.example.'
+  );
+}
 
 // Create axios instance with default configuration
 const apiClient = axios.create({

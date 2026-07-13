@@ -384,8 +384,6 @@ async function processQuery(Q) {
     const args = Q.substring(start, end).trim();
 
     if (!isFindArgs(args)) { // okay to be missing / empty
-
-      logger.error({ error: error.message }, 'Database operation error');
       throw new APIError("Invalid find arguments", 400);
     }
 

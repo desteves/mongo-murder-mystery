@@ -125,6 +125,10 @@ describe('processQuery', () => {
     const query = 'db.unknownFunction("test")'; // Unsupported function
     await expect(processQuery(query)).rejects.toThrow('Missing collection name');
   });
+  test('should throw an error for invalid find arguments', async () => {
+    const query = 'db.person.find(notjson)'; // Args are not a document
+    await expect(processQuery(query)).rejects.toThrow('Invalid find arguments');
+  });
 
   test('should throw an error for unsupported queries', async () => {
     const query = 'db["test"].update()'; // Unsupported function
