@@ -28,3 +28,4 @@ RECYCLE_BIN
 app-backend/jtest.out
 
 **.out
+app-mcp/mcp.log
