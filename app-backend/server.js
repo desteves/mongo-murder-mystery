@@ -13,7 +13,13 @@ const app = express();
 
 // Security headers
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable for now as frontend may need adjustment
+  // API only returns JSON, so lock down everything
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'none'"],
+      frameAncestors: ["'none'"]
+    }
+  },
   crossOriginEmbedderPolicy: false // Allow embedding if needed
 }));
 

@@ -21,8 +21,9 @@ RUN npm test
 # Lightweight runtime image with just app code + prod deps.
 FROM base AS runtime
 ENV NODE_ENV=production
-COPY package*.json ./
-COPY --from=prod-deps /usr/src/app/node_modules ./node_modules
-COPY . .
+COPY --chown=node:node package*.json ./
+COPY --from=prod-deps --chown=node:node /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node . .
+USER node
 EXPOSE 8080
 CMD ["node", "index.js"]
