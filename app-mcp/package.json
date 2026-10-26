@@ -8,6 +8,9 @@
     "dev": "npm run start"
   },
   "dependencies": {
-    "mongodb-mcp-server": "^1.10.0"
+    "mongodb-mcp-server": "^3.1.0"
+  },
+  "overrides": {
+    "basic-ftp": "^6.2.1"
   }
 }
