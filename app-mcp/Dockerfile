@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-slim
+# Pinned to a Node release patched for CVE-2026-111497 (Brotli)
+FROM node:24.22.1-slim
 
 WORKDIR /usr/src/app
 

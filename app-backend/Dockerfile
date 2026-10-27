@@ -1,4 +1,5 @@
-FROM node:lts-alpine AS base
+# Pinned to a Node release patched for CVE-2026-111497 (Brotli); bump via Renovate/Dependabot
+FROM node:24.22.1-alpine AS base
 WORKDIR /usr/src/app
 
 # Install only production dependencies for the final image.
