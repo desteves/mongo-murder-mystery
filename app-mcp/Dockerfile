@@ -1,7 +1,12 @@
 # syntax=docker/dockerfile:1
 
 # Pinned to a Node release patched for CVE-2026-111497 (Brotli)
-FROM node:24.22.1-slim
+FROM node:24.22.2-slim
+
+# Debian ships its own libbrotli (CVE-2026-111497 fixed in 1.1.0-2+deb13u1); pull OS security updates
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 

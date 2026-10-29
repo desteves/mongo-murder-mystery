@@ -1,6 +1,9 @@
 # Pinned to a Node release patched for CVE-2026-111497 (Brotli); bump via Renovate/Dependabot
-FROM node:24.22.1-alpine AS base
+FROM node:24.22.2-alpine AS base
 WORKDIR /usr/src/app
+
+# Pull Alpine security updates (e.g. brotli-libs 1.2.1) on top of the pinned image
+RUN apk upgrade --no-cache
 
 # Install only production dependencies for the final image.
 FROM base AS prod-deps
