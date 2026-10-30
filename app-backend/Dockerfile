@@ -2,8 +2,13 @@
 FROM node:24.22.2-alpine AS base
 WORKDIR /usr/src/app
 
-# Pull Alpine security updates (e.g. brotli-libs 1.2.1) on top of the pinned image
-RUN apk upgrade --no-cache
+# Pull Alpine security updates on top of the pinned image. CVE-2026-111497 needs
+# brotli-libs >= 1.2.1-r0; fail the build rather than ship a vulnerable layer.
+RUN apk upgrade --no-cache \
+ && apk add --no-cache --upgrade brotli-libs \
+ && v="$(apk info -v brotli-libs | sed 's/^brotli-libs-//')" \
+ && echo "brotli-libs $v" \
+ && [ "$(apk version -t "$v" 1.2.1-r0)" != "<" ]
 
 # Install only production dependencies for the final image.
 FROM base AS prod-deps

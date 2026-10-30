@@ -23,7 +23,12 @@ RUN npm run build
 # pull in the latest Alpine package fixes at build time.
 FROM nginxinc/nginx-unprivileged:stable-alpine AS runtime
 USER root
-RUN apk upgrade --no-cache
+# CVE-2026-111497 needs brotli-libs >= 1.2.1-r0; fail the build rather than ship a vulnerable layer.
+RUN apk upgrade --no-cache \
+ && apk add --no-cache --upgrade brotli-libs \
+ && v="$(apk info -v brotli-libs | sed 's/^brotli-libs-//')" \
+ && echo "brotli-libs $v" \
+ && [ "$(apk version -t "$v" 1.2.1-r0)" != "<" ]
 WORKDIR /usr/share/nginx/html
 
 # Copy built assets
