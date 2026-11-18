@@ -42,7 +42,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Run as the unprivileged nginx user: pid file in /tmp, writable cache/log dirs,
 # no `user` directive (only meaningful for root). Validate the config at build time.
-RUN sed -i -e 's,/var/run/nginx.pid,/tmp/nginx.pid,' -e '/^user /d' /etc/nginx/nginx.conf \
+RUN sed -i -e 's,^pid .*;,pid /tmp/nginx.pid;,' -e '/^user /d' /etc/nginx/nginx.conf \
+ && grep -q '^pid /tmp/nginx.pid;' /etc/nginx/nginx.conf \
  && chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/conf.d \
  && nginx -t
 
