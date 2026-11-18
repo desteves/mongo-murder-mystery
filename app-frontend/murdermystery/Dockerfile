@@ -41,11 +41,13 @@ RUN rm -f /docker-entrypoint.d/20-envsubst-on-templates.sh
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Run as the unprivileged nginx user: pid file in /tmp, writable cache/log dirs,
-# no `user` directive (only meaningful for root). Validate the config at build time.
+# no `user` directive (only meaningful for root). Validate the config at build time and
+# remove any root-owned pid file that validation leaves behind, or the nginx user can't open it.
 RUN sed -i -e 's,^pid .*;,pid /tmp/nginx.pid;,' -e '/^user /d' /etc/nginx/nginx.conf \
  && grep -q '^pid /tmp/nginx.pid;' /etc/nginx/nginx.conf \
  && chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/conf.d \
- && nginx -t
+ && nginx -t \
+ && rm -f /tmp/nginx.pid
 
 USER nginx
 EXPOSE 8080
