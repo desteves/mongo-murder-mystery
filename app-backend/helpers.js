@@ -150,6 +150,28 @@ function isFindArgs(Q) {
 }
 
 
+// Index of the ")" that closes an already-opened "(" (start is just after it), skipping double-quoted strings and nested
+// parentheses such as ObjectId("..."). Falls back to the first ")" so malformed input is rejected by the later checks.
+function closingParen(text, start) {
+  let depth = 1;
+  let inString = false;
+  for (let i = start; i < text.length; i += 1) {
+    const ch = text[i];
+    if (inString) {
+      if (ch === '\\') i += 1;
+      else if (ch === '"') inString = false;
+    } else if (ch === '"') {
+      inString = true;
+    } else if (ch === '(') {
+      depth += 1;
+    } else if (ch === ')') {
+      depth -= 1;
+      if (depth === 0) return i;
+    }
+  }
+  return text.indexOf(')', start);
+}
+
 // Quote unquoted JSON keys, only those that are MongoDB Operators, starting with $
 function quoteJsonKeys(jsonString, regex) {
   // Replace unquoted field names with quoted ones
@@ -404,7 +426,7 @@ async function processQuery(Q) {
   // process the find query.
   if (findStart !== -1) {
     const start = findStart + readCommand.FIND.length;
-    const end = Q.indexOf(')', start);
+    const end = closingParen(Q, start);
     const args = Q.substring(start, end).trim();
 
     if (!isFindArgs(args)) { // okay to be missing / empty
@@ -453,7 +475,7 @@ async function processQuery(Q) {
     // has a sort, process it
     if (addSort) {
       const start = sortStart + readCommand.SORT.length;
-      const end = Q.indexOf(')', start);
+      const end = closingParen(Q, start);
       const filter = quoteJsonKeys(Q.substring(start, end).trim(), matchField.name);
 
       try {
@@ -492,6 +514,7 @@ async function processQuery(Q) {
 // Export all at once
 module.exports = {
   validateQueryString,
+  closingParen,
   isGetCollections,
   hasCollectionName,
   getCollectionName,

@@ -1,6 +1,8 @@
 const { parseEjson, toEjsonString, shellLiteralsToEJSON, findForbiddenBsonType } = require('./ejson');
 const { ObjectId, Long } = require('mongodb');
-const { parseFindArgs } = require('./helpers');
+jest.mock('./database');
+const connectDB = require('./database');
+const { parseFindArgs, processQuery } = require('./helpers');
 
 describe('shellLiteralsToEJSON', () => {
   test('rewrites mongosh literals outside strings', () => {
@@ -69,5 +71,26 @@ describe('parseFindArgs with EJSON', () => {
     expect(parseFindArgs('{ "type": "theft", "city": "Chicago" }')[0]).toEqual({ type: 'theft', city: 'Chicago' });
     expect(parseFindArgs('{ date: { $gt: 20180115, $lt: 20190215 } }')[0]).toEqual({ date: { $gt: 20180115, $lt: 20190215 } });
     expect(parseFindArgs('{ "city": /^I/ }')[0]).toEqual({ city: { $regex: '^I' } });
+  });
+});
+
+describe('processQuery with literals that contain parentheses', () => {
+
+  test('find({ _id: ObjectId(...) }) reaches the driver with a real ObjectId', async () => {
+    const calls = [];
+    connectDB.mockReturnValue({
+      collection: () => ({ find: (filter) => { calls.push(filter); return { limit: () => ({ sort: () => ({ toArray: async () => [] }) }) }; } }),
+    });
+    await processQuery('db.person.find({ "_id": ObjectId("5f9f1b9f1b9f1b9f1b9f1b9f") }).limit(3)');
+    expect(calls[0]._id).toBeInstanceOf(ObjectId);
+  });
+
+  test('a ")" inside a string value does not cut the arguments short', async () => {
+    const calls = [];
+    connectDB.mockReturnValue({
+      collection: () => ({ find: (filter) => { calls.push(filter); return { limit: () => ({ sort: () => ({ toArray: async () => [] }) }) }; } }),
+    });
+    await processQuery('db.person.find({ "name": "Smith (Jr)" })');
+    expect(calls[0]).toEqual({ name: 'Smith (Jr)' });
   });
 });
