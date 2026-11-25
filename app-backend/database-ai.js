@@ -31,9 +31,14 @@ async function connectAIDB() {
       client = new MongoClient(uri, {
         appName: 'devrel-github-mmm',
         maxPoolSize: 10,
-        minPoolSize: 2,
+        minPoolSize: 0, // scale-to-zero instances should not hold idle connections
+        maxIdleTimeMS: 30000,
+        connectTimeoutMS: 10000,
         serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 20000
+        socketTimeoutMS: 20000,
+        compressors: ['zlib'],
+        retryReads: true,
+        retryWrites: true
       });
 
       await client.connect();

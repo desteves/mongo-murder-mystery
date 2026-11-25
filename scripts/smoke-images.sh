@@ -4,7 +4,7 @@
 # user that cannot write its pid/cache files, a base-image change that refuses to bind. Run before pushing any
 # Dockerfile or dependency change (every merge to main deploys). Needs Docker. Usage: scripts/smoke-images.sh [be|fe|mcp]
 set -euo pipefail
-cd "$(git rev-parse --show-toplevel)"
+cd "$(dirname "$0")/.."
 
 TAG="smoke-$$"
 NET="mmm-smoke-$$"
@@ -64,6 +64,10 @@ if want fe; then
   docker run -d --name "mmm-fe-$$" -p 18081:8080 "mmm-fe:$TAG" >/dev/null
   if wait_status http://127.0.0.1:18081/healthz 200; then ok "/healthz returns 200"; else bad "/healthz"; show_logs "mmm-fe-$$"; fi
   wait_status http://127.0.0.1:18081/ 200 && ok "/ returns 200" || bad "/"
+  hdrs="$(curl -s -D - -o /dev/null -m 5 http://127.0.0.1:18081/ | tr -d '\r')"
+  for h in x-frame-options x-content-type-options content-security-policy-report-only; do
+    printf '%s\n' "$hdrs" | grep -qi "^$h:" && ok "/ sends $h" || bad "/ is missing $h"
+  done
   [ "$(docker exec "mmm-fe-$$" id -u)" != 0 ] && ok "runs as non-root" || bad "runs as root"
 fi
 

@@ -46,10 +46,17 @@ async function attemptConnection(retryCount = 0) {
     logger.info({ attempt: retryCount + 1, maxRetries: MAX_RETRIES }, 'Connecting to MongoDB...');
     const mongoClient = new MongoClient(dbURI, {
       appName: 'devrel-github-mmm',
-      maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL || '20', 10),
-      minPoolSize: parseInt(process.env.MONGODB_MIN_POOL || '2', 10),
+      // Serverless profile: one shared client, pool sized to Cloud Run per-instance concurrency, no idle
+      // connections held by scaled-to-zero instances, fail fast.
+      maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL || '10', 10),
+      minPoolSize: parseInt(process.env.MONGODB_MIN_POOL || '0', 10),
+      maxIdleTimeMS: parseInt(process.env.MONGODB_MAX_IDLE_TIME_MS || '30000', 10),
+      connectTimeoutMS: parseInt(process.env.MONGODB_CONNECT_TIMEOUT_MS || '10000', 10),
       serverSelectionTimeoutMS: parseInt(process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || '5000', 10),
       socketTimeoutMS: parseInt(process.env.MONGODB_SOCKET_TIMEOUT_MS || '20000', 10),
+      compressors: ['zlib'], // built into Node; zstd/snappy need optional native packages
+      retryReads: true,
+      retryWrites: true,
       serverApi: ServerApiVersion.v1
     });
 
@@ -80,23 +87,15 @@ async function attemptConnection(retryCount = 0) {
   }
 }
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  logger.info('SIGTERM received, closing MongoDB connection...');
+// Closes the shared client; index.js calls this after the HTTP server has drained (SIGTERM/SIGINT).
+const closeDB = async () => {
   if (client) {
     await client.close();
+    client = null;
+    db = null;
     logger.info('MongoDB connection closed');
   }
-  process.exit(0);
-});
-
-process.on('SIGINT', async () => {
-  logger.info('SIGINT received, closing MongoDB connection...');
-  if (client) {
-    await client.close();
-    logger.info('MongoDB connection closed');
-  }
-  process.exit(0);
-});
+};
 
 module.exports = connectDB;
+module.exports.closeDB = closeDB;

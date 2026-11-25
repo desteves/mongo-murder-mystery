@@ -9,6 +9,7 @@ class APIError extends Error {
     this.name = 'APIError';
     this.code = code; // HTTP Status Code
   }
+
 }
 
 // Global regexes for MongoDB query patterns
@@ -64,6 +65,23 @@ function validateQueryString(query) {
     return decodedQuery;
   } catch (error) {
     throw new Error(`Bad input.`);
+  }
+}
+
+// Operators that run server-side JavaScript or write/join across collections. The read-only game queries
+// never need them, so reject them anywhere in a filter, projection or sort (including nested under $expr).
+const FORBIDDEN_OPERATORS = new Set(['$where', '$function', '$accumulator', '$out', '$merge', '$lookup', '$unionWith', '$graphLookup']);
+
+function assertNoForbiddenOperators(value) {
+  if (Array.isArray(value)) {
+    value.forEach(assertNoForbiddenOperators);
+  } else if (value && typeof value === 'object') {
+    for (const [key, v] of Object.entries(value)) {
+      if (FORBIDDEN_OPERATORS.has(key)) {
+        throw new APIError(`Operator ${key} is not allowed`, 400);
+      }
+      assertNoForbiddenOperators(v);
+    }
   }
 }
 
@@ -398,6 +416,7 @@ async function processQuery(Q) {
 
     if (addCount) {
 
+      assertNoForbiddenOperators([filter, projection]);
       try {
         desc = `db.${coll}.find(${JSON.stringify(filter)}, ${JSON.stringify(projection)}).countDocuments()`;
         result = await db.collection(coll).countDocuments(filter);
@@ -437,6 +456,8 @@ async function processQuery(Q) {
         throw new APIError("Invalid sort filter JSON", 400);
       }
     } // end sort
+
+    assertNoForbiddenOperators([filter, projection, sortFilter]);
 
     try {
       desc = `db.${coll}.find(${JSON.stringify(filter)}, ${JSON.stringify(projection)}).limit(${limitFilter}).sort(${JSON.stringify(sortFilter)}).toArray()`;

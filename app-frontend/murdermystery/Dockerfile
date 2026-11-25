@@ -39,6 +39,7 @@ COPY --from=build /usr/src/app/dist ./
 # Copy nginx config (disable envsubst by removing the script)
 RUN rm -f /docker-entrypoint.d/20-envsubst-on-templates.sh
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY security-headers.conf /etc/nginx/security-headers.conf
 
 # Run as the unprivileged nginx user: pid file in /tmp, writable cache/log dirs,
 # no `user` directive (only meaningful for root). Validate the config at build time and

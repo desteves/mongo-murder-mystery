@@ -1,0 +1,72 @@
+# OPT-IN TEMPLATE: the three Cloud Build triggers (MMM-BACKEND, MMM-FRONTEND, MMM-MCP) currently use inline build
+# configs, so this file does nothing until each trigger is switched to "Cloud Build configuration file:
+# cloudbuild.yaml" with substitutions _SERVICE (Cloud Run service), _DIR (app-backend | app-frontend/murdermystery |
+# app-mcp) and _KIND (be | fe | mcp). Untested against a live trigger: try it on one service first.
+#
+# Gate order: unit tests -> build image -> smoke test (starts the image, probes it) -> push -> deploy with no traffic
+# -> probe the new revision's tagged URL -> only then shift traffic. A broken image never serves users.
+steps:
+  - id: tests
+    name: 'node:24.22.2-slim'
+    dir: ${_DIR}
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        npm ci --no-audit --no-fund
+        npm audit --omit=dev --audit-level=high || echo "note: npm audit reported high/critical advisories"
+        if [ "${_KIND}" = be ]; then npm test -- --testPathIgnorePatterns=server.test.js; fi
+        if [ "${_KIND}" = fe ]; then npm run lint && npm run build; fi
+
+  - id: smoke
+    name: 'gcr.io/cloud-builders/docker'
+    entrypoint: bash
+    args: ['-c', 'apt-get update -qq && apt-get install -y -qq curl >/dev/null && scripts/smoke-images.sh ${_KIND}']
+    waitFor: ['tests']
+
+  - id: build
+    name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_IMAGE}:${SHORT_SHA}', '--build-arg', 'VITE_MMM_API_BASE_URL=${_API_BASE_URL}', '${_DIR}']
+    waitFor: ['smoke']
+
+  - id: push
+    name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_IMAGE}:${SHORT_SHA}']
+
+  - id: deploy-candidate
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        gcloud run deploy ${_SERVICE} --image=${_IMAGE}:${SHORT_SHA} --region=${_REGION} \
+          --no-traffic --tag=candidate --quiet
+        url="$(gcloud run services describe ${_SERVICE} --region=${_REGION} \
+          --format='value(status.traffic[].url)' | tr ';' '\n' | grep candidate | head -1)"
+        echo "probing $url${_PROBE_PATH}"
+        for i in $(seq 1 20); do
+          code="$(curl -s -o /dev/null -w '%{http_code}' -m 5 "$url${_PROBE_PATH}" || true)"
+          [ "$code" = 200 ] && exit 0
+          sleep 3
+        done
+        echo "candidate revision never became healthy (last status $code); traffic NOT shifted" >&2
+        exit 1
+
+  - id: shift-traffic
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args: ['run', 'services', 'update-traffic', '${_SERVICE}', '--region=${_REGION}', '--to-latest', '--quiet']
+
+substitutions:
+  _REGION: us-central1
+  _IMAGE: us-central1-docker.pkg.dev/diana-438818/cloud-run-source-deploy/mongo-murder-mystery/${_SERVICE}
+  _PROBE_PATH: /healthz   # backend: /health (needs a database), mcp: set per trigger
+  _API_BASE_URL: ''
+  _KIND: fe
+  _DIR: app-frontend/murdermystery
+  _SERVICE: mongo-murder-mystery-fe
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+images: []
