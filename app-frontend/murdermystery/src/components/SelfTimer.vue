@@ -7,7 +7,7 @@
           <td class="timer-cell">
             <!-- Timer Display (Floating in Bottom-Right) -->
             <div v-if="isVisible" class="timer">
-              <h2 role="timer" aria-label="Elapsed time">⏳ {{ formattedTime }}</h2>
+              <h2><span role="timer" aria-label="Elapsed time">⏳ {{ formattedTime }}</span></h2>
               <button @click="startTimer" :disabled="isRunning" aria-label="Start timer">▶️ </button>
               <button @click="pauseTimer" :disabled="!isRunning" aria-label="Pause timer">⏸️ </button>
               <button @click="resetTimer" aria-label="Reset timer">🔄</button>
@@ -145,7 +145,7 @@ export default {
 /* Toggle button styling */
 .toggle-btn {
   background: var(--nav-active-bg-color);
-  color: var(--body-bg);
+  color: var(--on-accent);
   padding: 0.625rem 1rem;
   border-radius: 0.375rem;
   font-size: 1rem;

@@ -9,6 +9,8 @@
 
   /* Spring Green */
   --nav-active-bg-color: #00ed64;
+  /* Text on the accent background: #001e2b on #00ed64 is about 11:1 (WCAG AA needs 4.5:1) */
+  --on-accent: #001e2b;
 
   /* Slate Blue */
   /* --nav-active-bg-color: #001e2b; */
@@ -38,6 +40,8 @@
 
     /* Forrest Green */
     --nav-active-bg-color: #00684a;
+    /* white on #00684a is about 6.5:1 */
+    --on-accent: #ffffff;
 
     /* Evergreen */
     --nav-bg-color: #023430;
@@ -175,7 +179,7 @@ nav a:first-of-type {
 
 nav a.router-link-exact-active {
   background-color: var(--nav-active-bg-color);
-  color: var(--header-color);
+  color: var(--on-accent);
 }
 
 nav a:hover {

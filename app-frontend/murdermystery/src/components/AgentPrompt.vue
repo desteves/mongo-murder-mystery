@@ -164,7 +164,7 @@ export default {
 .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.75rem; }
 .chips-label { font-size: 0.9rem; }
 .chip { margin: 0; padding: 0.3rem 0.7rem; border-radius: 999px; background: transparent; color: var(--link-color); border: 1px solid var(--link-color); font-weight: normal; width: auto; }
-.chip:hover { background: var(--nav-active-bg-color); color: var(--header-color); }
+.chip:hover { background: var(--nav-active-bg-color); color: var(--on-accent); }
 .run-hint { margin-left: 0.5rem; font-size: 0.85rem; opacity: 0.8; }
 kbd { border: 1px solid #999; border-radius: 3px; padding: 0 0.3rem; font-size: 0.8rem; background: #f4f4f4; color: #222; }
 .how { margin-top: 1rem; }

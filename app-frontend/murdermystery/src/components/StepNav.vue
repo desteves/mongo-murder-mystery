@@ -53,7 +53,7 @@ onBeforeUnmount(() => observer?.disconnect());
 .stepnav { position: sticky; top: 0; z-index: 50; background: var(--body-bg); padding: 0.5rem 0; border-bottom: 1px solid var(--link-color); }
 ol { list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; padding: 0; margin: 0; font-size: 0.9rem; }
 a { text-decoration: none; font-weight: normal; padding: 0.2rem 0.5rem; border-radius: 999px; display: inline-block; }
-a.active { background: var(--nav-active-bg-color); color: var(--header-color); font-weight: bold; }
+a.active { background: var(--nav-active-bg-color); color: var(--on-accent); font-weight: bold; }
 a.done { opacity: 0.8; }
 .num { display: inline-block; min-width: 1.2rem; text-align: center; font-weight: bold; }
 </style>
