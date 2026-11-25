@@ -3,3 +3,8 @@ npm-debug.log
 Dockerfile
 .dockerignore
 README.md
+
+.env*
+!.env.example
+*.log
+.git

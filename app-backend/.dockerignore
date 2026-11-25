@@ -2,3 +2,10 @@
 node_modules
 **.log
 **.md
+.env*
+!.env.example
+*.log
+coverage
+test-results
+playwright-report
+.git

@@ -238,10 +238,29 @@ curl "http://localhost:3000/eval?query=db.person.find().limit(5)" \
 - HTTP-based MongoDB MCP server for agent interactions
 - See MongoDB MCP server documentation for details
 
+## Containers & Deployment (2026-11)
+
+Every merge to `main` deploys to Cloud Run via Cloud Build triggers, so a broken image is an outage.
+Run `scripts/smoke-images.sh` (builds each image and probes it) before pushing Dockerfile or dependency changes.
+
+- **Node pin**: backend/MCP/frontend-build use `node:24.22.x` (patched for CVE-2026-111497); Dependabot bumps the tag.
+  Never use floating tags such as `node:lts-alpine`.
+- **Non-root**: backend and MCP run as `USER node`; frontend runs as `nginx` on the official `nginx:1.30.x-alpine`
+  image. nginx 1.30 keeps its pid at `/run/nginx.pid`, so the Dockerfile rewrites the `pid` directive to `/tmp` (and
+  removes the `/tmp/nginx.pid` that the build-time `nginx -t` leaves behind, which is root-owned).
+- **OS package guards**: `apk upgrade` + a build-time check that `brotli-libs >= 1.2.1-r0` (Alpine images);
+  `apt-get upgrade` on the Debian MCP image. A failing check fails the build on purpose.
+- **Production deps**: anything required at startup (e.g. `dotenv`) must be in `dependencies`, not `devDependencies`
+  (images install with `npm ci --omit=dev`).
+- **MCP server v3** refuses non-loopback binds; `MDB_MCP_DANGEROUS_HOST_BINDING=true` is set in the Dockerfile for
+  Cloud Run. Restrict who can call the service (private ingress / IAM), do not rely on the bind check.
+- **Security process**: Dependabot (weekly, grouped), pre-commit secret scan (`scripts/install-hooks.sh`), see
+  `SECURITY.md`. The improvement roadmap is in `docs/todo.md`.
+
 ## Dependencies
 
 ### Backend (Current Versions)
-- **Runtime**: Node.js LTS (Alpine-based Docker image)
+- **Runtime**: Node.js 24.22.x (pinned; Alpine-based Docker image)
 - **Framework**: Express 5.1.0
 - **Database**: MongoDB driver 7.2.0
 - **AI**: OpenAI SDK 6.37.0 (OpenRouter compatible)
