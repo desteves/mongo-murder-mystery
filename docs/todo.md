@@ -40,9 +40,10 @@ Open work, newest decisions first. Cross items off when they ship. Full rational
 - [ ] Pick a durable model (paid or credits-backed): free models get retired
 
 ## Phase 3: performance
-- [ ] Cloud Run: `--cpu-boost`, explicit concurrency/max-instances, HTTP startup probes
+- [x] Cloud Run: concurrency (be 30), max instances 10, HTTP startup probes (be `/health`, fe `/healthz`); CPU boost already on
 - [ ] Frontend: precompressed assets, lazy-load CodeMirror chunk; indexes for game queries; load test
 
 ## Phase 4-6
-- [ ] Budget alert (needs billing account and amount); backend/MCP uptime checks; runbook
+- [ ] Budget alert (needs billing account and amount); MCP uptime check (private, needs an authenticated check)
+- [x] Backend `/health` uptime check + alert; `docs/RUNBOOK.md`
 - [ ] Terraform (optional); validator fuzz test; Playwright mobile project in CI
