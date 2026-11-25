@@ -22,7 +22,7 @@ RUN npm run build
 # Official nginx image pinned to a release that fixes the Nov 2026 nginx advisories
 # (fixed in 1.30.7+ / 1.31.9+). nginx-unprivileged lagged behind, so we drop root
 # ourselves below. Bump via Renovate/Dependabot.
-FROM nginx:1.30.7-alpine AS runtime
+FROM nginx:1.31.0-alpine AS runtime
 
 # CVE-2026-111497 needs brotli-libs >= 1.2.1-r0; fail the build rather than ship a vulnerable layer.
 RUN apk upgrade --no-cache \
