@@ -12,7 +12,7 @@ a pass ratio plus errors and warnings.
 | Accessibility for agents | Names and labels, valid roles, nothing interactive hidden from the a11y tree | Icon buttons named (`SelfTimer`), notes textarea labelled, CodeMirror has an `aria-label`, zoomable images are keyboard operable, one `<h1>` per page, skip link and landmarks |
 | Layout stability (CLS) | Cumulative Layout Shift | Hero image has width/height and a preload; schema images have dimensions; the editor shows a same-size placeholder until CodeMirror loads |
 | llms.txt | Presence of `/llms.txt` (404 is N/A; a server error is flagged) | `public/llms.txt` served as `text/plain` |
-| ard.json | Agentic Resource Discovery manifest | Not provided: the site has no public MCP server, A2A agent or skill to catalog (the MCP server is private by design) |
+| ard.json | Agentic Resource Discovery manifest (v0.91) at `/.well-known/ard.json`, `rel="ard"` or `Agentmap:` in robots.txt | Deliberately not published: ARD catalogs MCP servers, A2A agents and skills, and the site has no public one (the MCP server is private by design). `/.well-known/*` now returns a real 404 instead of the SPA's HTML, so the audit is N/A instead of "Malformed JSON" |
 
 ## Tools exposed to agents
 - `run_mongo_query(query)`: the same read-only query as the query box (same server validation, allowlist and rate limit). Output is
@@ -30,3 +30,9 @@ other browsers. If the spec changes, only `src/lib/webmcp.js` and the form attri
 - Run the audit in Chrome 150+ with the origin trial enabled (DevTools Lighthouse, category "Agentic browsing"). Results fluctuate with
   dynamic tool registration timing and a11y tree size, so compare trends, not single runs.
 - New interactive elements need an accessible name; new forms need `toolname`, `tooldescription`, field `name`s and `toolparamdescription`.
+
+## If you publish an ARD manifest later
+Add `public/.well-known/ard.json` (nginx serves it as JSON, a missing file is a 404). Requirements the audit checks: an `entries`
+array; each entry has `identifier` (`urn:air:<publisher>:<namespace>:<name>`), `displayName`, `type` (a media type such as
+`application/mcp-server-card+json`) and exactly one of `url` or inline data; 2 to 5 `representativeQueries` per entry; no top-level
+`collections`. Only list resources that really exist and are reachable by agents. Spec: https://agenticresourcediscovery.org/spec/ .
