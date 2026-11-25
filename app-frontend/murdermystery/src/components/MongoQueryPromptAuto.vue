@@ -6,7 +6,10 @@
     </div>
 
     <!-- USES CODEMIRROR CUSTOM MONGODB AUTOCOMPLETIONS -->
-    <div class="editor" ref="editor"></div>
+    <div class="editor" ref="editor" role="group" :aria-label="title">
+      <!-- Shown until the editor module has loaded (and for the layout: same height, so nothing shifts) -->
+      <pre v-if="!editorInstance" class="editor-placeholder" tabindex="0" @focus="loadEditor(true)" @click="loadEditor(true)">{{ preFilledText }}</pre>
+    </div>
 
     <div class="button-group">
       <button @click="runQuery" :disabled="isLoading">
@@ -56,14 +59,6 @@
 
 <script>
 import apiService from '@/services/api';
-import { EditorView, lineNumbers, highlightActiveLineGutter, highlightSpecialChars,
-         drawSelection, highlightActiveLine, keymap } from '@codemirror/view';
-import { EditorState } from '@codemirror/state';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import { bracketMatching, foldGutter, indentOnInput } from '@codemirror/language';
-import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
-import { javascript } from '@codemirror/lang-javascript';
-import { mongoCompletions } from '../utils/mongoUtils';
 import { formatResult } from '@/lib/ejson.js';
 import { explainError, preflightHint, straightenQuotes } from '@/lib/errors.js';
 import { recordClue, clueMessage } from '@/lib/clues.js';
@@ -90,6 +85,8 @@ export default {
       queryResult: null,
       showClue: false,
       editorInstance: null,
+      loadingEditor: false,
+      observer: null,
       isLoading: false,
       errorMessage: null,
       queryCache: new Map(), // Cache query results
@@ -126,14 +123,24 @@ export default {
     },
     preFilledText(newValue) {
       if (this.editorInstance) {
-        this.editorInstance.setState(EditorView.state.of({ doc: newValue }));
+        const length = this.editorInstance.state.doc.length;
+        this.editorInstance.dispatch({ changes: { from: 0, to: length, insert: newValue } });
       }
     }
   },
   mounted() {
-    this.initCodeMirror();
+    // Load the editor only when this box is about to scroll into view (or the browser is idle soon after).
+    if ('IntersectionObserver' in window) {
+      this.observer = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) this.loadEditor();
+      }, { rootMargin: '600px 0px' });
+      this.observer.observe(this.$refs.editor);
+    } else {
+      this.loadEditor();
+    }
   },
   beforeUnmount() {
+    this.observer?.disconnect();
     // Cleanup editor instance
     if (this.editorInstance) {
       this.editorInstance.destroy();
@@ -153,7 +160,7 @@ export default {
 
       try {
         // Curly quotes (pasted from docs or chat apps) are never valid in a query.
-        const queryText = straightenQuotes(this.editorInstance.state.doc.toString());
+        const queryText = straightenQuotes(this.currentQuery());
 
         if (!queryText.trim()) {
           this.errorInfo = { summary: 'Nothing to run yet.', hint: preflightHint('') };
@@ -202,7 +209,7 @@ export default {
         // Use user-friendly error message from API service
         const msg = error.userMessage || error.message || 'Failed to execute query';
         const info = explainError(msg);
-        const pre = preflightHint(this.editorInstance.state.doc.toString());
+        const pre = preflightHint(this.currentQuery());
         this.errorInfo = pre ? { ...info, hint: `${info.hint} ${pre}` } : info;
         this.errorMessage = msg;
         this.statusText = `Error: ${info.summary}`;
@@ -238,6 +245,7 @@ export default {
       }
     },
     resetQuery() {
+      if (!this.editorInstance) { this.queryResult = null; this.errorInfo = null; this.clue = null; this.showClue = false; return; }
       this.editorInstance.dispatch({
         changes: { from: 0, to: this.editorInstance.state.doc.length, insert: this.preFilledText } // Reset content to preFilledText
       });
@@ -258,53 +266,32 @@ export default {
         }
       }
     },
-    initCodeMirror() {
-      // Create the CodeMirror editor instance with minimal setup
-      this.editorInstance = new EditorView({
-        doc: this.preFilledText,
-        extensions: [
-          lineNumbers(),
-          highlightActiveLineGutter(),
-          highlightSpecialChars(),
-          history(),
-          foldGutter(),
-          drawSelection(),
-          EditorState.allowMultipleSelections.of(true),
-          indentOnInput(),
-          bracketMatching(),
-          closeBrackets(),
-          highlightActiveLine(),
-          keymap.of([
-            { key: 'Mod-Enter', run: () => { this.runQuery(); return true; } },
-            ...closeBracketsKeymap,
-            ...defaultKeymap,
-            ...historyKeymap,
-            ...completionKeymap
-          ]),
-          javascript(),
-          // Custom MongoDB autocompletion
-          autocompletion({
-            override: [mongoCompletions],
-            activateOnTyping: true
-          }),
-          // Light green selection highlighting
-          EditorView.theme({
-            "&.cm-focused .cm-selectionBackground, ::selection": {
-              backgroundColor: "#d8f0cf !important"
-            },
-            ".cm-selectionBackground": {
-              backgroundColor: "#d8f0cf !important"
-            }
-          })
-        ],
-        parent: this.$refs.editor,
-      });
+    currentQuery() {
+      return this.editorInstance ? this.editorInstance.state.doc.toString() : this.preFilledText;
+    },
+    async loadEditor(focus = false) {
+      if (this.editorInstance || this.loadingEditor) return;
+      this.loadingEditor = true;
+      this.observer?.disconnect();
+      try {
+        const { createEditor } = await import('@/lib/editor.js');
+        this.editorInstance = createEditor({
+          parent: this.$refs.editor,
+          doc: this.preFilledText,
+          label: this.title,
+          onRun: () => this.runQuery(),
+        });
+        if (focus) this.editorInstance.focus();
+      } finally {
+        this.loadingEditor = false;
+      }
     },
   },
 };
 </script>
 
 <style scoped>
+.editor-placeholder { margin: 0; padding: 0.4rem 0.6rem 0.4rem 2.5rem; min-height: 96px; background: #fff; color: #000; font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: 4px; cursor: text; }
 .run-hint { margin-left: 0.5rem; font-size: 0.85rem; opacity: 0.8; }
 kbd { border: 1px solid #999; border-radius: 3px; padding: 0 0.3rem; font-size: 0.8rem; background: #f4f4f4; color: #222; }
 .clue-message { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 8px; background: #e6f9ee; color: #0b3d20; border: 1px solid #00a35c; }

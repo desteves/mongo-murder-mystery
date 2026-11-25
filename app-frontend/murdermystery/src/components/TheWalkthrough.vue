@@ -144,7 +144,7 @@
     Schema diagram for our MongoDB Murder Mystery database below. <br /><br />
 
     <div>
-      <img :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom" :class="{ zoomed: isZoomed }" />
+      <img :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom" :class="{ zoomed: isZoomed }" />
     </div>
     <br /><br /> Each box represents a collection, with fields and data types.
     There are four collections in our database. Each collection has a name
@@ -212,7 +212,7 @@
     </h2>
     Noticed the names of the collections in the previous results? These exactly match the names in our <a href="#"
       @click.prevent="toggleImage">Schema diagram. </a>
-    <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     You can
     use these names to query the data in the collections. Keep in mind, they are case-sensitive.
@@ -237,7 +237,7 @@
     </h2>
     When working with data, always see if you can find documentation that explains the database structure (like the
     <a href="#" @click.prevent="toggleImage">Schema diagram </a>
-    <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
       :class="{ zoomed: isZoomed }" />)
     and valid values. But sometimes that’s not available. Here we show how use the
     'disticnt()'
@@ -453,7 +453,7 @@
 
     data inside a nested field, you can use a dot, ".". Go back and review the <a href="#"
       @click.prevent="toggleImage">Schema diagram. </a>
-    <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     to see which other fields
     are nested. In the person collection, the nested fields are "gym", "driversLicense" and "vehicle".
@@ -513,7 +513,7 @@
     Read up the witness' interview script to solve your next clue. Cross check hints to ensure the clues
     match
     the same suspect. And as always, use the <a href="#" @click.prevent="toggleImage">Schema diagram</a>
-    <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     for guidance.<br />
     <MongoQueryPromptAuto title="Form a query to learn more about the clues from the interviews."
@@ -528,7 +528,7 @@
     down
     the
     mystery. And, use the <a href="#" @click.prevent="toggleImage">Schema diagram</a>
-    <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     for guidance.
 
@@ -570,7 +570,7 @@ import StepNav from './StepNav.vue'
 import { withUtm } from '@/lib/utm.js'
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from "./SelfTimer.vue";
-import mdbSchemaImage from '@/assets/mdb-schema.png'
+import mdbSchemaImage from '@/assets/mdb-schema.webp'
 
 const introCourseUrl = withUtm('https://learn.mongodb.com/learning-paths/introduction-to-mongodb')
 

@@ -117,7 +117,7 @@
       Think you can solve this? Give it a try!
     </div>
     <a class="boldlink" href="#" @click.prevent="toggleImage">Click here to show the Schema diagram.</a>
-    <img v-if="showImage" :src="mdbSchemaImage" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     <div>
       <br />
@@ -161,7 +161,7 @@ import HintLadder from './HintLadder.vue';
 const introCourseUrl = withUtm('https://learn.mongodb.com/learning-paths/introduction-to-mongodb');
 
 // Import the image file
-import mdbSchemaImage from '@/assets/mdb-schema.png';
+import mdbSchemaImage from '@/assets/mdb-schema.webp';
 
 // Reactive references to track image visibility and zoom state
 const showImage = ref(false);
