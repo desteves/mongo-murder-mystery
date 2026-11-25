@@ -1,0 +1,25 @@
+# MongoDB Murder Mystery
+
+> A free, hands-on game for learning MongoDB queries. Players explore a real database, follow clues and name the killer of a
+> murder in MongoDB City. Three tracks: a step-by-step walkthrough, solo play in a mongosh-style query box, and an AI Track
+> where an LLM agent queries the database for you. Open source (MIT).
+
+## Play
+- [Home](https://mongomurdermystery.com/): the mission, the solo query box and the solution check
+- [Walkthrough](https://mongomurdermystery.com/walkthrough): step-by-step lessons for people new to MongoDB
+- [AI Track](https://mongomurdermystery.com/ai) (beta): ask an agent that can query the database in plain English
+- [About](https://mongomurdermystery.com/about): goals, what you learn, limits, privacy and how it works
+
+## Understand it
+- [Repository](https://github.com/desteves/mongo-murder-mystery): source, issues and releases
+- [AGENTS.md](https://github.com/desteves/mongo-murder-mystery/blob/main/AGENTS.md): code map, commands, rules for agents
+- [Operations runbook](https://github.com/desteves/mongo-murder-mystery/blob/main/docs/RUNBOOK.md)
+- [Infrastructure (Terraform)](https://github.com/desteves/mongo-murder-mystery/blob/main/infra/README.md)
+
+## Contribute
+- [Contributing](https://github.com/desteves/mongo-murder-mystery/blob/main/CONTRIBUTING.md)
+- [Security policy](https://github.com/desteves/mongo-murder-mystery/blob/main/SECURITY.md)
+
+## Notes for automated clients
+- The query API is for the website and requires its shared key; it is rate limited. Please do not scrape or load-test it.
+- The solution is stored separately and can only be checked one suspect name at a time.

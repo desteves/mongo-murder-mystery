@@ -49,6 +49,12 @@ sys.exit(1 if found else 0)
   fail=1
 fi
 
+# 3. Links to mongodb.com must carry the standard UTM parameters (see AGENTS.md).
+if command -v node >/dev/null 2>&1 && ! node scripts/check-utm.mjs >/dev/null 2>&1; then
+  node scripts/check-utm.mjs >&2 || true
+  fail=1
+fi
+
 if [ "$fail" -ne 0 ]; then
   echo "pre-commit: commit blocked. Remove the secret (and rotate it if it was ever pushed), or use --no-verify for a false alarm." >&2
   exit 1

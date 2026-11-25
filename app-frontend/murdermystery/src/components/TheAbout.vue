@@ -1,8 +1,9 @@
 <script setup>
 import WelcomeItem from './WelcomeItem.vue'
+import { withUtm } from '@/lib/utm.js'
 
-const utm = 'utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves'
-const atlasUrl = `https://www.mongodb.com/cloud/atlas/register?${utm}`
+const atlasUrl = withUtm('https://www.mongodb.com/cloud/atlas/register')
+const introCourseUrl = withUtm('https://learn.mongodb.com/learning-paths/introduction-to-mongodb')
 </script>
 
 <template>
@@ -20,7 +21,7 @@ const atlasUrl = `https://www.mongodb.com/cloud/atlas/register?${utm}`
     </p>
     <p><b>Who is it for?</b> Developers, analysts and students who know a little SQL (or nothing at all) and learn best by
       doing. It is practice, not a full course: if you want one, try
-      <a :href="`https://learn.mongodb.com/learning-paths/introduction-to-mongodb?${utm}`" target="_blank"
+      <a :href="introCourseUrl" target="_blank"
         rel="noopener noreferrer">Introduction to MongoDB</a>.</p>
     <p><b>Why I built it:</b> to make learning MongoDB fun, and to practice building (and securing) a small web app in
       public.</p>

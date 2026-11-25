@@ -71,8 +71,8 @@
       a
       complete (free) course like
       <a class="boldlink"
-        href="https://learn.mongodb.com/learning-paths/introduction-to-mongodb?utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves"
-        target="_blank">Introduction to
+        :href="introCourseUrl"
+        target="_blank" rel="noopener noreferrer">Introduction to
         MongoDB</a>.
     </div><br />
     <div>
@@ -151,9 +151,12 @@
 <script setup>
 import { ref } from 'vue';
 import WelcomeItem from './WelcomeItem.vue';
+import { withUtm } from '@/lib/utm.js';
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from "./SelfTimer.vue";
 import IncidentNotes from './IncidentNotes.vue';
+
+const introCourseUrl = withUtm('https://learn.mongodb.com/learning-paths/introduction-to-mongodb');
 
 // Import the image file
 import mdbSchemaImage from '@/assets/mdb-schema.png';

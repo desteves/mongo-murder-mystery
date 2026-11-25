@@ -49,8 +49,8 @@
     skills to the test!<br /><br /> Below, we introduce MongoDB concepts and just enough to solve the
     murder. If
     you'd like a more complete course to MongoDB, complete the <a
-      href="https://learn.mongodb.com/learning-paths/introduction-to-mongodb?utm_campaign=devrel&utm_source=third-party&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves"
-      class="boldlink" target="_blank">Introduction
+      :href="introCourseUrl"
+      class="boldlink" target="_blank" rel="noopener noreferrer">Introduction
       to
       MongoDB</a> <br /> <br />
 
@@ -556,9 +556,12 @@
 
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import WelcomeItem from './WelcomeItem.vue'
+import { withUtm } from '@/lib/utm.js'
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from "./SelfTimer.vue";
 import mdbSchemaImage from '@/assets/mdb-schema.png'
+
+const introCourseUrl = withUtm('https://learn.mongodb.com/learning-paths/introduction-to-mongodb')
 
 // Reactive references to track image visibility and zoom state
 const showImage = ref(false);

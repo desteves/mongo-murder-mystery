@@ -8,6 +8,10 @@ Uh Oh! There's been a murder in MongoDB City, and the detective needs your help.
 
 If you just want to solve the mystery, go to [mongomurdermystery.com](https://mongomurdermystery.com). If you're new to MongoDB, you may want to start at our [walkthrough](https://mongomurdermystery.com/walkthrough). It won't teach you everything about MongoDB, but it should teach you all that you need to solve the mystery.
 
+## For AI agents and contributors
+
+[AGENTS.md](AGENTS.md) has the code map, commands and rules; the site publishes [llms.txt](https://mongomurdermystery.com/llms.txt). See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+
 ## What else is here?
 
 All the code to run the https://mongomurdermystery.com site can be found in this repo.
