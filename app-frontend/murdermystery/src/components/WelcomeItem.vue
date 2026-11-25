@@ -2,9 +2,9 @@
   <br />
   <div class="item">
     <div class="details">
-      <h1>
+      <h2 class="item-title">
         <slot name="heading"></slot>
-      </h1>
+      </h2>
       <slot></slot>
     </div>
   </div>

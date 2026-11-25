@@ -1,13 +1,19 @@
 <template>
-  <div class="mongoqueryitem">
+  <!-- Declarative WebMCP tool: an in-browser agent can fill "question" and submit this form -->
+  <form ref="form" class="mongoqueryitem" toolname="ask_detective_agent"
+    tooldescription="Ask the murder mystery AI assistant a plain-English question about the case. It can query the game database and answers with text plus the queries it ran."
+    @submit.prevent="onSubmit">
     <h3>Browse through the Murder Mystery in plain English</h3>
     <div>
       Describe what you want to find. We'll search the mystery data for you.
     </div>
 
-    <textarea v-model="userPrompt" :placeholder="placeholder" class="query-textarea" maxlength="512"
-      aria-label="Your question for the agent" @keydown.ctrl.enter.prevent="runPrompt"
-      @keydown.meta.enter.prevent="runPrompt"></textarea>
+    <label class="sr-only" for="agent-question">Your question for the agent</label>
+    <textarea id="agent-question" v-model="userPrompt" name="question" required :placeholder="placeholder"
+      class="query-textarea" maxlength="512"
+      toolparamdescription="A plain-English question about the murder case, up to 512 characters, for example: Show me the crime scene report."
+      @keydown.ctrl.enter.prevent="$refs.form.requestSubmit()"
+      @keydown.meta.enter.prevent="$refs.form.requestSubmit()"></textarea>
 
     <div class="chips" role="group" aria-label="Example questions">
       <span class="chips-label">Try one:</span>
@@ -17,8 +23,8 @@
     </div>
 
     <div class="button-group">
-      <button @click="runPrompt" :disabled="loading">ASK</button>
-      <button @click="resetPrompt">RESET</button>
+      <button type="submit" :disabled="loading">ASK</button>
+      <button type="button" @click="resetPrompt">RESET</button>
       <span class="run-hint">or press <kbd>Ctrl</kbd>/<kbd>&#8984;</kbd> + <kbd>Enter</kbd></span>
     </div>
 
@@ -39,7 +45,7 @@
         <router-link to="/#experienced">query box</router-link>.
       </p>
     </details>
-  </div>
+  </form>
 </template>
 
 <script>
@@ -105,6 +111,14 @@ export default {
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
+    },
+
+    // Submitting the form (person or agent). When an agent invoked it, hand the answer back as the tool result.
+    onSubmit(event) {
+      const done = this.runPrompt();
+      if (event?.agentInvoked && typeof event.respondWith === 'function') {
+        event.respondWith(done.then(() => this.resultsText || 'No answer.'));
+      }
     },
 
     useExample(example) {

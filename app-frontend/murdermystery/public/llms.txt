@@ -20,6 +20,9 @@
 - [Contributing](https://github.com/desteves/mongo-murder-mystery/blob/main/CONTRIBUTING.md)
 - [Security policy](https://github.com/desteves/mongo-murder-mystery/blob/main/SECURITY.md)
 
+## For browser agents
+- The page registers WebMCP tools (`run_mongo_query`, `get_game_guide`, `navigate_to_page`) and a declarative form (`ask_detective_agent`) on the AI Track page. See [docs/AGENTIC.md](https://github.com/desteves/mongo-murder-mystery/blob/main/docs/AGENTIC.md).
+
 ## Notes for automated clients
 - The query API is for the website and requires its shared key; it is rate limited. Please do not scrape or load-test it.
 - The solution is stored separately and can only be checked one suspect name at a time.

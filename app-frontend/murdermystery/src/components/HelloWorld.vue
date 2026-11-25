@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="site-title">MongoDB Murder Mystery</div>
+    <h1 class="site-title">MongoDB Murder Mystery</h1>
     <div class="subtitle" ref="subtitle">
       🧐 Can you find out <b>whodunnit</b> ?
       <!-- The LCP element: preloaded in index.html, sized so the page does not shift when it arrives -->

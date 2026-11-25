@@ -16,6 +16,7 @@
     </p>
     <textarea
       class="incident-notes__textarea"
+      aria-label="Incident notes: your findings so far"
       :value="notes"
       :maxlength="MAX_LENGTH"
       rows="10"

@@ -1,16 +1,16 @@
 <template>
   <div class="timer-container">
     <!-- Table Layout for Timer and Toggle Button -->
-    <table class="timer-table">
+    <table class="timer-table" role="presentation">
       <tbody>
         <tr>
           <td class="timer-cell">
             <!-- Timer Display (Floating in Bottom-Right) -->
             <div v-if="isVisible" class="timer">
-              <h2>⏳ {{ formattedTime }}</h2>
-              <button @click="startTimer" :disabled="isRunning">▶️ </button>
-              <button @click="pauseTimer" :disabled="!isRunning">⏸️ </button>
-              <button @click="resetTimer">🔄</button>
+              <h2 role="timer" aria-label="Elapsed time">⏳ {{ formattedTime }}</h2>
+              <button @click="startTimer" :disabled="isRunning" aria-label="Start timer">▶️ </button>
+              <button @click="pauseTimer" :disabled="!isRunning" aria-label="Pause timer">⏸️ </button>
+              <button @click="resetTimer" aria-label="Reset timer">🔄</button>
             </div>
           </td>
         </tr>

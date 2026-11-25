@@ -45,8 +45,9 @@ terraform -chdir=infra fmt -check -recursive     # plans/applies: see infra/READ
 5. **Runtime dependencies belong in `dependencies`**, not `devDependencies` (images install with `--omit=dev`).
 6. **Docker images are pinned and run as non-root.** Do not use floating tags; keep the OS-package upgrade and version guards in the Dockerfiles.
 7. **Infrastructure changes go through `infra/`** (Terraform). Cloud Build owns Cloud Run images and revision labels; do not fight it.
-8. **Keep copy accurate.** The About page states how the system works and what is logged; update it when behavior changes.
-9. Tests accompany behavior changes. State what you verified and what you could not.
+8. **Agent readiness.** Every interactive element needs an accessible name; new forms need `toolname`/`tooldescription` and named fields; keep one `<h1>` per page and reserve space for images (see `docs/AGENTIC.md`).
+9. **Keep copy accurate.** The About page states how the system works and what is logged; update it when behavior changes.
+10. Tests accompany behavior changes. State what you verified and what you could not.
 
 ## Gotchas learned the hard way
 - `google-auth-library` >= 10 returns a web `Headers` object; spreading it drops the header (`agent.js::toPlainHeaders`).

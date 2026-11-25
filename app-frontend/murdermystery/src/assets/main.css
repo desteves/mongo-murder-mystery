@@ -628,3 +628,35 @@ i {
     height: calc(50%);
   }
 }
+/* Section headings are <h2 class="item-title"> (the page's single <h1> is the site title) but keep the old h1 look. */
+.item-title {
+  font-size: 30px;
+  color: var(--header-color);
+  margin-bottom: 0.5em;
+  font-weight: bold;
+}
+
+.site-title {
+  margin: 1em 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .item-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .item-title {
+    font-size: 20px;
+  }
+}

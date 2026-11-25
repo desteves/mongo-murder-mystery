@@ -1,6 +1,18 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+import { onBeforeUnmount, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import apiService from '@/services/api'
+import { registerWebMcpTools } from '@/lib/webmcp.js'
+
+// Offer the page's tools to in-browser AI agents (WebMCP); a no-op in browsers without it.
+const router = useRouter()
+let unregisterTools = () => {}
+onMounted(() => {
+  unregisterTools = registerWebMcpTools({ api: apiService, go: (path) => router.push(path) })
+})
+onBeforeUnmount(() => unregisterTools())
 </script>
 
 <template>

@@ -117,7 +117,7 @@
       Think you can solve this? Give it a try!
     </div>
     <a class="boldlink" href="#" @click.prevent="toggleImage">Click here to show the Schema diagram.</a>
-    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema (click to zoom)" role="button" tabindex="0" :aria-pressed="isZoomed" @click="toggleZoom" @keydown.enter.prevent="toggleZoom" @keydown.space.prevent="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     <div>
       <br />

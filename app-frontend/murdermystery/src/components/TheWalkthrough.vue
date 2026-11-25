@@ -144,7 +144,7 @@
     Schema diagram for our MongoDB Murder Mystery database below. <br /><br />
 
     <div>
-      <img :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom" :class="{ zoomed: isZoomed }" />
+      <img :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema (click to zoom)" role="button" tabindex="0" :aria-pressed="isZoomed" @click="toggleZoom" @keydown.enter.prevent="toggleZoom" @keydown.space.prevent="toggleZoom" :class="{ zoomed: isZoomed }" />
     </div>
     <br /><br /> Each box represents a collection, with fields and data types.
     There are four collections in our database. Each collection has a name
@@ -212,7 +212,7 @@
     </h2>
     Noticed the names of the collections in the previous results? These exactly match the names in our <a href="#"
       @click.prevent="toggleImage">Schema diagram. </a>
-    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema (click to zoom)" role="button" tabindex="0" :aria-pressed="isZoomed" @click="toggleZoom" @keydown.enter.prevent="toggleZoom" @keydown.space.prevent="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     You can
     use these names to query the data in the collections. Keep in mind, they are case-sensitive.
@@ -237,7 +237,7 @@
     </h2>
     When working with data, always see if you can find documentation that explains the database structure (like the
     <a href="#" @click.prevent="toggleImage">Schema diagram </a>
-    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema (click to zoom)" role="button" tabindex="0" :aria-pressed="isZoomed" @click="toggleZoom" @keydown.enter.prevent="toggleZoom" @keydown.space.prevent="toggleZoom"
       :class="{ zoomed: isZoomed }" />)
     and valid values. But sometimes that’s not available. Here we show how use the
     'disticnt()'
@@ -453,7 +453,7 @@
 
     data inside a nested field, you can use a dot, ".". Go back and review the <a href="#"
       @click.prevent="toggleImage">Schema diagram. </a>
-    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema (click to zoom)" role="button" tabindex="0" :aria-pressed="isZoomed" @click="toggleZoom" @keydown.enter.prevent="toggleZoom" @keydown.space.prevent="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     to see which other fields
     are nested. In the person collection, the nested fields are "gym", "driversLicense" and "vehicle".
@@ -492,9 +492,9 @@
     By now, you know enough MongoDB to identify the witnesses. Give it a try!
     <MongoQueryPromptAuto title="Write a query that identifies one of the witnessness."
       subtitle="There's more than one way to do it, if you get the correct name, you'll see a congratulatory message. After you identified one of the witnesses, go ahead, update your query and identify the second witness. Ensure your results only return 1 document at a time and show the name field!" />
-    Feeling super duper stuck? <a @click="toggleHintTwo" class="boldlink">
+    Feeling super duper stuck? <button type="button" class="boldlink hint-toggle" :aria-expanded="hintTwoVisible" @click="toggleHintTwo">
       {{ hintTwoVisible ? 'Hide Hint' : 'Show Hint' }}
-    </a>
+    </button>
 
     <div v-if="hintTwoVisible" class="hint-text"> <br />
       Paste the following on box above and RUN it to get your next clue. <br />
@@ -513,7 +513,7 @@
     Read up the witness' interview script to solve your next clue. Cross check hints to ensure the clues
     match
     the same suspect. And as always, use the <a href="#" @click.prevent="toggleImage">Schema diagram</a>
-    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema (click to zoom)" role="button" tabindex="0" :aria-pressed="isZoomed" @click="toggleZoom" @keydown.enter.prevent="toggleZoom" @keydown.space.prevent="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     for guidance.<br />
     <MongoQueryPromptAuto title="Form a query to learn more about the clues from the interviews."
@@ -528,7 +528,7 @@
     down
     the
     mystery. And, use the <a href="#" @click.prevent="toggleImage">Schema diagram</a>
-    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema" @click="toggleZoom"
+    <img v-if="showImage" :src="mdbSchemaImage" width="671" height="789" loading="lazy" decoding="async" alt="MongoDB Schema (click to zoom)" role="button" tabindex="0" :aria-pressed="isZoomed" @click="toggleZoom" @keydown.enter.prevent="toggleZoom" @keydown.space.prevent="toggleZoom"
       :class="{ zoomed: isZoomed }" />
     for guidance.
 
@@ -645,5 +645,17 @@ a {
   padding: 0.5rem 0.75rem;
   border-left: 4px solid var(--link-color);
   background: rgba(0, 237, 100, 0.08);
+}
+
+.hint-toggle {
+  background: none;
+  border: none;
+  color: var(--link-color);
+  text-decoration: underline;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  cursor: pointer;
+  font-size: inherit;
 }
 </style>
