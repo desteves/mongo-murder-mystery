@@ -16,10 +16,10 @@
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^5.1.0",
-    "express-rate-limit": "^8.5.2",
+    "express-rate-limit": "^8.7.5",
     "google-auth-library": "^10.9.0",
     "helmet": "^8.3.0",
-    "mongodb": "^7.5.0",
+    "mongodb": "^7.9.1",
     "mongodb-query-parser": "^4.7.14",
     "node-fetch": "^3.3.2",
     "openai": "^6.46.0",
@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "jest": "^30.4.2",
-    "supertest": "^7.1.4"
+    "supertest": "^7.3.2"
   },
   "jest": {
     "setupFilesAfterEnv": [
