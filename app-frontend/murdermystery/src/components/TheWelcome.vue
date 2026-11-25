@@ -31,6 +31,24 @@
 
   </WelcomeItem>
 
+  <WelcomeItem>
+    <template #heading>
+      <div id="goal">
+        <a href="#goal">🎯 Your mission</a>
+      </div>
+    </template>
+    <div>
+      Identify the killer by querying the database. Along the way you will practice real MongoDB skills: exploring
+      collections, filtering with <code>find()</code>, and following clues across data. There is a timer if you want to race
+      yourself.
+    </div>
+    <ul class="paths">
+      <li><b>New to MongoDB?</b> Take the <router-link class="boldlink" to="/walkthrough#start">Walkthrough</router-link>.</li>
+      <li><b>Know some MongoDB?</b> Go <router-link class="boldlink" to="#experienced">solo</router-link> in the query box below.</li>
+      <li><b>Prefer plain English?</b> Try the <router-link class="boldlink" to="/ai#ai-intro">AI Track</router-link> (beta).</li>
+    </ul>
+  </WelcomeItem>
+
   <div>
     <SelfTimer />
   </div>
@@ -107,7 +125,7 @@
     </div>
     <div class="solve-layout">
       <div class="solve-card">
-        <MongoQueryPromptAuto title="Solve the muder mystery"
+        <MongoQueryPromptAuto title="Solve the murder mystery"
           subtitle="It will take more than one query to solve everything, but you can just keep editing this box, keeping notes on your results along the way. When you think you know the answer, go to the next section. Ensure to dig down all the way to uncover the evil mastermind behind it all." />
       </div>
       <div class="solve-card">
@@ -169,6 +187,14 @@ a {
   /* color: inherit; */
 
   /* Optional: Match the link color to the surrounding text */
+}
+
+.paths {
+  margin: 0.75rem 0 0 1.25rem;
+}
+
+.paths li {
+  margin-bottom: 0.35rem;
 }
 
 .solve-layout {

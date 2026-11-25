@@ -72,7 +72,8 @@ strong {
   font-weight: bold;
 }
 
-title {
+title,
+.site-title {
   color: var(--title-color);
   font-size: 50px;
   font-weight: bold;
@@ -351,7 +352,43 @@ button {
 }
 
 button:hover {
-  background-color: #68ed4e;
+  background-color: #1b4a27;
+}
+
+/* Keyboard users: always show where focus is (the default outline was low contrast on the green theme). */
+a:focus-visible,
+button:focus-visible,
+textarea:focus-visible,
+nav a:focus-visible {
+  outline: 3px solid #00ed64;
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: #023430;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10001;
+}
+
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+main:focus {
+  outline: none;
+}
+
+/* Respect users who ask for less motion (nav/link/image transitions, zoom). */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* CodeMirror Editor Styling */
@@ -462,8 +499,8 @@ i {
 /* Responsive Styles */
 @media (max-width: 768px) {
   body {
-    font-size: 14px;
-    /* Reduce base font size for smaller screens */
+    font-size: 16px;
+    /* keep body text readable on phones */
     padding: 1rem;
     justify-content: flex-start;
   }
@@ -549,8 +586,7 @@ i {
 /* Adjustments for extra small screens */
 @media (max-width: 480px) {
   body {
-    font-size: 12px;
-    /* Further reduce font size for very small screens */
+    font-size: 16px;
   }
 
   h1 {
@@ -569,7 +605,7 @@ i {
 
 @media (min-width: 1024px) {
   .item {
-    margin-top: 1;
+    margin-top: 1rem;
     padding: 0.4rem 0 1rem calc(var(--section-gap) / 2);
   }
 

@@ -1,61 +1,65 @@
-# Dependency updates, grouped so a week brings a few pull requests, not a dozen. Every merge to main deploys, so
-# majors and tightly-coupled packages are kept apart from routine bumps. Try a PR locally before merging:
-# scripts/smoke-images.sh (builds each image and probes it).
+# One pull request a week with every update bundled together (all ecosystems and directories), opened Monday.
+# Every merge to main deploys all three services, so skim the PR, run `scripts/smoke-images.sh`, then merge.
+# Majors of Node (we pin the LTS on purpose) and of mongodb-mcp-server (v3 changed binding and connection semantics)
+# are ignored: bump those by hand.
 version: 2
+
+multi-ecosystem-groups:
+  weekly:
+    schedule:
+      interval: weekly
+      day: monday
+    labels: ["dependencies"]
+
 updates:
   - package-ecosystem: npm
     directory: /app-backend
-    schedule: { interval: weekly }
-    open-pull-requests-limit: 5
-    groups:
-      backend-minor-patch:
-        update-types: ["minor", "patch"]
+    patterns: ["*"]
+    multi-ecosystem-group: weekly
 
   - package-ecosystem: npm
     directory: /app-frontend/murdermystery
-    schedule: { interval: weekly }
-    open-pull-requests-limit: 5
-    groups:
-      # Vite and its Vue plugin must match.
-      vite:
-        patterns: ["vite", "@vitejs/plugin-vue", "vite-plugin-vue-devtools"]
-      codemirror:
-        patterns: ["@codemirror/*"]
-      lint:
-        patterns: ["eslint*", "oxlint", "globals", "prettier"]
-      frontend-minor-patch:
-        update-types: ["minor", "patch"]
+    patterns: ["*"]
+    multi-ecosystem-group: weekly
 
   - package-ecosystem: npm
     directory: /app-mcp
-    schedule: { interval: weekly }
+    patterns: ["*"]
+    multi-ecosystem-group: weekly
     ignore:
-      # The MCP server's majors change flags and defaults (v3 refuses 0.0.0.0 binds): review by hand.
       - dependency-name: "mongodb-mcp-server"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directory: /app-backend
-    schedule: { interval: weekly }
+    patterns: ["*"]
+    multi-ecosystem-group: weekly
     ignore:
-      # Node majors are chosen on purpose (LTS), not by a bot.
       - dependency-name: "node"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directory: /app-frontend/murdermystery
-    schedule: { interval: weekly }
+    patterns: ["*"]
+    multi-ecosystem-group: weekly
     ignore:
       - dependency-name: "node"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: docker
     directory: /app-mcp
-    schedule: { interval: weekly }
+    patterns: ["*"]
+    multi-ecosystem-group: weekly
     ignore:
       - dependency-name: "node"
         update-types: ["version-update:semver-major"]
 
+  - package-ecosystem: terraform
+    directory: /infra
+    patterns: ["*"]
+    multi-ecosystem-group: weekly
+
   - package-ecosystem: github-actions
     directory: /
-    schedule: { interval: weekly }
+    patterns: ["*"]
+    multi-ecosystem-group: weekly

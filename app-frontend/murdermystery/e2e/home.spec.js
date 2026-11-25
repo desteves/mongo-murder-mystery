@@ -43,7 +43,7 @@ test.describe('MongoDB Murder Mystery - Home Page', () => {
     await page.waitForURL('**/about**');
     
     // Check that we're on the about page
-    await expect(page.locator('text=Motivation')).toBeVisible();
+    await expect(page.getByRole('link', { name: /The goal/ })).toBeVisible();
   });
 });
 

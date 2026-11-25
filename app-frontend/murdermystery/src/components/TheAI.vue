@@ -2,16 +2,14 @@
   <WelcomeItem>
     <template #heading>
       <div id="construction">
-        <a href="#construction">🚧 Under Construction 🚧</a>
+        <a href="#construction">🧪 Beta</a>
       </div>
     </template>
 
-    <div style="text-align: center; padding: 1rem; background-color: #fff3cd; border-radius: 8px; margin-bottom: 1rem;">
-      <strong>⚠️ This AI Track is currently under active development! ⚠️</strong>
-      <br />
-      <span style="font-size: 2rem;">🏗️ 👷 🔧</span>
-      <br />
-      <span style="font-size: 0.9rem;">You may encounter bugs or incomplete features. Thank you for your patience!</span>
+    <div class="beta-note">
+      <strong>The AI Track is in beta.</strong> Answers can be wrong or incomplete, and the agent is rate limited
+      (a few questions per minute). Double-check anything important with your own queries. Conversations are kept under a
+      random id stored in your browser and deleted after 30 days; please do not enter personal information.
     </div>
   </WelcomeItem>
 
@@ -132,5 +130,13 @@ a {
 
 ul {
   margin-top: 0.5rem;
+}
+
+.beta-note {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background-color: #fff3cd;
+  color: #3b2f00;
 }
 </style>
