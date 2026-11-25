@@ -1,5 +1,5 @@
 # Pinned to a Node release patched for CVE-2026-111497 (Brotli); bump via Renovate/Dependabot
-FROM node:24.22.2-alpine AS base
+FROM node:24.22.3-alpine AS base
 WORKDIR /usr/src/app
 
 # Pull Alpine security updates on top of the pinned image. CVE-2026-111497 needs
