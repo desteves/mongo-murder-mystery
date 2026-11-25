@@ -36,7 +36,7 @@ terraform -chdir=infra fmt -check -recursive     # plans/applies: see infra/READ
    for any Dockerfile or dependency change. A bad image is an outage.
 2. **Never commit secrets.** `.env*`, `*.tfvars`, state and plan files are git-ignored; credentials live in Secret Manager. Run
    `scripts/install-hooks.sh` so the pre-commit hook blocks them. Keep Terraform plans outside the repo.
-3. **UTM on every link to mongodb.com** (any subdomain: www, learn, cloud, docs): `utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=mongodb-playground&utm_term=diana.esteves`.
+3. **UTM on every link to mongodb.com** (any subdomain: www, learn, cloud, docs): `utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves`.
    In the frontend never hand-write it: wrap the URL in `withUtm()` (`src/lib/utm.js`). Static docs carry the literal query string.
    `node scripts/check-utm.mjs` enforces it.
 4. **Security boundaries.** The `solution` collection is reachable only through the restricted check in `/eval`; neither the query box

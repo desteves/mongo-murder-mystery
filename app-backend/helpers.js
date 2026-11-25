@@ -156,7 +156,7 @@ function cleanRegexValues(inputString) {
 
 
   // Check for the various possible formats, modify each transformation accordingly
-  // https://www.mongodb.com/docs/manual/reference/operator/query/regex/?utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=mongodb-playground&utm_term=diana.esteves#syntax
+  // https://www.mongodb.com/docs/manual/reference/operator/query/regex/?utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves#syntax
 
   // regexDoc_json   { "$regex": "pattern", "$options": "<imxsu>" }
   // regexDoc_hybrid { "$regex": /pattern/, "$options":"<imxsu>" }

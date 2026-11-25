@@ -1,5 +1,5 @@
 // The UTM parameters on every link back to mongodb.com (any subdomain), in this order. Same set as the
-// mongodb-playground project. Never hand-write them in components: wrap the URL in withUtm().
+// mongodb-playground project, except utm_content (this site is "mmm"). Never hand-write them in components: wrap the URL in withUtm().
 // (Static docs carry the literal query string; scripts/check-utm.mjs enforces both.)
 export const UTM_KEYS = ['utm_campaign', 'utm_source', 'utm_medium', 'utm_content', 'utm_term']
 
@@ -7,7 +7,7 @@ export const UTM_DEFAULT = {
   utm_campaign: 'devrel',
   utm_source: 'third-party-content',
   utm_medium: 'cta',
-  utm_content: 'mongodb-playground',
+  utm_content: 'mmm',
   utm_term: 'diana.esteves',
 }
 

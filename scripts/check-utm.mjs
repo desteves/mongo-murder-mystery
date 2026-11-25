@@ -9,7 +9,7 @@ const EXPECTED = {
   utm_campaign: 'devrel',
   utm_source: 'third-party-content',
   utm_medium: 'cta',
-  utm_content: 'mongodb-playground',
+  utm_content: 'mmm',
   utm_term: 'diana.esteves',
 }
 const SKIP = /(^|\/)(package-lock\.json|\.terraform\.lock\.hcl)$|\.(png|jpg|svg|ico|pem)$|^scripts\/check-utm\.mjs$|\.test\.js$/

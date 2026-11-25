@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { withUtm, UTM_KEYS } from './utm.js'
 
-const EXPECTED = 'utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=mongodb-playground&utm_term=diana.esteves'
+const EXPECTED = 'utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves'
 
 test('adds the full UTM set, in order, to any mongodb.com host', () => {
   for (const host of ['www.mongodb.com', 'learn.mongodb.com', 'cloud.mongodb.com', 'docs.mongodb.com', 'mongodb.com']) {
@@ -11,11 +11,11 @@ test('adds the full UTM set, in order, to any mongodb.com host', () => {
 })
 
 test('replaces old UTM values, keeps other params and the fragment', () => {
-  const out = withUtm('https://learn.mongodb.com/a?foo=1&utm_source=old&utm_content=mmm#frag')
+  const out = withUtm('https://learn.mongodb.com/a?foo=1&utm_source=old&utm_content=old#frag')
   const url = new URL(out)
   assert.equal(url.searchParams.get('foo'), '1')
   assert.equal(url.searchParams.get('utm_source'), 'third-party-content')
-  assert.equal(url.searchParams.get('utm_content'), 'mongodb-playground')
+  assert.equal(url.searchParams.get('utm_content'), 'mmm')
   assert.equal(url.hash, '#frag')
   assert.deepEqual(UTM_KEYS.filter((k) => url.searchParams.has(k)), UTM_KEYS)
 })
