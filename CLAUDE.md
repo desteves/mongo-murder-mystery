@@ -266,7 +266,10 @@ Run `scripts/smoke-images.sh` (builds each image and probes it) before pushing D
   it must be converted with `toPlainHeaders` or the Authorization header is silently dropped).
 - **Secrets** live in Secret Manager (`mmm-be-*`, `mmm-mcp-mdb-mcp-connection-string`) as `:latest` env refs. Rotate by adding a
   secret version; the next revision picks it up.
-- **Agent model**: `OPENAI_MODEL` (OpenRouter). Free models disappear and are limited to ~50 requests/day without credits; the
+- **Agent model**: Grove Foundry Gateway, `gpt-6-luna` (`app-backend/llm.js`; `GROVE_API_KEY` secret `mmm-be-grove-api-key`). It needs
+  `reasoning_effort: "none"` when function tools are sent on chat/completions. MCP server v3 needs the `connectionId` returned by
+  `connect` on every data tool (`agent.js::extractConnectionId`). OpenRouter (`OPENAI_MODEL`, below) remains the fallback.
+- **OpenRouter fallback**: `OPENAI_MODEL`. Free models disappear and are limited to ~50 requests/day without credits; the
   account has guardrails/ZDR that restrict providers. `REQUEST_TIMEOUT_MS=120000` because reasoning models are slow.
 - **Deploy race**: every push redeploys MCP too; MCP sessions are in memory, so an in-flight `/agent` call can get
   `session not found` (404, -32003) while a new MCP revision takes over. Retry; do not treat as a bug.

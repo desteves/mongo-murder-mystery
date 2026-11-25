@@ -150,7 +150,7 @@ resource "google_cloud_run_v2_service" "backend" {
       }
       env {
         name  = "REQUEST_TIMEOUT_MS"
-        value = "120000" # reasoning models are slow
+        value = "60000" # Grove gpt-6-luna runs with reasoning off, so answers are quick
       }
 
       dynamic "env" {

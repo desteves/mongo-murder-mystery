@@ -38,6 +38,6 @@ Frontend `VITE_MMM_API_KEY` is a build argument and public by design; changing i
 
 ## Scaling and limits (set explicitly)
 - Backend: concurrency 30 (Mongo pool is 10), max 10 instances, min 1, HTTP startup probe on `/health`, 300 s timeout,
-  app-level `REQUEST_TIMEOUT_MS=120000`.
+  app-level `REQUEST_TIMEOUT_MS=60000`.
 - Frontend: concurrency 80, max 10 instances, min 1, HTTP startup probe on `/healthz`.
 - MCP: max 1 instance (in-memory sessions), private.

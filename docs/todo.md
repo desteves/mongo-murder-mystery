@@ -41,9 +41,10 @@ Open work, newest decisions first. Cross items off when they ship. Full rational
 - [ ] Switch CSP from report-only to enforcing after checking the browser console; longer HSTS; `/agent` daily cap + spend alert
 
 ## Agent (open)
-- [ ] Retest `/agent` data questions once OpenRouter free quota resets or credits are added; read `MCP tool result` log lines if it hits the step limit
+- [x] `/agent` works end to end on Grove `gpt-6-luna` (connectionId + reasoning_effort fixes); data questions verified live 2026-11-25
 - [ ] Then remove the default compute SA's `run.invoker` on `mmm-mcp` (only `mmm-be-sa` needs it)
-- [ ] Pick a durable model (paid or credits-backed): free models get retired
+- [x] Durable model: Grove `gpt-6-luna` (OpenRouter free models are the fallback only)
+- [ ] Rotate the Grove key that was pasted into a chat session (`gcloud secrets versions add mmm-be-grove-api-key`)
 
 ## Phase 3: performance
 - [x] Cloud Run: concurrency (be 30), max instances 10, HTTP startup probes (be `/health`, fe `/healthz`); CPU boost already on
