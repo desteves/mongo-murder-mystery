@@ -32,6 +32,8 @@ Open work, newest decisions first. Cross items off when they ship. Full rational
 - [ ] Rotate the secrets that moved to Secret Manager (values are unchanged since migration)
 - [x] Decided NOT to hide `VITE_MMM_API_KEY` (see CLAUDE.md): a proxy-injected key is equally public and breaks per-IP rate limits
 - [ ] Cloud Armor / Cloudflare rate limits, preview-then-enforce
+- [x] `/agent` daily per-client cap (`AGENT_DAILY_LIMIT`, default 100; in-memory per instance, an abuse brake not a quota)
+- [x] Playwright `Mobile Chrome` project; `scripts/loadtest.mjs` (local load + abuse test, refuses deployed URLs)
 - [ ] Switch CSP from report-only to enforcing after checking the browser console; longer HSTS; `/agent` daily cap + spend alert
 
 ## Agent (open)
@@ -41,7 +43,7 @@ Open work, newest decisions first. Cross items off when they ship. Full rational
 
 ## Phase 3: performance
 - [x] Cloud Run: concurrency (be 30), max instances 10, HTTP startup probes (be `/health`, fe `/healthz`); CPU boost already on
-- [ ] Frontend: precompressed assets, lazy-load CodeMirror chunk; indexes for game queries; load test
+- [ ] Frontend: precompressed assets, lazy-load CodeMirror chunk (low payoff; needs browser verification); indexes for game queries (needs an Atlas admin user)
 
 ## Phase 4-6
 - [ ] Budget alert (needs billing account and amount); MCP uptime check (private, needs an authenticated check)

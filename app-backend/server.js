@@ -163,6 +163,18 @@ const agentLimiter = rateLimit({
   },
 });
 
+// Daily cap per client for the agent: each call spends LLM credits (and free-model quota). In-memory per instance, so
+// it is an abuse brake, not an exact quota; AGENT_DAILY_LIMIT tunes it.
+const agentDailyLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000,
+  max: parseInt(process.env.AGENT_DAILY_LIMIT || '100', 10),
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, res) => {
+    res.status(429).json({ err: 'Daily limit for the AI assistant reached. Please try again tomorrow.' });
+  },
+});
+
 // Generic endpoint to evaluate MongoDB queries from the browser
 app.get('/eval', evalLimiter, async (req, res) => {
 
@@ -193,7 +205,7 @@ const requiredAgentEnvs = ['OPENAI_API_KEY', 'MDB_MCP_CONNECTION_STRING', 'MCP_S
 const getMissingAgentEnvs = () => requiredAgentEnvs.filter((key) => !process.env[key]);
 const MAX_PROMPT_LENGTH = 512;
 
-app.post('/agent', agentLimiter, async (req, res) => {
+app.post('/agent', agentLimiter, agentDailyLimiter, async (req, res) => {
   try {
     const prompt = req.body?.prompt;
     const sessionId = req.body?.sessionId;
