@@ -257,6 +257,24 @@ Run `scripts/smoke-images.sh` (builds each image and probes it) before pushing D
 - **Security process**: Dependabot (weekly, grouped), pre-commit secret scan (`scripts/install-hooks.sh`), see
   `SECURITY.md`. The improvement roadmap is in `docs/todo.md`.
 
+## GCP Runtime (project `diana-438818`, us-central1)
+
+- **Identities**: `mmm-fe-sa` (no roles), `mmm-be-sa`, `mmm-mcp-sa` (log/metric writers). The Cloud Build deployer (default compute SA)
+  has `iam.serviceAccountUser` on each, so deploys keep working.
+- **MCP is private**: `run.invoker` only for `mmm-be-sa` (plus the default compute SA until `/agent` is confirmed end to end).
+  The backend sends a Google ID token (`agent.js::getMcpAuthHeaders`; google-auth-library returns a web `Headers` object, so
+  it must be converted with `toPlainHeaders` or the Authorization header is silently dropped).
+- **Secrets** live in Secret Manager (`mmm-be-*`, `mmm-mcp-mdb-mcp-connection-string`) as `:latest` env refs. Rotate by adding a
+  secret version; the next revision picks it up.
+- **Agent model**: `OPENAI_MODEL` (OpenRouter). Free models disappear and are limited to ~50 requests/day without credits; the
+  account has guardrails/ZDR that restrict providers. `REQUEST_TIMEOUT_MS=120000` because reasoning models are slow.
+- **Deploy race**: every push redeploys MCP too; MCP sessions are in memory, so an in-flight `/agent` call can get
+  `session not found` (404, -32003) while a new MCP revision takes over. Retry; do not treat as a bug.
+- **Alerts** (email channel `MMM alerts (email)`): frontend `/healthz` uptime, Cloud Run 5xx, crash/startup-failure logs.
+- **Browser API key**: `VITE_MMM_API_KEY` is public by design (it ships in the bundle). It is a speed bump, not authentication;
+  the real controls are `express-rate-limit`, query validation (`helpers.js`, fuzz-tested) and read-only database users.
+  Proxying it through nginx would make it equally public and break per-client rate limiting, so it was deliberately not done.
+
 ## Dependencies
 
 ### Backend (Current Versions)

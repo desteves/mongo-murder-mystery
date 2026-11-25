@@ -30,9 +30,14 @@ Open work, newest decisions first. Cross items off when they ship. Full rational
 
 ## Phase 2: security
 - [ ] Rotate the secrets that moved to Secret Manager (values are unchanged since migration)
-- [ ] Remove `VITE_MMM_API_KEY` from the browser bundle (nginx proxy with server-side key, or rely on rate limits)
+- [x] Decided NOT to hide `VITE_MMM_API_KEY` (see CLAUDE.md): a proxy-injected key is equally public and breaks per-IP rate limits
 - [ ] Cloud Armor / Cloudflare rate limits, preview-then-enforce
 - [ ] Switch CSP from report-only to enforcing after checking the browser console; longer HSTS; `/agent` daily cap + spend alert
+
+## Agent (open)
+- [ ] Retest `/agent` data questions once OpenRouter free quota resets or credits are added; read `MCP tool result` log lines if it hits the step limit
+- [ ] Then remove the default compute SA's `run.invoker` on `mmm-mcp` (only `mmm-be-sa` needs it)
+- [ ] Pick a durable model (paid or credits-backed): free models get retired
 
 ## Phase 3: performance
 - [ ] Cloud Run: `--cpu-boost`, explicit concurrency/max-instances, HTTP startup probes
