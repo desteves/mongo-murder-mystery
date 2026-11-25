@@ -43,11 +43,12 @@ terraform -chdir=infra fmt -check -recursive     # plans/applies: see infra/READ
    nor the agent/MCP may read it. `/eval` rejects server-side JavaScript and write/join operators anywhere in a filter, projection
    or sort (`helpers.js::assertNoForbiddenOperators`, fuzz-tested in `security.fuzz.test.js`). Keep those tests green when touching the parser.
 5. **Runtime dependencies belong in `dependencies`**, not `devDependencies` (images install with `--omit=dev`).
-6. **Docker images are pinned and run as non-root.** Do not use floating tags; keep the OS-package upgrade and version guards in the Dockerfiles.
-7. **Infrastructure changes go through `infra/`** (Terraform). Cloud Build owns Cloud Run images and revision labels; do not fight it.
-8. **Agent readiness.** Every interactive element needs an accessible name; new forms need `toolname`/`tooldescription` and named fields; keep one `<h1>` per page and reserve space for images (see `docs/AGENTIC.md`).
-9. **Keep copy accurate.** The About page states how the system works and what is logged; update it when behavior changes.
-10. Tests accompany behavior changes. State what you verified and what you could not.
+6. **Hero images are immutable.** `public/hero-<width>.webp` is cached for a year: when the picture changes, use new file names (and update `HelloWorld.vue` and the preload in `index.html`).
+7. **Docker images are pinned and run as non-root.** Do not use floating tags; keep the OS-package upgrade and version guards in the Dockerfiles.
+8. **Infrastructure changes go through `infra/`** (Terraform). Cloud Build owns Cloud Run images and revision labels; do not fight it.
+9. **Agent readiness.** Every interactive element needs an accessible name; new forms need `toolname`/`tooldescription` and named fields; keep one `<h1>` per page and reserve space for images (see `docs/AGENTIC.md`).
+10. **Keep copy accurate.** The About page states how the system works and what is logged; update it when behavior changes.
+11. Tests accompany behavior changes. State what you verified and what you could not.
 
 ## Gotchas learned the hard way
 - `google-auth-library` >= 10 returns a web `Headers` object; spreading it drops the header (`agent.js::toPlainHeaders`).

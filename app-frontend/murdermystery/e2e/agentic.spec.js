@@ -33,7 +33,7 @@ test.describe('agent readiness', () => {
   test('the hero image reserves its space and is loaded eagerly', async ({ page }) => {
     await page.goto('/');
     const hero = page.locator('img[fetchpriority="high"]');
-    await expect(hero).toHaveAttribute('width', '1200');
-    await expect(hero).toHaveAttribute('height', '807');
+    await expect(hero).toHaveAttribute('width', '560');
+    await expect(hero).toHaveAttribute('height', '377');
   });
 });
