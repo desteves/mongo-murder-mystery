@@ -7,12 +7,14 @@ const MCP_SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3001/mcp'
 const MCP_ID_TOKEN_AUDIENCE = process.env.MCP_ID_TOKEN_AUDIENCE || MCP_SERVER_URL;
 const MCP_CONNECTION_STRING = process.env.MDB_MCP_CONNECTION_STRING || process.env.MCP_CONNECTION_STRING;
 const MCP_DATABASE = process.env.MCP_DATABASE || 'mmm_AI';
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'openai/gpt-oss-120b:free';
-const openaiApiKey = process.env.OPENAI_API_KEY;
+const { getLlmConfig } = require('./llm');
+const llm = getLlmConfig();
+const OPENAI_MODEL = llm.model;
+const openaiApiKey = llm.apiKey;
 
 if (!openaiApiKey) {
   // Fail fast during boot when the agent is invoked
-  logger.warn('OPENAI_API_KEY is missing. Agent endpoint will reject requests.');
+  logger.warn({ missing: llm.missing, provider: llm.provider }, 'LLM API key is missing. Agent endpoint will reject requests.');
 }
 
 if (!MCP_CONNECTION_STRING) {
@@ -20,7 +22,7 @@ if (!MCP_CONNECTION_STRING) {
 }
 
 const openaiClient = openaiApiKey
-  ? new OpenAI({ apiKey: openaiApiKey, baseURL: 'https://openrouter.ai/api/v1' })
+  ? new OpenAI({ apiKey: openaiApiKey, baseURL: llm.baseURL, defaultHeaders: llm.headers })
   : null;
 
 const baseMcpHeaders = {
@@ -211,7 +213,7 @@ function buildToolSchema() {
 
 async function runAgent(prompt, userSessionId = null) {
   if (!openaiClient) {
-    throw new Error('Agent unavailable: OPENAI_API_KEY is not configured.');
+    throw new Error(`Agent unavailable: ${llm.missing.join(', ') || 'LLM key'} is not configured.`);
   }
 
   logger.info({ prompt, userSessionId }, 'Starting agent with prompt');
@@ -301,8 +303,9 @@ async function runAgent(prompt, userSessionId = null) {
     // Always record the assistant turn (with tool_calls if present)
     const assistantTurn = {
       role: 'assistant',
-      content: message.content ?? [],
-      tool_calls: message.tool_calls ?? []
+      // null (not []) when the model only called tools: OpenAI/Azure-style gateways reject an empty content array
+      content: message.content ?? null,
+      ...(message.tool_calls?.length ? { tool_calls: message.tool_calls } : {})
     };
     messages.push(assistantTurn);
 

@@ -3,6 +3,10 @@
 Open work, newest decisions first. Cross items off when they ship. Full rationale: the improvement plan modelled on
 `desteves/mongodb-playground` (dependabot, pre-deploy gates, least-privilege identities, tuned connections, alerts).
 
+## Terraform (written, NOT yet validated or applied)
+- [ ] Run `cd infra && terraform init && terraform validate && terraform plan` and fix any diff (see infra/README.md)
+- [x] Frontend API URL/key bug fixed by hand (trigger patched, `mmm-fe-api-key` created, bundle verified); Terraform encodes it
+
 ## Done in GCP (2026-11-25, `diana-438818`)
 - [x] Dedicated runtime service accounts `mmm-fe-sa` (no roles), `mmm-be-sa`, `mmm-mcp-sa` (log/metric writers); the Cloud Build
   deployer (default compute SA) has `iam.serviceAccountUser` on each so deploys keep working

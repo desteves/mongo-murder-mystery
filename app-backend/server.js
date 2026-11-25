@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const helmet = require('helmet');
 const helpers = require('./helpers');
 const { runAgent } = require('./agent');
+const { getLlmConfig } = require('./llm');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./database');
 const logger = require('./logger');
@@ -201,8 +202,8 @@ app.get('/eval', evalLimiter, async (req, res) => {
   }
 });
 
-const requiredAgentEnvs = ['OPENAI_API_KEY', 'MDB_MCP_CONNECTION_STRING', 'MCP_SERVER_URL'];
-const getMissingAgentEnvs = () => requiredAgentEnvs.filter((key) => !process.env[key]);
+const requiredAgentEnvs = ['MDB_MCP_CONNECTION_STRING', 'MCP_SERVER_URL'];
+const getMissingAgentEnvs = () => [...getLlmConfig().missing, ...requiredAgentEnvs.filter((key) => !process.env[key])];
 const MAX_PROMPT_LENGTH = 512;
 
 app.post('/agent', agentLimiter, agentDailyLimiter, async (req, res) => {
