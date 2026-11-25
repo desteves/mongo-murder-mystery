@@ -36,6 +36,11 @@ const shouldUseIdToken = () => {
   return !/^https?:\/\/(localhost|127\.0\.0\.1)/i.test(MCP_ID_TOKEN_AUDIENCE);
 };
 
+// google-auth-library >= 10 returns a web `Headers` object, which has no own enumerable properties: spreading it
+// (`{ ...headers }`) silently yields {} and the Authorization header is never sent (MCP then answers 403).
+const toPlainHeaders = (headers) =>
+  (typeof Headers !== 'undefined' && headers instanceof Headers ? Object.fromEntries(headers.entries()) : { ...headers });
+
 async function getMcpAuthHeaders() {
   if (!MCP_SERVER_URL || !shouldUseIdToken()) return {};
   if (!mcpAuthClientPromise) {
@@ -43,7 +48,7 @@ async function getMcpAuthHeaders() {
   }
   try {
     const client = await mcpAuthClientPromise;
-    return await client.getRequestHeaders();
+    return toPlainHeaders(await client.getRequestHeaders());
   } catch (err) {
     throw new Error(`Failed to obtain MCP ID token: ${err.message}`);
   }
@@ -415,5 +420,6 @@ async function runAgent(prompt, userSessionId = null) {
 }
 
 module.exports = {
-  runAgent
+  runAgent,
+  toPlainHeaders
 };
