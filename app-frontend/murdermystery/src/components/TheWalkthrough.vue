@@ -175,7 +175,7 @@
 
     If you were to look at the data in our database, you would see that the collections are huge! There are so many
     documents; it simply isn’t possible to go through the collections document by document to find the clues we
-    need. Who knows, by the time we're done manually searching prehaps even more murders would have occured! So, what
+    need. Who knows, by the time we're done manually searching perhaps even more murders would have occurred! So, what
     are we
     supposed to do?
     <br /><br />
@@ -199,7 +199,7 @@
 
     <MongoQueryPromptAuto title="Find the list of collections (places where data is stored)." subtitle="
   The results will show you all the names of the collections in the database."
-      preFilledText=" db.getCollectionNames()" />
+      preFilledText="db.getCollectionNames()" />
 
     <h2 id="finding-documents">
       <a href="#finding-documents">🔎 Finding documents</a>
@@ -237,7 +237,7 @@
     'disticnt()'
     command to give you a quick look at which values are in the collection for a given field. <br />
     <MongoQueryPromptAuto title="What are the possible types of crimes?"
-      subtitle=" Feel free to substitue the field name 'type' for any other valid field name. Consult the Schema diagram as needed"
+      subtitle=" Feel free to substitute the field name 'type' for any other valid field name. Consult the Schema diagram as needed"
       preFilledText='db.crime.distinct("type")' />
     Look at the results and take a wild guess the type of crime we're interested in.
     <br /><br />
@@ -293,7 +293,7 @@
     <MongoQueryPromptAuto
       title="Here's a simple query to get everything about a specific person. (Don't worry—all of the SSNs are made up.)"
       subtitle="Note that you need to use double quotes (&quot;) around literal text so MongoDB can tell it apart. Try to re-run the query with &quot;Yessenia Fossen&quot;, &quot;Ted Denfip&quot; or &quot;Davina Gangwer&quot;."
-      preFilledText='db.person..find({ "name": "Kinsey Erickson"})' />
+      preFilledText='db.person.find({ "name": "Kinsey Erickson"})' />
     <br />
 
     <h2 id="multiple-filters">
@@ -392,7 +392,7 @@
     <br /><br />
 
     <MongoQueryPromptAuto title="Which crimes happened after mid January of 2018 and before mid February 2019?"
-      subtitle="Change the date to see how the results change. Note that numbers should NOT be encosed in quotes."
+      subtitle="Change the date to see how the results change. Note that numbers should NOT be enclosed in quotes."
       preFilledText='db.crime.find({"date": { $gt: 20180115, $lt: 20190215 } })' />
 
     <br /><br />
