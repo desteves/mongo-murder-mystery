@@ -35,13 +35,14 @@ describe('runAgent MCP tool dispatch', () => {
         if (msg.method === 'tools/call') {
           mcpRequests.push({
             tool: msg.params.name,
+            args: msg.params.arguments,
             sessionHeader: req.headers['mcp-session-id']
           });
-          res.end(JSON.stringify({
-            jsonrpc: '2.0',
-            id: msg.id,
-            result: { content: [{ type: 'text', text: '[]' }] }
-          }));
+          // MCP server v3: `connect` hands back a connectionId that every data tool must send
+          const result = msg.params.name === 'connect'
+            ? { content: [{ type: 'text', text: 'Your connectionId is "conn-123"' }], structuredContent: { connectionId: 'conn-123' } }
+            : { content: [{ type: 'text', text: '[]' }] };
+          res.end(JSON.stringify({ jsonrpc: '2.0', id: msg.id, result }));
           return;
         }
         res.end(JSON.stringify({ jsonrpc: '2.0', id: msg.id, result: {} }));
@@ -93,6 +94,8 @@ describe('runAgent MCP tool dispatch', () => {
     const findCall = mcpRequests.find((r) => r.tool === 'find');
     expect(findCall).toBeDefined();
     expect(findCall.sessionHeader).toBe('test-mcp-session');
+    // ...and must carry the connectionId that `connect` returned (v3 rejects data tools without it)
+    expect(findCall.args.connectionId).toBe('conn-123');
 
     // The tool result fed back to the model must be a success, not an internal failure
     const secondCallMessages = mockCreate.mock.calls[1][0].messages;

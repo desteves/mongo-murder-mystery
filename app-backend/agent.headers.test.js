@@ -2,7 +2,7 @@
 // object and the agent spread it into a plain object ({...headers} === {}).
 jest.mock('openai', () => jest.fn().mockImplementation(() => ({ chat: { completions: { create: jest.fn() } } })));
 jest.mock('./memory', () => ({ storeConversation: jest.fn(), getRecentContext: jest.fn() }));
-const { toPlainHeaders } = require('./agent');
+const { toPlainHeaders, extractConnectionId } = require('./agent');
 
 describe('toPlainHeaders', () => {
   test('keeps the Authorization header from a web Headers object', () => {
@@ -17,5 +17,20 @@ describe('toPlainHeaders', () => {
 
   test('handles an empty value', () => {
     expect(toPlainHeaders({})).toEqual({});
+  });
+});
+
+describe('extractConnectionId', () => {
+  test('prefers structuredContent', () => {
+    expect(extractConnectionId({ structuredContent: { connectionId: 'abc' }, content: [{ type: 'text', text: 'Your connectionId is "zzz"' }] })).toBe('abc');
+  });
+
+  test('falls back to the text message', () => {
+    expect(extractConnectionId({ content: [{ type: 'text', text: 'Successfully connected. Your connectionId is "conn-42" - pass it on.' }] })).toBe('conn-42');
+  });
+
+  test('returns undefined for servers that return none (MCP 1.x)', () => {
+    expect(extractConnectionId({ content: [{ type: 'text', text: 'Successfully connected to MongoDB.' }] })).toBeUndefined();
+    expect(extractConnectionId(undefined)).toBeUndefined();
   });
 });

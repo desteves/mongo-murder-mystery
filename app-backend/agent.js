@@ -152,7 +152,17 @@ async function ensureConnect(sessionId) {
   if (!MCP_CONNECTION_STRING) {
     throw new Error('MDB_MCP_CONNECTION_STRING is not configured.');
   }
-  return callMcp(sessionId, 'connect', { connectionString: MCP_CONNECTION_STRING });
+  const result = await callMcp(sessionId, 'connect', { connectionString: MCP_CONNECTION_STRING });
+  return extractConnectionId(result);
+}
+
+// MCP server >= 2 returns a connectionId from `connect` and requires it as an argument of every data tool.
+// (Older servers return none; callers then simply omit it.)
+function extractConnectionId(result) {
+  const structured = result?.structuredContent?.connectionId;
+  if (typeof structured === 'string' && structured) return structured;
+  const text = (result?.content || []).map((c) => c?.text || '').join(' ');
+  return text.match(/connectionId is "([^"]+)"/)?.[1];
 }
 
 const allowedTools = new Set([
@@ -218,7 +228,8 @@ async function runAgent(prompt, userSessionId = null) {
 
   logger.info({ prompt, userSessionId }, 'Starting agent with prompt');
   const mcpSessionId = await initSession();
-  await ensureConnect(mcpSessionId);
+  const connectionId = await ensureConnect(mcpSessionId);
+  const withConn = (args) => (connectionId ? { connectionId, ...args } : args);
 
   // Retrieve conversation history if session ID provided
   let conversationHistory = [];
@@ -352,13 +363,13 @@ async function runAgent(prompt, userSessionId = null) {
         try {
           let mcpResult;
           if (tool === 'aggregate') {
-            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, pipeline: pipeline || [] });
+            mcpResult = await callMcp(mcpSessionId, tool, withConn({ database: args.database || MCP_DATABASE, collection, pipeline: pipeline || [] }));
           } else if (tool === 'find') {
-            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, filter: filter || {}, projection: projection || {}, limit });
+            mcpResult = await callMcp(mcpSessionId, tool, withConn({ database: args.database || MCP_DATABASE, collection, filter: filter || {}, projection: projection || {}, limit }));
           } else if (tool === 'count') {
-            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, query: filter || {}, limit });
+            mcpResult = await callMcp(mcpSessionId, tool, withConn({ database: args.database || MCP_DATABASE, collection, query: filter || {}, limit }));
           } else if (tool === 'list-collections' || tool === 'list-databases') {
-            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE });
+            mcpResult = await callMcp(mcpSessionId, tool, withConn({ database: args.database || MCP_DATABASE }));
           } else {
             mcpResult = { content: [{ type: 'text', text: `Unsupported tool ${tool}` }], isError: true };
           }
@@ -431,5 +442,6 @@ async function runAgent(prompt, userSessionId = null) {
 
 module.exports = {
   runAgent,
-  toPlainHeaders
+  toPlainHeaders,
+  extractConnectionId
 };
