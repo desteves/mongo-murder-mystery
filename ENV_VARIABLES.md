@@ -191,4 +191,5 @@ The backend automatically validates required environment variables on startup us
 | `GROVE_API_KEY` | grove | none | Grove Foundry Gateway key (store in Secret Manager); sent as `api-key` / `Ocp-Apim-Subscription-Key` |
 | `GROVE_ENDPOINT` | grove | `https://grove-gateway-prod.azure-api.net/grove-foundry-prod/openai/v1/chat/completions` | OpenAI-compatible chat completions URL |
 | `GROVE_MODEL` | grove | `gpt-6-luna` | |
+| `GROVE_REASONING_EFFORT` | grove | `none` | gpt-6-luna refuses function tools on chat/completions unless this is `none` |
 | `OPENAI_API_KEY` / `OPENAI_MODEL` / `OPENAI_BASE_URL` | openrouter | none / `openai/gpt-oss-120b:free` / `https://openrouter.ai/api/v1` | free models are limited (~50/day) and guardrail-restricted |

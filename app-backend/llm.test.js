@@ -17,6 +17,7 @@ describe('getLlmConfig', () => {
     expect(c.model).toBe('gpt-6-luna');
     expect(c.headers).toEqual({ 'api-key': 'g-key', 'Ocp-Apim-Subscription-Key': 'g-key' });
     expect(c.missing).toEqual([]);
+    expect(c.reasoningEffort).toBe('none');
   });
 
   test('LLM_PROVIDER wins over key detection, and Grove without a key is reported missing', () => {

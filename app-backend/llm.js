@@ -19,6 +19,8 @@ function getLlmConfig(env = process.env) {
       baseURL: endpoint.replace(/\/chat\/completions\/?$/, ''),
       model: env.GROVE_MODEL || GROVE_DEFAULT_MODEL,
       headers: apiKey ? { 'api-key': apiKey, 'Ocp-Apim-Subscription-Key': apiKey } : {},
+      // gpt-6-luna rejects function tools on /chat/completions unless reasoning is off ('none'); override to experiment.
+      reasoningEffort: env.GROVE_REASONING_EFFORT || 'none',
       missing: apiKey ? [] : ['GROVE_API_KEY']
     };
   }

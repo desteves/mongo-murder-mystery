@@ -294,7 +294,8 @@ async function runAgent(prompt, userSessionId = null) {
       model: OPENAI_MODEL,
       messages,
       tools: toolDefs,
-      tool_choice: 'auto'
+      tool_choice: 'auto',
+      ...(llm.reasoningEffort ? { reasoning_effort: llm.reasoningEffort } : {})
     });
     // console.log('[agent] model response raw:', JSON.stringify(response, null, 2).slice(0, 1000));
     const choice = response.choices?.[0];
