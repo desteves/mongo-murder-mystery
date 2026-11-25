@@ -352,13 +352,19 @@ async function runAgent(prompt, userSessionId = null) {
           } else if (tool === 'find') {
             mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, filter: filter || {}, projection: projection || {}, limit });
           } else if (tool === 'count') {
-            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, filter: filter || {}, limit });
+            mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE, collection, query: filter || {}, limit });
           } else if (tool === 'list-collections' || tool === 'list-databases') {
             mcpResult = await callMcp(mcpSessionId, tool, { database: args.database || MCP_DATABASE });
           } else {
             mcpResult = { content: [{ type: 'text', text: `Unsupported tool ${tool}` }], isError: true };
           }
-          // console.log('[agent] MCP result:', mcpResult);
+          logger.info({
+            step,
+            tool,
+            collection,
+            isError: Boolean(mcpResult?.isError),
+            preview: JSON.stringify(mcpResult?.content?.[0]?.text ?? mcpResult).slice(0, 300)
+          }, 'MCP tool result');
 
           messages.push({
             role: 'tool',
