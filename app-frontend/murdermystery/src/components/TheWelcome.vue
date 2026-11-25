@@ -123,6 +123,7 @@
       <br />
       Need extra help? Follow the <router-link class="boldlink" to="/walkthrough#start">Walkthrough.</router-link>
     </div>
+    <HintLadder />
     <div class="solve-layout">
       <div class="solve-card">
         <MongoQueryPromptAuto title="Solve the murder mystery"
@@ -155,6 +156,7 @@ import { withUtm } from '@/lib/utm.js';
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from "./SelfTimer.vue";
 import IncidentNotes from './IncidentNotes.vue';
+import HintLadder from './HintLadder.vue';
 
 const introCourseUrl = withUtm('https://learn.mongodb.com/learning-paths/introduction-to-mongodb');
 

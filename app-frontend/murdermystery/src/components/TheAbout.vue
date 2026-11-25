@@ -76,7 +76,7 @@ const introCourseUrl = withUtm('https://learn.mongodb.com/learning-paths/introdu
         the AI agent can read it.</li>
       <li><b>Privacy:</b> there are no accounts. Queries and AI prompts are logged on the server for debugging and abuse
         prevention. AI conversations are kept under a random id stored in your browser (so the agent remembers the
-        conversation) and are deleted automatically after 30 days. Please do not type personal information.</li>
+        conversation) and are deleted automatically within 30 days. Please do not type personal information.</li>
       <li>Requests are rate limited. If you see "too many requests", wait a minute and try again.</li>
       <li>The AI Track is in beta: answers can be wrong or incomplete, so verify them with your own queries.</li>
     </ul>

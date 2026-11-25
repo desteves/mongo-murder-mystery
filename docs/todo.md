@@ -36,6 +36,7 @@ Open work, newest decisions first. Cross items off when they ship. Full rational
 - [ ] Rotate the secrets that moved to Secret Manager (values are unchanged since migration)
 - [x] Decided NOT to hide `VITE_MMM_API_KEY` (see CLAUDE.md): a proxy-injected key is equally public and breaks per-IP rate limits
 - [ ] Cloud Armor / Cloudflare rate limits, preview-then-enforce
+- [x] EJSON in/out for `/eval` (relaxed EJSON responses, shell literals and wrappers in filters, BSON type denylist); UX: hint ladder, clue messages + checklist, results panel (count/table/copy/Ctrl+Enter), friendly errors, walkthrough objectives + stepper, AI example chips and "how the agent got this answer"
 - [x] `/agent` daily per-client cap (`AGENT_DAILY_LIMIT`, default 100; in-memory per instance, an abuse brake not a quota)
 - [x] Playwright `Mobile Chrome` project; `scripts/loadtest.mjs` (local load + abuse test, refuses deployed URLs)
 - [ ] Switch CSP from report-only to enforcing after checking the browser console; longer HSTS; `/agent` daily cap + spend alert

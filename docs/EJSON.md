@@ -1,6 +1,21 @@
 # What it would take to use EJSON instead of JSON
 
-Status: analysis only, nothing implemented.
+Status: **implemented** (output and input), see `app-backend/ejson.js`.
+
+## What shipped
+- **Input**: `parseEjson()` (used for find filters/projections in `helpers.js`) accepts plain JSON, EJSON wrappers (`$oid`, `$date`,
+  `$numberLong`, `$numberDecimal`, `$regularExpression`) and mongosh literals `ObjectId(...)`, `ISODate(...)`/`new Date(...)`,
+  `NumberLong(...)`, `NumberInt(...)`, `NumberDecimal(...)` (rewritten outside of string literals). The legacy `{"$regex": ..., "$options": ...}`
+  query operator is protected from EJSON's own regex interpretation, so existing regex queries behave exactly as before.
+- **Output**: `/eval` serializes with relaxed EJSON (`toEjsonString`), so `ObjectId`/`Date`/`Long` keep their type
+  (`{"$oid": "..."}`); the frontend renders them in mongosh style (`src/lib/ejson.js`, `ObjectId("...")`).
+- **Security**: `findForbiddenBsonType()` rejects `Code`, `DBRef` and `BSONSymbol` anywhere in a filter/projection, on top of the
+  operator denylist; `security.fuzz.test.js` includes EJSON wrappers, and fails without the guard (verified).
+- **Compatibility**: plain JSON is a subset, so existing queries are unchanged; only the shape of `_id`/date values in responses differs.
+- Not done: sort still uses plain JSON, and the lenient mongosh-ish parser itself was not replaced (Option B in the analysis).
+
+## Original analysis (kept for reference)
+
 
 ## Where plain JSON is used today
 - **Input (`/eval`)**: `helpers.js` rewrites a mongosh-like string into JSON with regexes (`quoteJsonKeys`, `cleanRegexValues`,

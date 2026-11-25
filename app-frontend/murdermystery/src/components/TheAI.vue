@@ -9,7 +9,7 @@
     <div class="beta-note">
       <strong>The AI Track is in beta.</strong> Answers can be wrong or incomplete, and the agent is rate limited
       (a few questions per minute). Double-check anything important with your own queries. Conversations are kept under a
-      random id stored in your browser and deleted after 30 days; please do not enter personal information.
+      random id stored in your browser and deleted within 30 days; please do not enter personal information.
     </div>
   </WelcomeItem>
 
@@ -49,17 +49,11 @@
     </div>
     <br />
     <div>
-      <strong>Example questions to get started:</strong>
-      <ul>
-        <li>"Find the crime that happened on January 15, 2018 in MongoDB City"</li>
-        <li>"Show me the witnesses mentioned in the crime report"</li>
-        <li>"Find all suspects and their details"</li>
-        <li>"What events did the main suspect attend?"</li>
-        <li>"Use vector search to find people similar to the suspect"</li>
-      </ul>
+      <strong>Not sure what to ask?</strong> Click one of the examples under the box. Each answer shows the queries the agent ran, so you can learn how plain English becomes MongoDB.
     </div>
     <br />
     <AgentPrompt />
+    <HintLadder />
 
     <div style="margin-top: 1rem;">
       <strong>💡 Follow the clues:</strong> The crime report will contain witness information and other details. Keep prompting your agent with specific questions about suspects, witnesses, and events to piece together what happened!
@@ -115,6 +109,7 @@ import WelcomeItem from './WelcomeItem.vue';
 import AgentPrompt from './AgentPrompt.vue';
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from './SelfTimer.vue';
+import HintLadder from './HintLadder.vue';
 </script>
 
 <style scoped>

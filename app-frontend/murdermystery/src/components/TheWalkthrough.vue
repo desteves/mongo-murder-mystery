@@ -37,6 +37,8 @@
 
 
 
+  <StepNav />
+
   <WelcomeItem>
 
     <template #heading>
@@ -77,6 +79,8 @@
         <a href="#vocab">📚 Some Definitions</a>
       </div>
     </template>
+
+    <p class="objectives"><b>After this step you can:</b> explain what a database, a collection and a document are, and read the schema diagram.</p>
 
     <h2 id="what-is-mongo">
       <a href="#what-is-mongo">📗 What is MongoDB?</a>
@@ -173,6 +177,8 @@
       </div>
     </template>
 
+    <p class="objectives"><b>After this step you can:</b> list the collections in a database, count documents, preview a few with <code>find().limit()</code>, and list distinct values.</p>
+
     If you were to look at the data in our database, you would see that the collections are huge! There are so many
     documents; it simply isn’t possible to go through the collections document by document to find the clues we
     need. Who knows, by the time we're done manually searching perhaps even more murders would have occurred! So, what
@@ -254,6 +260,8 @@
         <a href="#find">🎯 The MongoDB find() Query</a>
       </div>
     </template>
+
+    <p class="objectives"><b>After this step you can:</b> choose fields with a projection, filter by one or several fields, match text with a regular expression, and compare numbers and dates.</p>
     <div>
       The <b>find()</b> query is used to retrieve documents. It works against a single collection. It is broken up into
       two main
@@ -410,6 +418,8 @@
       </div>
     </template>
 
+    <p class="objectives"><b>After this step you can:</b> sort results, limit them, and reach into nested fields such as <code>driversLicense.age</code>.</p>
+
     <h2 id="sorting">
       <a href="#sorting">🔠 Sorting results</a>
     </h2>
@@ -556,6 +566,7 @@
 
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import WelcomeItem from './WelcomeItem.vue'
+import StepNav from './StepNav.vue'
 import { withUtm } from '@/lib/utm.js'
 import MongoQueryPromptAuto from './MongoQueryPromptAuto.vue';
 import SelfTimer from "./SelfTimer.vue";
@@ -627,5 +638,12 @@ a {
   /* color: inherit; */
 
   /* Optional: Match the link color to the surrounding text */
+}
+
+.objectives {
+  margin: 0.5rem 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 4px solid var(--link-color);
+  background: rgba(0, 237, 100, 0.08);
 }
 </style>

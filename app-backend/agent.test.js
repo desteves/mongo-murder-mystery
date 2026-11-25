@@ -86,9 +86,11 @@ describe('runAgent MCP tool dispatch', () => {
         choices: [{ message: { content: 'final answer' } }]
       });
 
-    const { reply } = await runAgent('who is the suspect?');
+    const { reply, queries } = await runAgent('who is the suspect?');
 
     expect(reply).toBe('final answer');
+    // the UI shows what the agent ran
+    expect(queries).toEqual([expect.objectContaining({ tool: 'find', collection: 'person', isError: false })]);
 
     // The find tool call must reach the MCP server, bound to the established session
     const findCall = mcpRequests.find((r) => r.tool === 'find');

@@ -1,5 +1,9 @@
 # TTL Index Setup for agent_memory Collection
 
+> The site promises players that conversations are deleted **within 30 days**. The steps below use 24 hours (`86400`), which is
+> shorter and therefore also true; use `2592000` (30 days) if you want players' follow-up questions to persist longer. Whatever you
+> choose, check `db.agent_memory.getIndexes()` to confirm the TTL index exists. See `AGENT_MEMORY.md`.
+
 The `agent_memory` collection requires a TTL (Time To Live) index to automatically delete conversation history after 24 hours.
 
 ## What is a TTL Index?

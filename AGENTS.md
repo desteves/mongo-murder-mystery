@@ -14,11 +14,11 @@ private MongoDB MCP server. Terraform in `infra/`. MIT licensed.
 | Path | What |
 |---|---|
 | `app-frontend/murdermystery` | Vue 3 + Vite SPA, nginx image, Playwright e2e (`e2e/`), UTM helper `src/lib/utm.js` |
-| `app-backend` | Express API: `helpers.js` (query parsing/validation), `agent.js` + `llm.js` (LLM agent), `server.js`, `database*.js` |
+| `app-backend` | Express API: `helpers.js` (query parsing/validation), `ejson.js` (EJSON in/out, BSON type guard), `agent.js` + `llm.js` (LLM agent), `memory.js` (conversation memory), `server.js`, `database*.js` |
 | `app-mcp` | Wrapper that runs `mongodb-mcp-server` over HTTP (read-only) |
 | `infra` | Terraform: apis, iam, secrets, runtime, network, cicd, observability (`infra/README.md`) |
 | `scripts` | `smoke-images.sh`, `loadtest.mjs`, `check-utm.mjs`, `install-hooks.sh` |
-| `docs` | `RUNBOOK.md` (operations), `todo.md` (roadmap), `EJSON.md`, agent memory docs |
+| `docs` | `RUNBOOK.md` (operations), `todo.md` (roadmap), `EJSON.md`, `AGENT_MEMORY.md` (+ Atlas permission/TTL docs) |
 
 ## Commands
 
@@ -39,7 +39,7 @@ terraform -chdir=infra fmt -check -recursive     # plans/applies: see infra/READ
 3. **UTM on every link to mongodb.com** (any subdomain: www, learn, cloud, docs): `utm_campaign=devrel&utm_source=third-party-content&utm_medium=cta&utm_content=mmm&utm_term=diana.esteves`.
    In the frontend never hand-write it: wrap the URL in `withUtm()` (`src/lib/utm.js`). Static docs carry the literal query string.
    `node scripts/check-utm.mjs` enforces it.
-4. **Security boundaries.** The `solution` collection is reachable only through the restricted check in `/eval`; neither the query box
+4. **Security boundaries.** (EJSON can express JavaScript via `{"$code": ...}`: keep `ejson.js::findForbiddenBsonType` in the path of every parsed filter.) The `solution` collection is reachable only through the restricted check in `/eval`; neither the query box
    nor the agent/MCP may read it. `/eval` rejects server-side JavaScript and write/join operators anywhere in a filter, projection
    or sort (`helpers.js::assertNoForbiddenOperators`, fuzz-tested in `security.fuzz.test.js`). Keep those tests green when touching the parser.
 5. **Runtime dependencies belong in `dependencies`**, not `devDependencies` (images install with `--omit=dev`).

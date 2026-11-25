@@ -2,6 +2,7 @@
 const connectDB = require('./database'); // Import your database connection module
 const { ObjectId } = require('mongodb');
 const logger = require('./logger');
+const { parseEjson, findForbiddenBsonType } = require('./ejson');
 
 class APIError extends Error {
   constructor(message, code) {
@@ -73,6 +74,11 @@ function validateQueryString(query) {
 const FORBIDDEN_OPERATORS = new Set(['$where', '$function', '$accumulator', '$out', '$merge', '$lookup', '$unionWith', '$graphLookup']);
 
 function assertNoForbiddenOperators(value) {
+  const bson = findForbiddenBsonType(value);
+  if (bson) {
+    throw new APIError(`BSON type ${bson} is not allowed`, 400);
+  }
+  if (value && value._bsontype) return; // a plain BSON value (ObjectId, Long, Date, ...): nothing to walk
   if (Array.isArray(value)) {
     value.forEach(assertNoForbiddenOperators);
   } else if (value && typeof value === 'object') {
@@ -250,7 +256,7 @@ function parseFindArgs(Q) {
       const cleanedRegex = cleanRegexValues(quotedOperators);
       const quotedFields = quoteJsonKeys(cleanedRegex, matchField.name);
 
-      filter = JSON.parse(quotedFields);
+      filter = parseEjson(quotedFields);
     } else {
       // console.log('parseFindArgs: Empty filter');
     }
@@ -260,7 +266,7 @@ function parseFindArgs(Q) {
 
   try {
     if (match[2] && match[2] !== '{}') {
-      projection = JSON.parse(match[2]);
+      projection = parseEjson(match[2]);
     } else {
       // console.log('parseFindArgs: Empty projection');
     }

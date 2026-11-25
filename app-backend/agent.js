@@ -228,6 +228,7 @@ async function runAgent(prompt, userSessionId = null) {
 
   logger.info({ prompt, userSessionId }, 'Starting agent with prompt');
   const mcpSessionId = await initSession();
+  const queries = []; // what the agent ran, for the UI ("show me the query"); never includes returned data
   const connectionId = await ensureConnect(mcpSessionId);
   const withConn = (args) => (connectionId ? { connectionId, ...args } : args);
 
@@ -373,6 +374,7 @@ async function runAgent(prompt, userSessionId = null) {
           } else {
             mcpResult = { content: [{ type: 'text', text: `Unsupported tool ${tool}` }], isError: true };
           }
+          queries.push({ tool, database: args.database || MCP_DATABASE, collection, filter, projection, limit, pipeline, isError: Boolean(mcpResult?.isError) });
           logger.info({
             step,
             tool,
@@ -421,7 +423,8 @@ async function runAgent(prompt, userSessionId = null) {
 
     return {
       reply: replyText,
-      sessionId: userSessionId
+      sessionId: userSessionId,
+      queries: queries.slice(0, 10)
     };
   }
 
@@ -437,7 +440,7 @@ async function runAgent(prompt, userSessionId = null) {
     });
   }
 
-  return { reply: fallbackReply, sessionId: userSessionId };
+  return { reply: fallbackReply, sessionId: userSessionId, queries: queries.slice(0, 10) };
 }
 
 module.exports = {

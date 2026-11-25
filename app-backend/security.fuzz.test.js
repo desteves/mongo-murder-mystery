@@ -5,6 +5,7 @@
 const connectDB = require('./database');
 jest.mock('./database');
 const { processQuery } = require('./helpers');
+const { findForbiddenBsonType } = require('./ejson');
 
 const ITERATIONS = parseInt(process.env.FUZZ_ITERATIONS || '2000', 10);
 const FORBIDDEN = ['$where', '$function', '$accumulator', '$out', '$merge', '$lookup', '$unionWith'];
@@ -27,7 +28,12 @@ const METHODS = ['find', 'findOne', 'distinct', 'countDocuments', 'estimatedDocu
   'insertMany', 'updateOne', 'updateMany', 'deleteOne', 'deleteMany', 'drop', 'createIndex', 'renameCollection', 'bulkWrite'];
 const ARGS = ['', '{}', '{"name": "x"}', '{ $where: "sleep(1000)" }', '{"$where":"1"}', '{ name: { $function: {} } }',
   '{"name":{"$regex":".*"}}', '{"_id": "Bob"}', '{"a":{"$out":"x"}}', '[{"$merge":{"into":"solution"}}]',
-  '"name"', '"name", {}', '{}, {"projection": {"a": 1}}', '{"$expr":{"$function":{"body":"x","args":[],"lang":"js"}}}'];
+  '"name"', '"name", {}', '{}, {"projection": {"a": 1}}', '{"$expr":{"$function":{"body":"x","args":[],"lang":"js"}}}',
+  // Extended JSON / mongosh literals: ordinary types must parse; JavaScript and references must never reach the driver
+  '{"x": {"$code": "sleep(5000)"}}', '{"x": {"$code": "1", "$scope": {}}}', '{"_id": {"$ref": "solution", "$id": 1}}',
+  '{"_id": {"$oid": "5f9f1b9f1b9f1b9f1b9f1b9f"}}', '{"_id": ObjectId("5f9f1b9f1b9f1b9f1b9f1b9f")}', '{"d": ISODate("2018-01-15")}',
+  '{"d": {"$date": "2018-01-15T00:00:00Z"}}', '{"n": NumberLong("9007199254740993")}',
+  '{"r": {"$regularExpression": {"pattern": "^a", "options": "i"}}}', '{"a": {"$code": "x"}, "b": ObjectId("5f9f1b9f1b9f1b9f1b9f1b9f")}'];
 const TAILS = ['', '.limit(5)', '.limit(999999)', '.sort({"a":1})', '.sort({"$natural":-1})', '.count()', '.toArray()', '.limit(-1)',
   '.drop()', '.limit(5).sort({"a":1})', ';db.dropDatabase()', ' ; db.solution.deleteMany({})'];
 const JUNK = ['%', '%00', '\u0000', '..', '$', '{', '}', '(', ')', '"', "'", '\\', '\n', 'db.', 'solution'];
@@ -90,6 +96,8 @@ describe('processQuery security invariants (fuzz)', () => {
           expect([ctx, typeof args[0]]).toEqual([ctx, 'string']);
           continue;
         }
+        // JavaScript (Code) and references (DBRef) are never allowed, however they are spelled
+        expect([ctx, findForbiddenBsonType(args)]).toEqual([ctx, undefined]);
         // Exact operator keys at any depth (a field merely *containing* "$where" is just a field name).
         const keys = [];
         const walk = (v) => {

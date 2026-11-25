@@ -7,6 +7,10 @@
         <button class="notes-button danger" @click="clearNotes" :disabled="!notes && !canUndo">CLEAR</button>
       </div>
     </div>
+    <div class="incident-notes__clues" aria-label="Clues found so far">
+      <span>{{ clues.crime ? '✅' : '⬜' }} Crime scene report</span>
+      <span>{{ clues.person > 0 ? '✅' : '⬜' }} People of interest found: {{ clues.person }}</span>
+    </div>
     <p class="incident-notes__helper">
       Paste key findings from your query results so they stay handy while you investigate.
     </p>
@@ -25,7 +29,14 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { loadClues, CLUE_EVENT } from '@/lib/clues.js';
+
+// Clues the player has matched (saved by the query box, kept in this browser)
+const clues = ref(loadClues());
+const refreshClues = () => { clues.value = loadClues(); };
+onMounted(() => window.addEventListener(CLUE_EVENT, refreshClues));
+onBeforeUnmount(() => window.removeEventListener(CLUE_EVENT, refreshClues));
 
 const STORAGE_KEY = 'incident-notes';
 const HISTORY_KEY = 'incident-notes-history';
@@ -103,6 +114,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.incident-notes__clues { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.9rem; margin: 0.25rem 0 0.5rem; }
 .incident-notes {
   border: 1px solid #ccc;
   padding: 1rem;

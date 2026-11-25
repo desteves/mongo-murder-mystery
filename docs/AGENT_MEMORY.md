@@ -1,184 +1,91 @@
-# Agent Session Memory
+# Agent session memory
 
-The AI agent now maintains conversation history across interactions using MongoDB storage.
+The AI Track agent remembers earlier questions in the same browser so follow-ups work ("show me more about the first one").
+This page describes what is stored, how it is used, how long it is kept, and how to operate it.
 
-## How It Works
+Code: `app-backend/memory.js` (storage), `app-backend/agent.js` (`runAgent` reads and writes it), `app-backend/database-ai.js`
+(connection). UI: `app-frontend/murdermystery/src/components/AgentPrompt.vue`.
 
-**Session Tracking:**
-- Frontend generates a unique session ID (UUID) stored in `localStorage`
-- Session ID persists across page refreshes for the same browser
-- Each user gets their own isolated conversation history
+## How it works
+1. The browser creates a random UUID (`crypto.randomUUID`) the first time you open the AI Track and keeps it in
+   `localStorage` under `mmm_agent_session_id`. It identifies a browser, not a person, and there are no accounts.
+2. `POST /agent` sends `{ prompt, sessionId }` (prompt up to 512 characters). Without a `sessionId` the agent is stateless.
+3. `runAgent` loads the last 5 turns for that session (`getRecentContext`) and, if any, appends them to the system prompt as
+   `Recent conversation context`. After the model answers, `storeConversation` writes the turn.
+4. Memory is best effort: a storage or read failure is logged and never blocks the answer.
 
-**Memory Storage:**
-- Conversations stored in MongoDB `agent_memory` collection in **mmm_AI database**
-- Separate database connection (`MONGODB_URI_AI`) using `mmmUser_AI` credentials
-- Each turn includes: user prompt, agent response, timestamp, metadata
-- Last 5 conversation turns are retrieved and included in context
-- Automatic cleanup after 30 days via TTL index
-
-**Context Building:**
-- Recent history summarized and added to system prompt
-- Agent can reference previous questions and answers
-- Maintains investigation continuity across multiple queries
-
-## Database Schema
-
+## What is stored (`mmm_AI.agent_memory`)
 ```javascript
 {
   _id: ObjectId,
-  session_id: String,          // User's session UUID
-  timestamp: Date,              // When conversation occurred
-  user_prompt: String,          // User's question
-  agent_response: String,       // Agent's reply
+  session_id: String,        // the browser UUID
+  timestamp: Date,           // when the turn happened (the TTL index key)
+  user_prompt: String,       // what the player typed (<= 512 chars)
+  agent_response: String,    // the model's reply text
   metadata: {
-    tools_used: [String],       // MCP tools called (e.g., ['find', 'aggregate'])
-    turn_count: Number,         // Number of agent turns for this query
-    reachedLimit: Boolean       // True if hit 10-turn limit
+    tools_used: [String],    // MCP tools the agent called, e.g. ['find', 'count']
+    turn_count: Number,      // model turns used for this question
+    reachedLimit: Boolean    // only when the 10-step limit was hit
   }
 }
 ```
+Not stored: the structured tool calls shown in the UI ("How the agent got this answer"), query results, IP addresses, or
+anything that identifies a person. The structured calls are returned in the `/agent` response (`queries`) and are not persisted.
+Prompts are also written to the API's server logs for debugging and abuse prevention (see About page).
 
-## Database Separation (Security Boundary)
-
-**Architecture:**
-- `mmm` database: Solution collection ONLY
-  - Collections: solution (answer validation)
-  - Access: `/eval` endpoint for verification
-  - Agent/MCP: **NO ACCESS** (prevents cheating)
-
-- `mmm_AI` database: Game data + AI operations
-  - Collections:
-    - `crime`, `person`, `gymCheckin`, `socialEventCheckin` - **READ** (agent can query)
-    - `agent_memory` - **READ/WRITE** (conversation history)
-    - Vector embeddings - **READ/WRITE** (semantic search)
-  - Access: `/agent` endpoint via MCP tools
-  - Agent/MCP: Read game data, write to memory/embeddings
-  - Purpose: AI-assisted investigation, vector search, conversation tracking
-
-**Why this separation?**
-- Prevents AI from accessing solution (no cheating)
-- Enables vector search and semantic queries on game data
-- Isolates conversation history from game content
-- Agent can investigate but not verify solutions
-
-## Indexes
-
-**Important:** MCP tools don't support index creation. Indexes must be created manually.
-
-Run `node scripts/create-memory-indexes-mcp.js` for instructions, then create via Atlas UI or mongosh:
-
-1. **session_history_idx** - `{ session_id: 1, timestamp: -1 }`
-   - Efficiently retrieves recent history for a session
-2. **memory_ttl_idx** - `{ timestamp: 1 }` (TTL: 30 days)
-   - Auto-deletes old conversations
-3. **session_id_idx** - `{ session_id: 1 }`
-   - For session statistics queries
-
-## Configuration
-
-**Backend (`app-backend/.env`):**
-```bash
-# Game database (mmm)
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/mmm
-
-# AI database (mmm_AI) - separate connection for agent memory
-MONGODB_URI_AI=mongodb+srv://mmmUser_AI:pass@cluster.mongodb.net/mmm_AI
-MONGODB_DBNAME_AI=mmm_AI
-
-# Agent configuration
-MDB_MCP_CONNECTION_STRING=mongodb+srv://mmmMCP_AI:pass@cluster.mongodb.net/mmm_AI
-```
-
-**Two separate connections:**
-- `MONGODB_URI` → mmm database (game data)
-- `MONGODB_URI_AI` → mmm_AI database (agent memory, vector search)
-
-**Frontend (`app-frontend/murdermystery/.env`):**
-```bash
-# Standard API connection (already configured)
-VITE_MMM_API_BASE_URL=http://localhost:3000
-```
-
-Session IDs are automatically generated and stored in browser localStorage.
-
-## API Changes
-
-**POST /agent endpoint now accepts sessionId:**
-
+## Retention
+The About and AI pages tell players conversations are **deleted automatically within 30 days**. That is enforced by a TTL
+index on `timestamp`, which must exist or nothing is ever deleted. The repository's earlier notes disagreed (30 days here,
+24 hours in `TTL_INDEX_SETUP.md`); both satisfy "within 30 days", but **verify what is actually deployed**:
 ```javascript
-// Request
-{
-  "prompt": "Find the crime on January 15, 2018",
-  "sessionId": "550e8400-e29b-41d4-a716-446655440000"  // Optional
-}
+use mmm_AI
+db.agent_memory.getIndexes()   // look for { timestamp: 1 } with expireAfterSeconds
+```
+If the TTL index is missing, create it (see `TTL_INDEX_SETUP.md`; use `expireAfterSeconds: 2592000` for 30 days). MCP tools cannot
+create indexes, so this is a manual Atlas or mongosh step with a user that has `createIndex`.
 
-// Response
+Recommended indexes: `{ session_id: 1, timestamp: -1 }` (history lookup), `{ timestamp: 1 }` with TTL (cleanup).
+
+## Security notes
+- **Replayed text is untrusted.** Stored prompts and replies are put back into the system prompt on later turns, so a prompt
+  injection in one turn can influence the next turns of the same session. The blast radius is that browser's own session, the agent
+  only has read-only game tools, and the `solution` collection is not reachable by the agent or MCP. Keep it that way; if you extend
+  memory, label the block as untrusted or pass it as user-role messages instead of system text.
+- **Isolation.** `agent_memory` lives in `mmm_AI`; the solution lives in `mmm`. The agent/MCP user reads the game collections and
+  reads/writes only the memory collection (see `ATLAS_PERMISSIONS.md`, `ATLAS_ROLE_DEFINITIONS.md`).
+- **Deleting a session on request:** there is no HTTP endpoint for it (by design: sessions are anonymous). Operators can run
+  `db.agent_memory.deleteMany({ session_id: "<uuid>" })` or call `clearSessionHistory(sessionId)` from `memory.js`.
+  Players can start fresh by clearing `mmm_agent_session_id` from their browser storage.
+
+## API
+```javascript
+// POST /agent
+// request
+{ "prompt": "Find the crime on January 15, 2018", "sessionId": "550e8400-e29b-41d4-a716-446655440000" }
+// response
 {
   "reply": "I found the crime...",
-  "sessionId": "550e8400-e29b-41d4-a716-446655440000"
+  "sessionId": "550e8400-e29b-41d4-a716-446655440000",
+  "queries": [ { "tool": "find", "collection": "crime", "filter": { "...": "..." }, "isError": false } ]
 }
 ```
+`queries` is capped at 10 entries and powers the "How the agent got this answer" panel (rendered as mongosh by
+`src/lib/shell.js`).
 
-If `sessionId` is omitted, the agent works without memory (stateless).
+## Configuration
+- `MONGODB_URI_AI` / `MONGODB_DBNAME_AI` (default `mmm_AI`): connection used by `database-ai.js` for memory.
+- `MDB_MCP_CONNECTION_STRING`: read-only string the MCP server uses for the agent's data tools (secrets live in Secret Manager;
+  see `docs/RUNBOOK.md`).
+- LLM: Grove `gpt-6-luna` (`llm.js`); MCP server v3 requires the `connectionId` from `connect` on every data tool.
 
-## Frontend Usage
+## Operating it
+| Task | How |
+|---|---|
+| See recent memory | `db.agent_memory.find().sort({ timestamp: -1 }).limit(5)` in `mmm_AI` |
+| Count active sessions | `db.agent_memory.distinct("session_id").length` |
+| Check retention works | `getIndexes()` shows `expireAfterSeconds`; oldest `timestamp` should be younger than the TTL |
+| Agent forgets context | The browser cleared `localStorage`, `sessionId` was not sent, or memory reads failed (look for `Failed to retrieve conversation history` in logs) |
+| Nothing is stored | Look for `Failed to store conversation`; check the AI user's write permission on `agent_memory` |
 
-Session ID is automatically managed:
-
-```javascript
-// AgentPrompt.vue automatically:
-// 1. Generates UUID on first use
-// 2. Stores in localStorage as 'mmm_agent_session_id'
-// 3. Sends with every request
-// 4. Persists across page reloads
-```
-
-**Clear session history:**
-```javascript
-localStorage.removeItem('mmm_agent_session_id');
-// New session ID will be generated on next page load
-```
-
-## Memory Management Functions
-
-Backend `memory.js` exports:
-
-- `storeConversation(sessionId, prompt, response, metadata)` - Save a turn
-- `getRecentContext(sessionId, limit=5)` - Retrieve history
-- `clearSessionHistory(sessionId)` - Delete all turns for session
-- `getSessionStats(sessionId)` - Get usage statistics
-
-## Privacy & Retention
-
-- Conversations auto-delete after 30 days
-- Each session is isolated (no cross-session access)
-- Session IDs are client-generated UUIDs (not user-identifiable)
-- Memory storage failures don't block agent responses
-
-## Example Conversation Flow
-
-```
-User (Session: abc-123): "Find crimes in MongoDB City"
-Agent: "I found 3 crimes..." [Stored in memory]
-
-User (Session: abc-123): "Show me more details about the first one"
-Agent: [Retrieves previous context, knows which crime] "The first crime was..."
-
-User (Session: abc-123): "Who were the witnesses?"
-Agent: [References the crime from earlier] "The witnesses were..."
-```
-
-## Troubleshooting
-
-**Agent not remembering context:**
-- Check browser console for localStorage access
-- Verify backend logs show sessionId in requests
-- Check MongoDB for documents in `agent_memory` collection
-
-**Memory collection not created:**
-- Run the index creation script
-- Collection is created automatically on first insert
-
-**Old conversations not expiring:**
-- Ensure TTL index was created successfully
-- MongoDB runs TTL cleanup every 60 seconds
+## Related
+`TTL_INDEX_SETUP.md`, `ATLAS_PERMISSIONS.md`, `ATLAS_ROLE_DEFINITIONS.md`, `docs/RUNBOOK.md` (`/agent` problems), `AGENTS.md`.

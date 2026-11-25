@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const helpers = require('./helpers');
 const { runAgent } = require('./agent');
 const { getLlmConfig } = require('./llm');
+const { toEjsonString } = require('./ejson');
 const rateLimit = require('express-rate-limit');
 const connectDB = require('./database');
 const logger = require('./logger');
@@ -195,7 +196,8 @@ app.get('/eval', evalLimiter, async (req, res) => {
   try {
     const [result, desc] = await helpers.processQuery(queryTerm);
     req.log.info({ query: desc }, "Query executed successfully");
-    return res.status(200).json(result);
+    // Relaxed EJSON keeps ObjectId/Date/Long types visible ({"$oid": ...}) instead of flattening them to strings.
+    return res.status(200).type('json').send(toEjsonString(result));
   } catch (error) {
     req.log.error({ error: error.message, code: error.code }, "Query execution failed");
     return res.status(error.code || 500).json({ err: `${error.message || "Internal Server Error"}` });
@@ -229,9 +231,9 @@ app.post('/agent', agentLimiter, agentDailyLimiter, async (req, res) => {
       return res.status(503).json({ err: `Agent unavailable. Missing envs: ${missing.join(', ')}` });
     }
 
-    const { reply, sessionId: returnedSessionId } = await runAgent(prompt.trim(), sessionId);
+    const { reply, sessionId: returnedSessionId, queries } = await runAgent(prompt.trim(), sessionId);
     req.log.info({ promptLength: prompt.length, sessionId: returnedSessionId }, 'Agent request completed');
-    return res.status(200).json({ reply, sessionId: returnedSessionId });
+    return res.status(200).json({ reply, sessionId: returnedSessionId, queries: queries || [] });
   } catch (error) {
     req.log.error({ error: error.message }, 'Agent error');
     return res.status(500).json({ err: error.message || 'Agent failed' });

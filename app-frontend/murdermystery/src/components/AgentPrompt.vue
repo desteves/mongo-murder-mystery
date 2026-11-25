@@ -5,22 +5,46 @@
       Describe what you want to find. We'll search the mystery data for you.
     </div>
 
-    <textarea v-model="userPrompt" :placeholder="placeholder" class="query-textarea"></textarea>
+    <textarea v-model="userPrompt" :placeholder="placeholder" class="query-textarea" maxlength="512"
+      aria-label="Your question for the agent" @keydown.ctrl.enter.prevent="runPrompt"
+      @keydown.meta.enter.prevent="runPrompt"></textarea>
 
-    <div class="button-group">
-      <button @click="runPrompt">ASK</button>
-      <button @click="resetPrompt">RESET</button>
+    <div class="chips" role="group" aria-label="Example questions">
+      <span class="chips-label">Try one:</span>
+      <button v-for="example in examples" :key="example" type="button" class="chip" @click="useExample(example)">
+        {{ example }}
+      </button>
     </div>
 
-    <div class="query-result plain-result">
+    <div class="button-group">
+      <button @click="runPrompt" :disabled="loading">ASK</button>
+      <button @click="resetPrompt">RESET</button>
+      <span class="run-hint">or press <kbd>Ctrl</kbd>/<kbd>&#8984;</kbd> + <kbd>Enter</kbd></span>
+    </div>
+
+    <div class="query-result plain-result" aria-live="polite">
       <div v-if="loading" class="plain-text">💭 Thinking...</div>
       <div v-else-if="resultsText" class="plain-text">{{ resultsText }}</div>
     </div>
+
+    <details v-if="queries.length" class="how">
+      <summary>How the agent got this answer ({{ queries.length }} {{ queries.length === 1 ? 'query' : 'queries' }})</summary>
+      <ol>
+        <li v-for="(q, i) in queries" :key="i">
+          <code>{{ toShell(q) }}</code><span v-if="q.isError" class="failed"> (that one failed)</span>
+        </li>
+      </ol>
+      <p class="how-note">
+        The agent only reads the game data. You can run find, count and distinct queries like these yourself in the
+        <router-link to="/#experienced">query box</router-link>.
+      </p>
+    </details>
   </div>
 </template>
 
 <script>
 import apiService from '@/services/api';
+import { toShell } from '@/lib/shell.js';
 
 export default {
   name: 'AgentPrompt',
@@ -30,6 +54,13 @@ export default {
       resultsText: null,
       loading: false,
       sessionId: null,
+      queries: [],
+      examples: [
+        'Find the crime that happened on January 15, 2018 in MongoDB City',
+        'Show me the witnesses mentioned in the crime report',
+        'Find all suspects and their details',
+        'What events did the main suspect attend?',
+      ],
     };
   },
   mounted() {
@@ -42,6 +73,7 @@ export default {
     }
   },
   methods: {
+    toShell,
     /**
      * Generate or retrieve session ID for conversation memory
      */
@@ -75,8 +107,15 @@ export default {
       });
     },
 
+    useExample(example) {
+      this.userPrompt = example;
+      this.runPrompt();
+    },
+
     async runPrompt() {
+      if (this.loading) return;
       this.resultsText = null;
+      this.queries = [];
       this.loading = true;
 
       try {
@@ -84,6 +123,7 @@ export default {
         const data = await apiService.sendAgentPrompt(this.userPrompt, this.sessionId);
         const reply = typeof data?.reply === 'string' ? data.reply : JSON.stringify(data);
         this.resultsText = reply;
+        this.queries = Array.isArray(data?.queries) ? data.queries : [];
 
         // Update session ID if backend returned one
         if (data?.sessionId) {
@@ -99,6 +139,7 @@ export default {
     resetPrompt() {
       this.userPrompt = '';
       this.resultsText = null;
+      this.queries = [];
       this.loading = false;
     }
   }
@@ -106,6 +147,18 @@ export default {
 </script>
 
 <style scoped>
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.75rem; }
+.chips-label { font-size: 0.9rem; }
+.chip { margin: 0; padding: 0.3rem 0.7rem; border-radius: 999px; background: transparent; color: var(--link-color); border: 1px solid var(--link-color); font-weight: normal; width: auto; }
+.chip:hover { background: var(--nav-active-bg-color); color: var(--header-color); }
+.run-hint { margin-left: 0.5rem; font-size: 0.85rem; opacity: 0.8; }
+kbd { border: 1px solid #999; border-radius: 3px; padding: 0 0.3rem; font-size: 0.8rem; background: #f4f4f4; color: #222; }
+.how { margin-top: 1rem; }
+.how summary { cursor: pointer; color: var(--link-color); }
+.how ol { padding-left: 1.5rem; margin-top: 0.5rem; }
+.how code { overflow-wrap: anywhere; }
+.how-note { margin-top: 0.5rem; font-size: 0.9rem; }
+.failed { color: #b00020; }
 .plain-result {
   background: #f4f4f4;
   border: 1px solid black;
